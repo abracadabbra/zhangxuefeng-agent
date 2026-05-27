@@ -1,0 +1,168 @@
+---
+description: 大模型(LLM)相关编码规范与最佳实践
+alwaysApply: true
+---
+
+# 大模型编码规范
+
+## API 调用规范
+
+### 统一使用 OpenAI 兼容接口
+
+国内大模型厂商(智谱、通义千问、月之暗面、深度求索等)均提供 OpenAI 兼容 API。优先使用 OpenAI SDK 统一调用，避免为每个厂商引入独立 SDK。
+
+```python
+from openai import AsyncOpenAI
+
+client = AsyncOpenAI(
+    api_key=os.getenv("LLM_API_KEY"),
+    base_url=os.getenv("LLM_BASE_URL"),  # 切换模型只需改 base_url
+)
+```
+
+### 必须使用异步调用
+
+后端为 FastAPI 异步框架，所有 LLM 调用必须使用 `AsyncOpenAI`，禁止在异步上下文中使用同步 `OpenAI` 客户端。
+
+```python
+# 正确
+response = await client.chat.completions.create(...)
+
+# 错误 - 会阻塞事件循环
+response = client.chat.completions.create(...)
+```
+
+## Prompt 工程
+
+### System Prompt 管理
+
+- System prompt 存放在独立文件中(如 `SKILL.md`)，通过配置路径加载
+- 禁止将大段 prompt 硬编码在 Python 代码中
+- 使用模板变量注入动态内容，不要用字符串拼接
+
+```python
+# 正确
+system_prompt = load_skill(config.skill_path).format(
+    user_profile=profile.to_prompt_string()
+)
+
+# 错误
+system_prompt = f"你是张雪峰。用户信息：分数={score}，省份={province}..."
+```
+
+### Prompt 模板规范
+
+- 角色定义放在 system message
+- 用户上下文(profile、历史)放在 user message 前部
+- 具体问题放在 user message 末尾
+- 需要结构化输出时，在 prompt 中明确指定 JSON schema
+
+## 流式响应
+
+### SSE 流式输出
+
+对话接口必须支持 SSE 流式输出，使用 `httpx` 异步流式读取：
+
+```python
+async def stream_llm_response(messages: list[dict]) -> AsyncGenerator[str, None]:
+    async with client.chat.completions.create(
+        model=model,
+        messages=messages,
+        stream=True,
+    ) as stream:
+        async for chunk in stream:
+            if chunk.choices[0].delta.content:
+                yield chunk.choices[0].delta.content
+```
+
+### 前端流式消费
+
+使用 `fetch` + `ReadableStream` 处理 SSE，禁止用 `EventSource`（无法自定义 headers）。
+
+## Function Calling / Tool Use
+
+### 工具定义规范
+
+- 工具定义集中在一个文件（如 `app/agent/tools.py`）
+- 每个工具有明确的 `description` 和参数 `schema`
+- 工具执行结果必须是字符串，复杂对象用 JSON 序列化
+
+```python
+tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": "search_admission",
+            "description": "查询高校录取分数线数据",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "school": {"type": "string", "description": "学校名称"},
+                    "province": {"type": "string", "description": "省份"},
+                    "year": {"type": "integer", "description": "年份"},
+                },
+                "required": ["school", "province"],
+            },
+        },
+    }
+]
+```
+
+### 工具调用循环
+
+处理 function calling 时必须实现完整的调用循环：发送请求 → 检查 tool_calls → 执行工具 → 将结果追加到 messages → 再次请求。最多循环 N 次防止死循环。
+
+## Token 与成本控制
+
+### 上下文窗口管理
+
+- 对话历史超过阈值时进行截断或摘要
+- 保留最近 N 轮对话 + system prompt + 用户 profile
+- 长文档分块处理，不要一次性塞入上下文
+
+### 成本监控
+
+- 记录每次调用的 prompt_tokens 和 completion_tokens
+- 设置每日/每月成本告警阈值
+- 开发环境使用小模型（如 gpt-4o-mini），生产环境按需升级
+
+## 错误处理
+
+### LLM 调用必须有重试和降级
+
+```python
+@retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, max=10))
+async def call_llm(messages: list[dict]) -> str:
+    try:
+        response = await client.chat.completions.create(...)
+        return response.choices[0].message.content
+    except RateLimitError:
+        raise  # 让 retry 处理
+    except APIError as e:
+        logger.error(f"LLM API error: {e}")
+        return "抱歉，AI 服务暂时不可用，请稍后再试。"
+```
+
+### 禁止裸露 API Key
+
+```python
+# 错误
+client = AsyncOpenAI(api_key="sk-xxxxx")
+
+# 正确
+client = AsyncOpenAI(api_key=os.getenv("LLM_API_KEY"))
+if not client.api_key:
+    raise ValueError("LLM_API_KEY 环境变量未设置")
+```
+
+## 会话与状态管理
+
+- 会话存储使用 Redis，设置 TTL 自动过期（24h）
+- 用户 profile 独立于对话历史存储，支持增量更新
+- 会话 ID 由前端生成（UUID），通过 header 或 query param 传递
+
+## 测试规范
+
+- LLM 调用在测试中必须 mock，禁止调用真实 API
+- 测试 function calling 时 mock 工具执行结果，不 mock LLM 响应格式
+- 流式响应测试使用预录制的 chunk 序列
