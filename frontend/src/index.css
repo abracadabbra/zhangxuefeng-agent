@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 报纸风格全局样式 */
+:root {
+  --ink: #1a1a2e;
+  --ink-light: #4a4a6a;
+  --gold: #c9a84c;
+  --gold-light: #f0e6c8;
+  --paper: #faf8f4;
+  --paper-dark: #f0ede6;
+  --red: #c23c2e;
+  --rule: #e0ddd6;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background-color: var(--paper);
+  color: var(--ink);
+}
+
+/* 纸张纹理背景 */
+.paper-texture {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(90deg, transparent 79px, rgba(26, 26, 46, 0.05) 79px, rgba(26, 26, 46, 0.05) 81px, transparent 81px),
+    linear-gradient(rgba(26, 26, 46, 0.03) 1px, transparent 1px);
+  background-size: 100% 28px;
+}
+
+/* 报纸分割线样式 */
+.rule-double {
+  border-top: 3px double var(--rule);
+}
+
+.rule-single {
+  border-top: 1px solid var(--rule);
+}
+
+.rule-thick {
+  border-top: 3px solid var(--ink);
+}
+
+/* 墨色渐变文字 */
+.ink-gradient {
+  background: linear-gradient(180deg, var(--ink) 0%, var(--ink-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 报纸印章风格 */
+.stamp {
+  display: inline-block;
+  padding: 2px 8px;
+  border: 2px solid var(--red);
+  color: var(--red);
+  font-family: 'Noto Serif SC', serif;
+  font-weight: 700;
+  transform: rotate(-3deg);
+  opacity: 0.9;
+}
+
+/* 打字机光标效果 */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.typewriter-cursor::after {
+  content: '▌';
+  animation: blink 1s infinite;
+  color: var(--gold);
+  margin-left: 2px;
+}
+
+/* 报纸式页码 */
+.page-number {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--ink-light);
+}
+
+/* 金色高亮 */
+.gold-highlight {
+  background: linear-gradient(180deg, transparent 60%, var(--gold-light) 60%);
+}
+
+/* 报纸式引号装饰 */
+.quote-mark {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 3rem;
+  line-height: 1;
+  color: var(--gold);
+  opacity: 0.6;
+}

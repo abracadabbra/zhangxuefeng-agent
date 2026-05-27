@@ -1,0 +1,221 @@
+### 张雪峰 AI 咨询 Agent — API 测试集合
+### 使用方式：VS Code REST Client 插件 或 HTTPie
+
+@baseUrl = http://localhost:8000
+
+### ==================== 健康检查 ====================
+
+### 根路径
+GET {{baseUrl}}/
+
+### 健康检查
+GET {{baseUrl}}/health
+
+### 数据库状态
+GET {{baseUrl}}/db/status
+
+### ==================== 对话接口 ====================
+
+### 非流式对话 - 基础查询
+POST {{baseUrl}}/chat
+Content-Type: application/json
+
+{
+  "message": "你好，我是河南考生，560分，理科，能上什么学校？",
+  "user_context": {
+    "分数": 560,
+    "省份": "河南",
+    "科类": "理科"
+  }
+}
+
+### 非流式对话 - 带会话 ID
+POST {{baseUrl}}/chat
+Content-Type: application/json
+
+{
+  "session_id": "test-session-001",
+  "message": "金融专业就业怎么样？",
+  "user_context": {
+    "分数": 560,
+    "省份": "河南",
+    "科类": "理科"
+  }
+}
+
+### SSE 流式对话
+POST {{baseUrl}}/chat
+Content-Type: application/json
+Accept: text/event-stream
+
+{
+  "message": "计算机和软件工程哪个好？",
+  "stream": true
+}
+
+### SSE 流式对话 - 带上下文
+POST {{baseUrl}}/chat
+Content-Type: application/json
+Accept: text/event-stream
+
+{
+  "session_id": "test-session-002",
+  "message": "这些学校哪个就业最好？",
+  "user_context": {
+    "分数": 620,
+    "省份": "北京",
+    "科类": "理科"
+  },
+  "stream": true
+}
+
+### ==================== 院校查询 ====================
+
+### 按 ID 查询院校
+GET {{baseUrl}}/schools/1
+
+### 按名称查询院校
+GET {{baseUrl}}/schools/by-name/北京大学
+
+### 查询 985 院校
+POST {{baseUrl}}/schools/search
+Content-Type: application/json
+
+{
+  "level": "985",
+  "page": 1,
+  "page_size": 10
+}
+
+### 按省份查询院校
+POST {{baseUrl}}/schools/search
+Content-Type: application/json
+
+{
+  "province": "河南",
+  "page": 1,
+  "page_size": 20
+}
+
+### 模糊搜索院校
+POST {{baseUrl}}/schools/search
+Content-Type: application/json
+
+{
+  "name": "工业",
+  "page": 1,
+  "page_size": 20
+}
+
+### ==================== 专业查询 ====================
+
+### 按 ID 查询专业
+GET {{baseUrl}}/majors/1
+
+### 按名称查询专业
+GET {{baseUrl}}/majors/by-name/计算机科学与技术
+
+### 获取热门专业
+GET {{baseUrl}}/majors/hot/list?limit=10
+
+### 按学科门类查询
+POST {{baseUrl}}/majors/search
+Content-Type: application/json
+
+{
+  "category": "工学",
+  "page": 1,
+  "page_size": 20
+}
+
+### 按就业率筛选
+POST {{baseUrl}}/majors/search
+Content-Type: application/json
+
+{
+  "min_employment_rate": 0.8,
+  "page": 1,
+  "page_size": 20
+}
+
+### ==================== 分数线查询 ====================
+
+### 多条件查询分数线
+POST {{baseUrl}}/scores/search
+Content-Type: application/json
+
+{
+  "school_name": "清华大学",
+  "province": "河南",
+  "year": 2025
+}
+
+### 按院校查询分数线
+GET {{baseUrl}}/scores/school/1?province=河南&year=2025
+
+### 按专业查询分数线
+GET {{baseUrl}}/scores/major/1?province=河南&year=2025
+
+### 获取分数统计
+GET {{baseUrl}}/scores/stats?school_id=1&province=河南&year=2025
+
+### 按分数范围查询
+POST {{baseUrl}}/scores/search
+Content-Type: application/json
+
+{
+  "province": "河南",
+  "subject_type": "理科",
+  "min_score_floor": 550,
+  "max_score_ceil": 600,
+  "page": 1,
+  "page_size": 20
+}
+
+### ==================== 招生计划查询 ====================
+
+### 多条件查询招生计划
+POST {{baseUrl}}/plans/search
+Content-Type: application/json
+
+{
+  "school_name": "清华大学",
+  "province": "河南",
+  "year": 2025
+}
+
+### 按院校查询招生计划
+GET {{baseUrl}}/plans/school/1?province=河南&year=2025
+
+### 按专业查询招生计划
+GET {{baseUrl}}/plans/major/1?province=河南&year=2025
+
+### ==================== 用户画像 ====================
+
+### 获取用户画像
+GET {{baseUrl}}/profile/test-session-001
+
+### 更新用户画像
+PUT {{baseUrl}}/profile/test-session-001
+Content-Type: application/json
+
+{
+  "field": "family_background",
+  "value": "普通工薪家庭"
+}
+
+### 获取追问问题
+GET {{baseUrl}}/profile/test-session-001/next-question
+
+### ==================== 会话管理 ====================
+
+### 获取会话信息
+GET {{baseUrl}}/session/test-session-001
+
+### 删除会话
+DELETE {{baseUrl}}/session/test-session-001
+
+### ==================== 工具定义 ====================
+
+### 获取所有工具定义
+GET {{baseUrl}}/tools

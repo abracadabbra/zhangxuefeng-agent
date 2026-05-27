@@ -1,0 +1,380 @@
+{
+  "info": {
+    "name": "张雪峰 AI 咨询 Agent",
+    "description": "高考/考研/职业规划咨询 Agent API 测试集合",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "sessionId",
+      "value": "test-session-001"
+    }
+  ],
+  "item": [
+    {
+      "name": "健康检查",
+      "item": [
+        {
+          "name": "根路径",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/"
+          }
+        },
+        {
+          "name": "健康检查",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/health"
+          }
+        },
+        {
+          "name": "数据库状态",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/db/status"
+          }
+        }
+      ]
+    },
+    {
+      "name": "对话接口",
+      "item": [
+        {
+          "name": "非流式对话",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/chat",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"我是河南考生，560分，理科，能上什么学校？\",\n  \"user_context\": {\n    \"分数\": 560,\n    \"省份\": \"河南\",\n    \"科类\": \"理科\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "SSE 流式对话",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/chat",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "text/event-stream"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"计算机专业就业怎么样？\",\n  \"stream\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "带会话 ID 对话",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/chat",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_id\": \"{{sessionId}}\",\n  \"message\": \"金融专业呢？\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "院校查询",
+      "item": [
+        {
+          "name": "按 ID 查询",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/schools/1"
+          }
+        },
+        {
+          "name": "按名称查询",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/schools/by-name/北京大学",
+              "host": ["{{baseUrl}}"],
+              "path": ["schools", "by-name", "北京大学"]
+            }
+          }
+        },
+        {
+          "name": "多条件查询",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/schools/search",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"level\": \"985\",\n  \"page\": 1,\n  \"page_size\": 10\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "专业查询",
+      "item": [
+        {
+          "name": "按 ID 查询",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/majors/1"
+          }
+        },
+        {
+          "name": "按名称查询",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/majors/by-name/计算机科学与技术",
+              "host": ["{{baseUrl}}"],
+              "path": ["majors", "by-name", "计算机科学与技术"]
+            }
+          }
+        },
+        {
+          "name": "热门专业",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/majors/hot/list?limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["majors", "hot", "list"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "多条件查询",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/majors/search",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category\": \"工学\",\n  \"is_hot\": 1,\n  \"page\": 1,\n  \"page_size\": 20\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "分数线查询",
+      "item": [
+        {
+          "name": "多条件查询",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/scores/search",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"school_name\": \"清华大学\",\n  \"province\": \"河南\",\n  \"year\": 2025\n}"
+            }
+          }
+        },
+        {
+          "name": "按院校查询",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/scores/school/1?province=河南&year=2025",
+              "host": ["{{baseUrl}}"],
+              "path": ["scores", "school", "1"],
+              "query": [
+                {
+                  "key": "province",
+                  "value": "河南"
+                },
+                {
+                  "key": "year",
+                  "value": "2025"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "分数统计",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/scores/stats?school_id=1&province=河南&year=2025",
+              "host": ["{{baseUrl}}"],
+              "path": ["scores", "stats"],
+              "query": [
+                {
+                  "key": "school_id",
+                  "value": "1"
+                },
+                {
+                  "key": "province",
+                  "value": "河南"
+                },
+                {
+                  "key": "year",
+                  "value": "2025"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "招生计划查询",
+      "item": [
+        {
+          "name": "多条件查询",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/plans/search",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"school_name\": \"清华大学\",\n  \"province\": \"河南\",\n  \"year\": 2025\n}"
+            }
+          }
+        },
+        {
+          "name": "按院校查询",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/plans/school/1?province=河南&year=2025",
+              "host": ["{{baseUrl}}"],
+              "path": ["plans", "school", "1"],
+              "query": [
+                {
+                  "key": "province",
+                  "value": "河南"
+                },
+                {
+                  "key": "year",
+                  "value": "2025"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "用户画像",
+      "item": [
+        {
+          "name": "获取画像",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/profile/{{sessionId}}"
+          }
+        },
+        {
+          "name": "更新画像",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/profile/{{sessionId}}",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"field\": \"family_background\",\n  \"value\": \"普通工薪家庭\"\n}"
+            }
+          }
+        },
+        {
+          "name": "获取追问问题",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/profile/{{sessionId}}/next-question"
+          }
+        }
+      ]
+    },
+    {
+      "name": "会话管理",
+      "item": [
+        {
+          "name": "获取会话信息",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/session/{{sessionId}}"
+          }
+        },
+        {
+          "name": "删除会话",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/session/{{sessionId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "工具定义",
+      "item": [
+        {
+          "name": "获取所有工具",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/tools"
+          }
+        }
+      ]
+    }
+  ]
+}

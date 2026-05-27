@@ -1,0 +1,19 @@
+[
+  {"name": "西南大学", "province": "重庆", "city": "重庆", "level": "211", "school_type": "综合", "ranking": 50, "is_985": 0, "is_211": 1, "is_double_first_class": 1},
+  {"name": "西南政法大学", "province": "重庆", "city": "重庆", "level": "普通", "school_type": "政法", "ranking": 120, "is_985": 0, "is_211": 0, "is_double_first_class": 0},
+  {"name": "四川农业大学", "province": "四川", "city": "雅安", "level": "211", "school_type": "农林", "ranking": 100, "is_985": 0, "is_211": 1, "is_double_first_class": 1},
+  {"name": "西南财经大学", "province": "四川", "city": "成都", "level": "211", "school_type": "财经", "ranking": 65, "is_985": 0, "is_211": 1, "is_double_first_class": 1},
+  {"name": "成都理工大学", "province": "四川", "city": "成都", "level": "双一流", "school_type": "理工", "ranking": 120, "is_985": 0, "is_211": 0, "is_double_first_class": 1},
+  {"name": "昆明理工大学", "province": "云南", "city": "昆明", "level": "普通", "school_type": "理工", "ranking": 110, "is_985": 0, "is_211": 0, "is_double_first_class": 0},
+  {"name": "西藏大学", "province": "西藏", "city": "拉萨", "level": "211", "school_type": "综合", "ranking": 200, "is_985": 0, "is_211": 1, "is_double_first_class": 1},
+  {"name": "西北大学", "province": "陕西", "city": "西安", "level": "211", "school_type": "综合", "ranking": 55, "is_985": 0, "is_211": 1, "is_double_first_class": 1},
+  {"name": "陕西师范大学", "province": "陕西", "city": "西安", "level": "211", "school_type": "师范", "ranking": 60, "is_985": 0, "is_211": 1, "is_double_first_class": 1},
+  {"name": "长安大学", "province": "陕西", "city": "西安", "level": "211", "school_type": "理工", "ranking": 75, "is_985": 0, "is_211": 1, "is_double_first_class": 1},
+  {"name": "西安建筑科技大学", "province": "陕西", "city": "西安", "level": "普通", "school_type": "理工", "ranking": 100, "is_985": 0, "is_211": 0, "is_double_first_class": 0},
+  {"name": "甘肃农业大学", "province": "甘肃", "city": "兰州", "level": "普通", "school_type": "农林", "ranking": 180, "is_985": 0, "is_211": 0, "is_double_first_class": 0},
+  {"name": "青海大学", "province": "青海", "city": "西宁", "level": "211", "school_type": "综合", "ranking": 180, "is_985": 0, "is_211": 1, "is_double_first_class": 1},
+  {"name": "宁夏大学", "province": "宁夏", "city": "银川", "level": "211", "school_type": "综合", "ranking": 160, "is_985": 0, "is_211": 1, "is_double_first_class": 1},
+  {"name": "新疆大学", "province": "新疆", "city": "乌鲁木齐", "level": "211", "school_type": "综合", "ranking": 140, "is_985": 0, "is_211": 1, "is_double_first_class": 1},
+  {"name": "石河子大学", "province": "新疆", "city": "石河子", "level": "211", "school_type": "综合", "ranking": 160, "is_985": 0, "is_211": 1, "is_double_first_class": 1},
+  {"name": "河北工业大学", "province": "河北", "city": "天津", "level": "211", "school_type": "理工", "ranking": 70, "is_985": 0, "is_211": 1, "is_double_first_class": 1}
+]

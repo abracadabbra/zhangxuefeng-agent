@@ -1,0 +1,22 @@
+[
+  {"name": "河北大学", "province": "河北", "city": "保定", "level": "普通", "school_type": "综合", "ranking": 100, "is_985": 0, "is_211": 0, "is_double_first_class": 0},
+  {"name": "燕山大学", "province": "河北", "city": "秦皇岛", "level": "普通", "school_type": "理工", "ranking": 85, "is_985": 0, "is_211": 0, "is_double_first_class": 0},
+  {"name": "山西大学", "province": "山西", "city": "太原", "level": "双一流", "school_type": "综合", "ranking": 90, "is_985": 0, "is_211": 0, "is_double_first_class": 1},
+  {"name": "河南大学", "province": "河南", "city": "开封", "level": "双一流", "school_type": "综合", "ranking": 85, "is_985": 0, "is_211": 0, "is_double_first_class": 1},
+  {"name": "河南科技大学", "province": "河南", "city": "洛阳", "level": "普通", "school_type": "理工", "ranking": 150, "is_985": 0, "is_211": 0, "is_double_first_class": 0},
+  {"name": "武汉科技大学", "province": "湖北", "city": "武汉", "level": "普通", "school_type": "理工", "ranking": 110, "is_985": 0, "is_211": 0, "is_double_first_class": 0},
+  {"name": "湖北大学", "province": "湖北", "city": "武汉", "level": "普通", "school_type": "综合", "ranking": 120, "is_985": 0, "is_211": 0, "is_double_first_class": 0},
+  {"name": "长沙理工大学", "province": "湖南", "city": "长沙", "level": "普通", "school_type": "理工", "ranking": 130, "is_985": 0, "is_211": 0, "is_double_first_class": 0},
+  {"name": "湖南科技大学", "province": "湖南", "city": "湘潭", "level": "普通", "school_type": "理工", "ranking": 160, "is_985": 0, "is_211": 0, "is_double_first_class": 0},
+  {"name": "南华大学", "province": "湖南", "city": "衡阳", "level": "普通", "school_type": "综合", "ranking": 180, "is_985": 0, "is_211": 0, "is_double_first_class": 0},
+  {"name": "广东外语外贸大学", "province": "广东", "city": "广州", "level": "普通", "school_type": "语言", "ranking": 130, "is_985": 0, "is_211": 0, "is_double_first_class": 0},
+  {"name": "广州大学", "province": "广东", "city": "广州", "level": "普通", "school_type": "综合", "ranking": 120, "is_985": 0, "is_211": 0, "is_double_first_class": 0},
+  {"name": "汕头大学", "province": "广东", "city": "汕头", "level": "普通", "school_type": "综合", "ranking": 130, "is_985": 0, "is_211": 0, "is_double_first_class": 0},
+  {"name": "广西师范大学", "province": "广西", "city": "桂林", "level": "普通", "school_type": "师范", "ranking": 150, "is_985": 0, "is_211": 0, "is_double_first_class": 0},
+  {"name": "桂林电子科技大学", "province": "广西", "city": "桂林", "level": "普通", "school_type": "理工", "ranking": 180, "is_985": 0, "is_211": 0, "is_double_first_class": 0},
+  {"name": "海南师范大学", "province": "海南", "city": "海口", "level": "普通", "school_type": "师范", "ranking": 200, "is_985": 0, "is_211": 0, "is_double_first_class": 0},
+  {"name": "重庆邮电大学", "province": "重庆", "city": "重庆", "level": "普通", "school_type": "理工", "ranking": 140, "is_985": 0, "is_211": 0, "is_double_first_class": 0},
+  {"name": "重庆医科大学", "province": "重庆", "city": "重庆", "level": "普通", "school_type": "医药", "ranking": 120, "is_985": 0, "is_211": 0, "is_double_first_class": 0},
+  {"name": "成都信息工程大学", "province": "四川", "city": "成都", "level": "普通", "school_type": "理工", "ranking": 200, "is_985": 0, "is_211": 0, "is_double_first_class": 0},
+  {"name": "贵州师范大学", "province": "贵州", "city": "贵阳", "level": "普通", "school_type": "师范", "ranking": 200, "is_985": 0, "is_211": 0, "is_double_first_class": 0}
+]
