@@ -37,7 +37,7 @@ cp .env.example .env
 # 编辑 .env，填入 OPENAI_API_KEY
 
 # 5. 启动后端
-uvicorn app.main:app --reload --port 8000
+uvicorn backend.main:app --reload --port 8000
 
 # 6. 启动前端（新终端）
 cd frontend && npm install && npm run dev
@@ -94,32 +94,18 @@ fly logs
 
 ```
 zhangxuefeng-agent/
-├── app/                        # 后端 FastAPI 应用
+├── backend/                    # FastAPI 后端
 │   ├── main.py                 # 应用入口
-│   ├── api/                    # API 路由层
-│   │   ├── chat.py             # 对话接口（SSE 流式）
-│   │   ├── health.py           # 健康检查
-│   │   └── feedback.py         # 反馈接口
-│   ├── core/                   # 配置、中间件、监控
-│   │   ├── config.py           # pydantic-settings 配置
-│   │   ├── middleware.py       # CORS、日志、异常处理
-│   │   ├── metrics.py          # LLM 用量追踪
-│   │   └── monitoring.py       # 日志 + Sentry
-│   ├── models/                 # Pydantic 数据模型
-│   │   ├── schemas.py
-│   │   └── user_profile.py     # 用户画像模型
-│   ├── services/               # 业务逻辑层
-│   │   ├── llm.py              # LLM 调用封装（httpx）
-│   │   ├── session.py          # Redis 会话管理
-│   │   ├── skill.py            # SKILL.md 加载
-│   │   ├── soul_query.py       # 灵魂追问引擎
-│   │   ├── streaming.py        # SSE 流式响应
-│   │   └── context.py          # 实体抽取 + 上下文管理
-│   └── agent/                  # Agent 核心
-│       ├── tools.py            # Function Calling 工具定义
-│       ├── prompt_templates.py # Prompt 模板
-│       └── ab_testing.py       # A/B 测试
-├── backend/                    # 旧版后端（含 SQLAlchemy ORM + 种子数据）
+│   ├── agent/                  # Agent 核心（LLM + Function Calling）
+│   ├── tools/                  # 工具定义 + 注册表
+│   ├── models/                 # SQLAlchemy ORM 模型
+│   ├── schemas/                # Pydantic 数据模型
+│   ├── crud/                   # CRUD 操作
+│   ├── routers/                # 数据查询 API 路由
+│   ├── seeds/                  # 种子数据 + 导入脚本
+│   ├── database.py             # 数据库连接配置
+│   ├── soul_query.py           # 灵魂追问引擎
+│   └── user_profile.py         # 用户画像管理
 ├── frontend/                   # React + Vite + Tailwind CSS 前端
 ├── alembic/                    # 数据库迁移脚本
 ├── tests/                      # 测试套件
@@ -162,10 +148,9 @@ zhangxuefeng-agent/
 ```bash
 # 后端
 pip install -e ".[dev]"         # 安装依赖
-uvicorn app.main:app --reload   # 启动开发服务器
-pytest tests/                   # 运行测试
-ruff check app/ backend/        # Lint
-ruff format app/ backend/       # 格式化
+uvicorn backend.main:app --reload   # 启动开发服务器
+ruff check backend/             # Lint
+ruff format backend/            # 格式化
 
 # 前端
 cd frontend

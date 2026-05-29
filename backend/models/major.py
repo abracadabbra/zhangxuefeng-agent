@@ -1,8 +1,9 @@
 """
 专业表 ORM 模型
 """
-from sqlalchemy import Column, Integer, String, Float, Text
+from sqlalchemy import Column, Float, Integer, String, Text
 from sqlalchemy.orm import relationship
+
 from backend.database import Base
 
 
@@ -15,6 +16,12 @@ class Major(Base):
     sub_category = Column(String(50), nullable=True, comment="专业类: 计算机类/电子信息类等")
     employment_rate = Column(Float, nullable=True, comment="就业率 (0-1)")
     avg_salary = Column(Float, nullable=True, comment="毕业五年平均月薪（元）")
+    median_salary = Column(Float, nullable=True, comment="毕业五年薪资中位数（元）")
+    salary_range = Column(Text, nullable=True, comment="薪资区间 JSON: {low, high}")
+    top_industries = Column(Text, nullable=True, comment="主要就业行业 JSON 数组")
+    employment_locations = Column(Text, nullable=True, comment="主要就业城市 JSON 数组")
+    postgraduate_rate = Column(Float, nullable=True, comment="考研比例 (0-1)")
+    overseas_rate = Column(Float, nullable=True, comment="出国比例 (0-1)")
     description = Column(Text, nullable=True, comment="专业介绍")
     job_directions = Column(Text, nullable=True, comment="就业方向（JSON 数组）")
     is_hot = Column(Integer, default=0, comment="是否热门专业: 0否 1是")

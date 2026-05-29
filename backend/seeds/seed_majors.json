@@ -6,7 +6,13 @@
     "employment_rate": 0.93,
     "avg_salary": 15000,
     "is_hot": 1,
-    "job_directions": "软件开发、算法工程师、数据分析、人工智能"
+    "job_directions": "软件开发、算法工程师、数据分析、人工智能",
+    "median_salary": 13500,
+    "salary_range": "{\"low\": 9000, \"high\": 22500}",
+    "top_industries": "[\"互联网/IT\", \"金融科技\", \"人工智能\", \"电子商务\", \"游戏\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.22,
+    "overseas_rate": 0.09
   },
   {
     "name": "软件工程",
@@ -15,7 +21,13 @@
     "employment_rate": 0.95,
     "avg_salary": 14500,
     "is_hot": 1,
-    "job_directions": "前端开发、后端开发、全栈工程师、测试"
+    "job_directions": "前端开发、后端开发、全栈工程师、测试",
+    "median_salary": 13000,
+    "salary_range": "{\"low\": 8700, \"high\": 21800}",
+    "top_industries": "[\"互联网/IT\", \"金融科技\", \"人工智能\", \"电子商务\", \"游戏\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.22,
+    "overseas_rate": 0.09
   },
   {
     "name": "人工智能",
@@ -24,7 +36,13 @@
     "employment_rate": 0.92,
     "avg_salary": 18000,
     "is_hot": 1,
-    "job_directions": "AI算法工程师、机器学习工程师、NLP工程师"
+    "job_directions": "AI算法工程师、机器学习工程师、NLP工程师",
+    "median_salary": 16200,
+    "salary_range": "{\"low\": 10800, \"high\": 27000}",
+    "top_industries": "[\"半导体/芯片\", \"通信设备\", \"消费电子\", \"物联网\", \"新能源汽车\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.22,
+    "overseas_rate": 0.04
   },
   {
     "name": "电子信息工程",
@@ -33,7 +51,13 @@
     "employment_rate": 0.9,
     "avg_salary": 12000,
     "is_hot": 1,
-    "job_directions": "硬件工程师、嵌入式开发、通信工程师"
+    "job_directions": "硬件工程师、嵌入式开发、通信工程师",
+    "median_salary": 10800,
+    "salary_range": "{\"low\": 7200, \"high\": 18000}",
+    "top_industries": "[\"半导体/芯片\", \"通信设备\", \"消费电子\", \"物联网\", \"新能源汽车\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.23,
+    "overseas_rate": 0.04
   },
   {
     "name": "电气工程及其自动化",
@@ -42,7 +66,13 @@
     "employment_rate": 0.92,
     "avg_salary": 11000,
     "is_hot": 1,
-    "job_directions": "电力系统、自动化工程师、新能源"
+    "job_directions": "电力系统、自动化工程师、新能源",
+    "median_salary": 9900,
+    "salary_range": "{\"low\": 6600, \"high\": 16500}",
+    "top_industries": "[\"电力系统\", \"新能源\", \"智能制造\", \"轨道交通\", \"建筑电气\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.22,
+    "overseas_rate": 0.04
   },
   {
     "name": "临床医学",
@@ -51,7 +81,13 @@
     "employment_rate": 0.88,
     "avg_salary": 10000,
     "is_hot": 1,
-    "job_directions": "医生、医学研究、医疗管理"
+    "job_directions": "医生、医学研究、医疗管理",
+    "median_salary": 9000,
+    "salary_range": "{\"low\": 6000, \"high\": 15000}",
+    "top_industries": "[\"公立医院\", \"私立医院\", \"医疗科研\", \"医药企业\", \"医疗器械\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.41,
+    "overseas_rate": 0.04
   },
   {
     "name": "口腔医学",
@@ -60,7 +96,13 @@
     "employment_rate": 0.9,
     "avg_salary": 12000,
     "is_hot": 1,
-    "job_directions": "口腔医生、正畸、种植牙"
+    "job_directions": "口腔医生、正畸、种植牙",
+    "median_salary": 10800,
+    "salary_range": "{\"low\": 7200, \"high\": 18000}",
+    "top_industries": "[\"口腔医院\", \"私立诊所\", \"医疗器械\", \"正畸连锁\", \"口腔材料\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.4,
+    "overseas_rate": 0.04
   },
   {
     "name": "金融学",
@@ -69,7 +111,13 @@
     "employment_rate": 0.85,
     "avg_salary": 13000,
     "is_hot": 1,
-    "job_directions": "银行、证券、基金、保险"
+    "job_directions": "银行、证券、基金、保险",
+    "median_salary": 11700,
+    "salary_range": "{\"low\": 7800, \"high\": 19500}",
+    "top_industries": "[\"银行\", \"证券\", \"基金\", \"保险\", \"金融科技\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.11
   },
   {
     "name": "经济学",
@@ -78,7 +126,13 @@
     "employment_rate": 0.83,
     "avg_salary": 11000,
     "is_hot": 0,
-    "job_directions": "经济分析、政策研究、企业管理"
+    "job_directions": "经济分析、政策研究、企业管理",
+    "median_salary": 9900,
+    "salary_range": "{\"low\": 6600, \"high\": 16500}",
+    "top_industries": "[\"银行\", \"证券\", \"政府经济部门\", \"咨询公司\", \"企业管理\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.11
   },
   {
     "name": "法学",
@@ -87,7 +141,13 @@
     "employment_rate": 0.8,
     "avg_salary": 10000,
     "is_hot": 0,
-    "job_directions": "律师、法务、公务员"
+    "job_directions": "律师、法务、公务员",
+    "median_salary": 9000,
+    "salary_range": "{\"low\": 6000, \"high\": 15000}",
+    "top_industries": "[\"律师事务所\", \"企业法务\", \"法院/检察院\", \"公务员\", \"知识产权\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.38,
+    "overseas_rate": 0.05
   },
   {
     "name": "汉语言文学",
@@ -96,7 +156,13 @@
     "employment_rate": 0.78,
     "avg_salary": 8000,
     "is_hot": 0,
-    "job_directions": "编辑、教师、文案、公务员"
+    "job_directions": "编辑、教师、文案、公务员",
+    "median_salary": 7200,
+    "salary_range": "{\"low\": 4800, \"high\": 12000}",
+    "top_industries": "[\"教育\", \"出版传媒\", \"公务员\", \"文化产业\", \"新媒体\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.27,
+    "overseas_rate": 0.08
   },
   {
     "name": "英语",
@@ -105,7 +171,13 @@
     "employment_rate": 0.8,
     "avg_salary": 8500,
     "is_hot": 0,
-    "job_directions": "翻译、外贸、教师、国际商务"
+    "job_directions": "翻译、外贸、教师、国际商务",
+    "median_salary": 7600,
+    "salary_range": "{\"low\": 5100, \"high\": 12800}",
+    "top_industries": "[\"翻译公司\", \"外企\", \"教育培训\", \"外贸\", \"国际组织\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.26,
+    "overseas_rate": 0.08
   },
   {
     "name": "数学与应用数学",
@@ -114,7 +186,13 @@
     "employment_rate": 0.85,
     "avg_salary": 12000,
     "is_hot": 0,
-    "job_directions": "数据分析、精算师、教师、金融量化"
+    "job_directions": "数据分析、精算师、教师、金融量化",
+    "median_salary": 10800,
+    "salary_range": "{\"low\": 7200, \"high\": 18000}",
+    "top_industries": "[\"金融\", \"互联网\", \"教育\", \"数据分析\", \"科研院所\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.42,
+    "overseas_rate": 0.07
   },
   {
     "name": "物理学",
@@ -123,7 +201,13 @@
     "employment_rate": 0.82,
     "avg_salary": 11000,
     "is_hot": 0,
-    "job_directions": "科研、半导体、光电技术"
+    "job_directions": "科研、半导体、光电技术",
+    "median_salary": 9900,
+    "salary_range": "{\"low\": 6600, \"high\": 16500}",
+    "top_industries": "[\"科研院所\", \"半导体\", \"光电技术\", \"教育\", \"新能源\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.44,
+    "overseas_rate": 0.08
   },
   {
     "name": "机械工程",
@@ -132,7 +216,13 @@
     "employment_rate": 0.88,
     "avg_salary": 10000,
     "is_hot": 0,
-    "job_directions": "机械设计、制造工程师、自动化"
+    "job_directions": "机械设计、制造工程师、自动化",
+    "median_salary": 9000,
+    "salary_range": "{\"low\": 6000, \"high\": 15000}",
+    "top_industries": "[\"汽车制造\", \"航空航天\", \"工程机械\", \"智能制造\", \"轨道交通\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.24,
+    "overseas_rate": 0.04
   },
   {
     "name": "土木工程",
@@ -141,7 +231,13 @@
     "employment_rate": 0.82,
     "avg_salary": 9000,
     "is_hot": 0,
-    "job_directions": "建筑施工、结构设计、工程管理"
+    "job_directions": "建筑施工、结构设计、工程管理",
+    "median_salary": 8100,
+    "salary_range": "{\"low\": 5400, \"high\": 13500}",
+    "top_industries": "[\"建筑设计\", \"房地产\", \"市政工程\", \"交通基建\", \"工程咨询\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.05
   },
   {
     "name": "建筑学",
@@ -150,7 +246,13 @@
     "employment_rate": 0.8,
     "avg_salary": 10000,
     "is_hot": 0,
-    "job_directions": "建筑设计、城市规划、室内设计"
+    "job_directions": "建筑设计、城市规划、室内设计",
+    "median_salary": 9000,
+    "salary_range": "{\"low\": 6000, \"high\": 15000}",
+    "top_industries": "[\"建筑设计\", \"城市规划\", \"景观设计\", \"房地产\", \"室内设计\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.26,
+    "overseas_rate": 0.05
   },
   {
     "name": "自动化",
@@ -159,7 +261,13 @@
     "employment_rate": 0.9,
     "avg_salary": 12000,
     "is_hot": 1,
-    "job_directions": "自动化工程师、PLC编程、机器人"
+    "job_directions": "自动化工程师、PLC编程、机器人",
+    "median_salary": 10800,
+    "salary_range": "{\"low\": 7200, \"high\": 18000}",
+    "top_industries": "[\"智能制造\", \"机器人\", \"工业自动化\", \"新能源汽车\", \"半导体\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.23,
+    "overseas_rate": 0.04
   },
   {
     "name": "通信工程",
@@ -168,7 +276,13 @@
     "employment_rate": 0.88,
     "avg_salary": 12000,
     "is_hot": 0,
-    "job_directions": "通信工程师、5G研发、网络优化"
+    "job_directions": "通信工程师、5G研发、网络优化",
+    "median_salary": 10800,
+    "salary_range": "{\"low\": 7200, \"high\": 18000}",
+    "top_industries": "[\"半导体/芯片\", \"通信设备\", \"消费电子\", \"物联网\", \"新能源汽车\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.24,
+    "overseas_rate": 0.04
   },
   {
     "name": "数据科学与大数据技术",
@@ -177,7 +291,13 @@
     "employment_rate": 0.91,
     "avg_salary": 14000,
     "is_hot": 1,
-    "job_directions": "数据工程师、大数据开发、数据分析师"
+    "job_directions": "数据工程师、大数据开发、数据分析师",
+    "median_salary": 12600,
+    "salary_range": "{\"low\": 8400, \"high\": 21000}",
+    "top_industries": "[\"互联网/IT\", \"金融科技\", \"人工智能\", \"电子商务\", \"游戏\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.23,
+    "overseas_rate": 0.1
   },
   {
     "name": "网络空间安全",
@@ -186,7 +306,13 @@
     "employment_rate": 0.9,
     "avg_salary": 14000,
     "is_hot": 1,
-    "job_directions": "安全工程师、渗透测试、安全运维"
+    "job_directions": "安全工程师、渗透测试、安全运维",
+    "median_salary": 12600,
+    "salary_range": "{\"low\": 8400, \"high\": 21000}",
+    "top_industries": "[\"互联网/IT\", \"金融科技\", \"人工智能\", \"电子商务\", \"游戏\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.23,
+    "overseas_rate": 0.1
   },
   {
     "name": "物联网工程",
@@ -195,7 +321,13 @@
     "employment_rate": 0.88,
     "avg_salary": 12000,
     "is_hot": 0,
-    "job_directions": "IoT开发、嵌入式、智能硬件"
+    "job_directions": "IoT开发、嵌入式、智能硬件",
+    "median_salary": 10800,
+    "salary_range": "{\"low\": 7200, \"high\": 18000}",
+    "top_industries": "[\"互联网/IT\", \"金融科技\", \"人工智能\", \"电子商务\", \"游戏\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.24,
+    "overseas_rate": 0.1
   },
   {
     "name": "药学",
@@ -204,7 +336,13 @@
     "employment_rate": 0.85,
     "avg_salary": 9000,
     "is_hot": 0,
-    "job_directions": "药物研发、药品注册、医药销售"
+    "job_directions": "药物研发、药品注册、医药销售",
+    "median_salary": 8100,
+    "salary_range": "{\"low\": 5400, \"high\": 13500}",
+    "top_industries": "[\"制药企业\", \"医院药剂科\", \"药品研发\", \"医药销售\", \"药品注册\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.42,
+    "overseas_rate": 0.04
   },
   {
     "name": "会计学",
@@ -213,7 +351,13 @@
     "employment_rate": 0.85,
     "avg_salary": 9000,
     "is_hot": 0,
-    "job_directions": "会计、审计、财务管理、税务"
+    "job_directions": "会计、审计、财务管理、税务",
+    "median_salary": 8100,
+    "salary_range": "{\"low\": 5400, \"high\": 13500}",
+    "top_industries": "[\"企业管理\", \"咨询\", \"金融\", \"快消\", \"互联网\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.11
   },
   {
     "name": "工商管理",
@@ -222,7 +366,13 @@
     "employment_rate": 0.8,
     "avg_salary": 10000,
     "is_hot": 0,
-    "job_directions": "企业管理、市场营销、人力资源"
+    "job_directions": "企业管理、市场营销、人力资源",
+    "median_salary": 9000,
+    "salary_range": "{\"low\": 6000, \"high\": 15000}",
+    "top_industries": "[\"企业管理\", \"咨询\", \"金融\", \"快消\", \"互联网\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.26,
+    "overseas_rate": 0.12
   },
   {
     "name": "信息与计算科学",
@@ -231,7 +381,13 @@
     "employment_rate": 0.88,
     "avg_salary": 13000,
     "is_hot": 0,
-    "job_directions": "数据分析、算法工程师、金融量化"
+    "job_directions": "数据分析、算法工程师、金融量化",
+    "median_salary": 11700,
+    "salary_range": "{\"low\": 7800, \"high\": 19500}",
+    "top_industries": "[\"金融\", \"互联网\", \"教育\", \"数据分析\", \"科研院所\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.41,
+    "overseas_rate": 0.07
   },
   {
     "name": "统计学",
@@ -240,7 +396,13 @@
     "employment_rate": 0.9,
     "avg_salary": 12000,
     "is_hot": 1,
-    "job_directions": "数据分析师、精算师、市场调研"
+    "job_directions": "数据分析师、精算师、市场调研",
+    "median_salary": 10800,
+    "salary_range": "{\"low\": 7200, \"high\": 18000}",
+    "top_industries": "[\"金融\", \"互联网\", \"咨询\", \"保险精算\", \"市场调研\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.4,
+    "overseas_rate": 0.07
   },
   {
     "name": "化学",
@@ -249,7 +411,13 @@
     "employment_rate": 0.8,
     "avg_salary": 9000,
     "is_hot": 0,
-    "job_directions": "化工研发、质检、教师"
+    "job_directions": "化工研发、质检、教师",
+    "median_salary": 8100,
+    "salary_range": "{\"low\": 5400, \"high\": 13500}",
+    "top_industries": "[\"化工\", \"制药\", \"新材料\", \"教育\", \"质检\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.45,
+    "overseas_rate": 0.08
   },
   {
     "name": "生物科学",
@@ -258,7 +426,13 @@
     "employment_rate": 0.78,
     "avg_salary": 8500,
     "is_hot": 0,
-    "job_directions": "生物医药研发、科研、教师"
+    "job_directions": "生物医药研发、科研、教师",
+    "median_salary": 7600,
+    "salary_range": "{\"low\": 5100, \"high\": 12800}",
+    "top_industries": "[\"生物医药\", \"科研院所\", \"教育\", \"基因检测\", \"农业\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.46,
+    "overseas_rate": 0.08
   },
   {
     "name": "地理科学",
@@ -267,7 +441,13 @@
     "employment_rate": 0.82,
     "avg_salary": 8000,
     "is_hot": 0,
-    "job_directions": "GIS开发、城市规划、教师"
+    "job_directions": "GIS开发、城市规划、教师",
+    "median_salary": 7200,
+    "salary_range": "{\"low\": 4800, \"high\": 12000}",
+    "top_industries": "[\"测绘\", \"城市规划\", \"GIS开发\", \"教育\", \"气象\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.44,
+    "overseas_rate": 0.08
   },
   {
     "name": "材料科学与工程",
@@ -276,7 +456,13 @@
     "employment_rate": 0.85,
     "avg_salary": 10000,
     "is_hot": 0,
-    "job_directions": "材料研发、工艺工程师、质量管理"
+    "job_directions": "材料研发、工艺工程师、质量管理",
+    "median_salary": 9000,
+    "salary_range": "{\"low\": 6000, \"high\": 15000}",
+    "top_industries": "[\"新能源\", \"半导体\", \"航空航天\", \"汽车制造\", \"建筑材料\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.04
   },
   {
     "name": "化学工程与工艺",
@@ -285,7 +471,13 @@
     "employment_rate": 0.86,
     "avg_salary": 10000,
     "is_hot": 0,
-    "job_directions": "化工工程师、工艺设计、生产管理"
+    "job_directions": "化工工程师、工艺设计、生产管理",
+    "median_salary": 9000,
+    "salary_range": "{\"low\": 6000, \"high\": 15000}",
+    "top_industries": "[\"石油化工\", \"精细化工\", \"制药企业\", \"新材料\", \"环保\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.24,
+    "overseas_rate": 0.04
   },
   {
     "name": "环境工程",
@@ -294,7 +486,13 @@
     "employment_rate": 0.82,
     "avg_salary": 9000,
     "is_hot": 0,
-    "job_directions": "环保工程师、环评、水处理"
+    "job_directions": "环保工程师、环评、水处理",
+    "median_salary": 8100,
+    "salary_range": "{\"low\": 5400, \"high\": 13500}",
+    "top_industries": "[\"环保企业\", \"水务集团\", \"环评机构\", \"政府环保部门\", \"新能源\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.05
   },
   {
     "name": "生物医学工程",
@@ -303,7 +501,13 @@
     "employment_rate": 0.85,
     "avg_salary": 11000,
     "is_hot": 0,
-    "job_directions": "医疗器械研发、医院设备管理"
+    "job_directions": "医疗器械研发、医院设备管理",
+    "median_salary": 9900,
+    "salary_range": "{\"low\": 6600, \"high\": 16500}",
+    "top_industries": "[\"医疗器械\", \"生物医药\", \"医院\", \"科研院所\", \"体外诊断\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.04
   },
   {
     "name": "车辆工程",
@@ -312,7 +516,13 @@
     "employment_rate": 0.88,
     "avg_salary": 11000,
     "is_hot": 0,
-    "job_directions": "汽车设计、新能源汽车研发"
+    "job_directions": "汽车设计、新能源汽车研发",
+    "median_salary": 9900,
+    "salary_range": "{\"low\": 6600, \"high\": 16500}",
+    "top_industries": "[\"汽车制造\", \"航空航天\", \"工程机械\", \"智能制造\", \"轨道交通\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.24,
+    "overseas_rate": 0.04
   },
   {
     "name": "能源与动力工程",
@@ -321,7 +531,13 @@
     "employment_rate": 0.87,
     "avg_salary": 10500,
     "is_hot": 0,
-    "job_directions": "电力系统、新能源、暖通设计"
+    "job_directions": "电力系统、新能源、暖通设计",
+    "median_salary": 9400,
+    "salary_range": "{\"low\": 6300, \"high\": 15800}",
+    "top_industries": "[\"电力系统\", \"新能源\", \"石油化工\", \"暖通空调\", \"核电\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.24,
+    "overseas_rate": 0.04
   },
   {
     "name": "航空航天工程",
@@ -330,7 +546,13 @@
     "employment_rate": 0.9,
     "avg_salary": 13000,
     "is_hot": 0,
-    "job_directions": "航天研究所、飞机设计、国防军工"
+    "job_directions": "航天研究所、飞机设计、国防军工",
+    "median_salary": 11700,
+    "salary_range": "{\"low\": 7800, \"high\": 19500}",
+    "top_industries": "[\"航空航天\", \"国防军工\", \"卫星通信\", \"无人机\", \"科研院所\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.23,
+    "overseas_rate": 0.04
   },
   {
     "name": "船舶与海洋工程",
@@ -339,7 +561,13 @@
     "employment_rate": 0.85,
     "avg_salary": 11000,
     "is_hot": 0,
-    "job_directions": "船舶设计、海洋平台、船级社"
+    "job_directions": "船舶设计、海洋平台、船级社",
+    "median_salary": 9900,
+    "salary_range": "{\"low\": 6600, \"high\": 16500}",
+    "top_industries": "[\"船舶制造\", \"海洋工程\", \"港口物流\", \"海事局\", \"海洋资源\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.04
   },
   {
     "name": "核工程与核技术",
@@ -348,7 +576,13 @@
     "employment_rate": 0.88,
     "avg_salary": 12000,
     "is_hot": 0,
-    "job_directions": "核电站、核技术应用、辐射防护"
+    "job_directions": "核电站、核技术应用、辐射防护",
+    "median_salary": 10800,
+    "salary_range": "{\"low\": 7200, \"high\": 18000}",
+    "top_industries": "[\"核电站\", \"核技术应用\", \"医疗设备\", \"科研院所\", \"辐射防护\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.24,
+    "overseas_rate": 0.04
   },
   {
     "name": "城乡规划",
@@ -357,7 +591,13 @@
     "employment_rate": 0.82,
     "avg_salary": 10000,
     "is_hot": 0,
-    "job_directions": "规划设计院、城市管理部门"
+    "job_directions": "规划设计院、城市管理部门",
+    "median_salary": 9000,
+    "salary_range": "{\"low\": 6000, \"high\": 15000}",
+    "top_industries": "[\"建筑设计\", \"城市规划\", \"景观设计\", \"房地产\", \"室内设计\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.05
   },
   {
     "name": "风景园林",
@@ -366,7 +606,13 @@
     "employment_rate": 0.8,
     "avg_salary": 9500,
     "is_hot": 0,
-    "job_directions": "景观设计、园林规划"
+    "job_directions": "景观设计、园林规划",
+    "median_salary": 8600,
+    "salary_range": "{\"low\": 5700, \"high\": 14200}",
+    "top_industries": "[\"建筑设计\", \"城市规划\", \"景观设计\", \"房地产\", \"室内设计\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.26,
+    "overseas_rate": 0.05
   },
   {
     "name": "食品科学与工程",
@@ -375,7 +621,13 @@
     "employment_rate": 0.83,
     "avg_salary": 8500,
     "is_hot": 0,
-    "job_directions": "食品研发、质检、生产管理"
+    "job_directions": "食品研发、质检、生产管理",
+    "median_salary": 7600,
+    "salary_range": "{\"low\": 5100, \"high\": 12800}",
+    "top_industries": "[\"食品加工\", \"质量检测\", \"餐饮连锁\", \"保健品\", \"乳制品\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.05
   },
   {
     "name": "生物工程",
@@ -384,7 +636,13 @@
     "employment_rate": 0.82,
     "avg_salary": 9500,
     "is_hot": 0,
-    "job_directions": "生物制药、发酵工程、环保"
+    "job_directions": "生物制药、发酵工程、环保",
+    "median_salary": 8600,
+    "salary_range": "{\"low\": 5700, \"high\": 14200}",
+    "top_industries": "[\"生物制药\", \"基因工程\", \"发酵工程\", \"环保\", \"农业生物技术\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.05
   },
   {
     "name": "智能科学与技术",
@@ -393,7 +651,13 @@
     "employment_rate": 0.92,
     "avg_salary": 16000,
     "is_hot": 1,
-    "job_directions": "AI工程师、智能系统开发"
+    "job_directions": "AI工程师、智能系统开发",
+    "median_salary": 14400,
+    "salary_range": "{\"low\": 9600, \"high\": 24000}",
+    "top_industries": "[\"互联网/IT\", \"金融科技\", \"人工智能\", \"电子商务\", \"游戏\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.22,
+    "overseas_rate": 0.1
   },
   {
     "name": "机器人工程",
@@ -402,7 +666,13 @@
     "employment_rate": 0.9,
     "avg_salary": 14000,
     "is_hot": 1,
-    "job_directions": "机器人研发、自动化工程师"
+    "job_directions": "机器人研发、自动化工程师",
+    "median_salary": 12600,
+    "salary_range": "{\"low\": 8400, \"high\": 21000}",
+    "top_industries": "[\"智能制造\", \"机器人\", \"工业自动化\", \"新能源汽车\", \"半导体\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.23,
+    "overseas_rate": 0.04
   },
   {
     "name": "新能源科学与工程",
@@ -411,7 +681,13 @@
     "employment_rate": 0.88,
     "avg_salary": 12000,
     "is_hot": 1,
-    "job_directions": "光伏、风电、储能研发"
+    "job_directions": "光伏、风电、储能研发",
+    "median_salary": 10800,
+    "salary_range": "{\"low\": 7200, \"high\": 18000}",
+    "top_industries": "[\"电力系统\", \"新能源\", \"石油化工\", \"暖通空调\", \"核电\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.24,
+    "overseas_rate": 0.04
   },
   {
     "name": "微电子科学与工程",
@@ -420,7 +696,13 @@
     "employment_rate": 0.9,
     "avg_salary": 15000,
     "is_hot": 1,
-    "job_directions": "芯片设计、半导体工艺"
+    "job_directions": "芯片设计、半导体工艺",
+    "median_salary": 13500,
+    "salary_range": "{\"low\": 9000, \"high\": 22500}",
+    "top_industries": "[\"半导体/芯片\", \"通信设备\", \"消费电子\", \"物联网\", \"新能源汽车\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.23,
+    "overseas_rate": 0.04
   },
   {
     "name": "光电信息科学与工程",
@@ -429,7 +711,13 @@
     "employment_rate": 0.88,
     "avg_salary": 12000,
     "is_hot": 0,
-    "job_directions": "光通信、激光技术、光学设计"
+    "job_directions": "光通信、激光技术、光学设计",
+    "median_salary": 10800,
+    "salary_range": "{\"low\": 7200, \"high\": 18000}",
+    "top_industries": "[\"半导体/芯片\", \"通信设备\", \"消费电子\", \"物联网\", \"新能源汽车\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.24,
+    "overseas_rate": 0.04
   },
   {
     "name": "中医学",
@@ -438,7 +726,13 @@
     "employment_rate": 0.82,
     "avg_salary": 9000,
     "is_hot": 0,
-    "job_directions": "中医师、中西医结合、养生保健"
+    "job_directions": "中医师、中西医结合、养生保健",
+    "median_salary": 8100,
+    "salary_range": "{\"low\": 5400, \"high\": 13500}",
+    "top_industries": "[\"中医院\", \"中药企业\", \"养生保健\", \"中医诊所\", \"中医药研究\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.44,
+    "overseas_rate": 0.05
   },
   {
     "name": "预防医学",
@@ -447,7 +741,13 @@
     "employment_rate": 0.85,
     "avg_salary": 9500,
     "is_hot": 0,
-    "job_directions": "疾控中心、卫生监督、公共卫生"
+    "job_directions": "疾控中心、卫生监督、公共卫生",
+    "median_salary": 8600,
+    "salary_range": "{\"low\": 5700, \"high\": 14200}",
+    "top_industries": "[\"疾控中心\", \"卫生监督\", \"公共卫生机构\", \"医药企业\", \"健康管理\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.42,
+    "overseas_rate": 0.04
   },
   {
     "name": "医学检验技术",
@@ -456,7 +756,13 @@
     "employment_rate": 0.88,
     "avg_salary": 8500,
     "is_hot": 0,
-    "job_directions": "医院检验科、第三方检测"
+    "job_directions": "医院检验科、第三方检测",
+    "median_salary": 7600,
+    "salary_range": "{\"low\": 5100, \"high\": 12800}",
+    "top_industries": "[\"医院检验科\", \"第三方检测\", \"医疗器械\", \"体外诊断\", \"基因检测\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.41,
+    "overseas_rate": 0.04
   },
   {
     "name": "护理学",
@@ -465,7 +771,13 @@
     "employment_rate": 0.92,
     "avg_salary": 7500,
     "is_hot": 0,
-    "job_directions": "医院护士、护理管理"
+    "job_directions": "医院护士、护理管理",
+    "median_salary": 6800,
+    "salary_range": "{\"low\": 4500, \"high\": 11200}",
+    "top_industries": "[\"公立医院\", \"私立医院\", \"养老机构\", \"社区卫生中心\", \"护理教育\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.39,
+    "overseas_rate": 0.04
   },
   {
     "name": "财政学",
@@ -474,7 +786,13 @@
     "employment_rate": 0.83,
     "avg_salary": 10000,
     "is_hot": 0,
-    "job_directions": "税务、财政局、会计师事务所"
+    "job_directions": "税务、财政局、会计师事务所",
+    "median_salary": 9000,
+    "salary_range": "{\"low\": 6000, \"high\": 15000}",
+    "top_industries": "[\"税务局\", \"财政局\", \"会计师事务所\", \"银行\", \"审计\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.11
   },
   {
     "name": "国际经济与贸易",
@@ -483,7 +801,13 @@
     "employment_rate": 0.82,
     "avg_salary": 10000,
     "is_hot": 0,
-    "job_directions": "外贸公司、跨境电商、报关"
+    "job_directions": "外贸公司、跨境电商、报关",
+    "median_salary": 9000,
+    "salary_range": "{\"low\": 6000, \"high\": 15000}",
+    "top_industries": "[\"外贸公司\", \"跨境电商\", \"国际物流\", \"海关\", \"外资企业\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.12
   },
   {
     "name": "保险学",
@@ -492,7 +816,13 @@
     "employment_rate": 0.82,
     "avg_salary": 11000,
     "is_hot": 0,
-    "job_directions": "保险公司、精算、核保理赔"
+    "job_directions": "保险公司、精算、核保理赔",
+    "median_salary": 9900,
+    "salary_range": "{\"low\": 6600, \"high\": 16500}",
+    "top_industries": "[\"银行\", \"证券\", \"基金\", \"保险\", \"金融科技\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.12
   },
   {
     "name": "投资学",
@@ -501,7 +831,13 @@
     "employment_rate": 0.83,
     "avg_salary": 12000,
     "is_hot": 0,
-    "job_directions": "证券、基金、投资银行"
+    "job_directions": "证券、基金、投资银行",
+    "median_salary": 10800,
+    "salary_range": "{\"low\": 7200, \"high\": 18000}",
+    "top_industries": "[\"银行\", \"证券\", \"基金\", \"保险\", \"金融科技\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.11
   },
   {
     "name": "社会工作",
@@ -510,7 +846,13 @@
     "employment_rate": 0.78,
     "avg_salary": 7000,
     "is_hot": 0,
-    "job_directions": "社工机构、社区服务、公益组织"
+    "job_directions": "社工机构、社区服务、公益组织",
+    "median_salary": 6300,
+    "salary_range": "{\"low\": 4200, \"high\": 10500}",
+    "top_industries": "[\"社工机构\", \"社区服务\", \"公益组织\", \"民政部门\", \"心理咨询\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.39,
+    "overseas_rate": 0.05
   },
   {
     "name": "政治学与行政学",
@@ -519,7 +861,13 @@
     "employment_rate": 0.78,
     "avg_salary": 8000,
     "is_hot": 0,
-    "job_directions": "公务员、政策研究、行政管理"
+    "job_directions": "公务员、政策研究、行政管理",
+    "median_salary": 7200,
+    "salary_range": "{\"low\": 4800, \"high\": 12000}",
+    "top_industries": "[\"公务员\", \"政策研究\", \"智库\", \"国际组织\", \"行政管理\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.39,
+    "overseas_rate": 0.05
   },
   {
     "name": "思想政治教育",
@@ -528,7 +876,13 @@
     "employment_rate": 0.8,
     "avg_salary": 7500,
     "is_hot": 0,
-    "job_directions": "教师、公务员、党务工作"
+    "job_directions": "教师、公务员、党务工作",
+    "median_salary": 6800,
+    "salary_range": "{\"low\": 4500, \"high\": 11200}",
+    "top_industries": "[\"高校思政\", \"党校\", \"宣传部门\", \"公务员\", \"政策研究\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.38,
+    "overseas_rate": 0.05
   },
   {
     "name": "教育学",
@@ -537,7 +891,13 @@
     "employment_rate": 0.82,
     "avg_salary": 8000,
     "is_hot": 0,
-    "job_directions": "教师、教育管理、培训机构"
+    "job_directions": "教师、教育管理、培训机构",
+    "median_salary": 7200,
+    "salary_range": "{\"low\": 4800, \"high\": 12000}",
+    "top_industries": "[\"公立学校\", \"培训机构\", \"教育科技\", \"教育管理\", \"教育研究\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.05
   },
   {
     "name": "学前教育",
@@ -546,7 +906,13 @@
     "employment_rate": 0.88,
     "avg_salary": 6500,
     "is_hot": 0,
-    "job_directions": "幼儿园教师、早教机构"
+    "job_directions": "幼儿园教师、早教机构",
+    "median_salary": 5800,
+    "salary_range": "{\"low\": 3900, \"high\": 9800}",
+    "top_industries": "[\"公立学校\", \"培训机构\", \"教育科技\", \"教育管理\", \"教育研究\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.24,
+    "overseas_rate": 0.04
   },
   {
     "name": "体育教育",
@@ -555,7 +921,13 @@
     "employment_rate": 0.8,
     "avg_salary": 7000,
     "is_hot": 0,
-    "job_directions": "体育教师、健身教练、体育管理"
+    "job_directions": "体育教师、健身教练、体育管理",
+    "median_salary": 6300,
+    "salary_range": "{\"low\": 4200, \"high\": 10500}",
+    "top_industries": "[\"学校体育\", \"体育培训\", \"体育赛事\", \"健身行业\", \"体育媒体\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.26,
+    "overseas_rate": 0.05
   },
   {
     "name": "新闻学",
@@ -564,7 +936,13 @@
     "employment_rate": 0.8,
     "avg_salary": 8500,
     "is_hot": 0,
-    "job_directions": "记者、编辑、新媒体运营"
+    "job_directions": "记者、编辑、新媒体运营",
+    "median_salary": 7600,
+    "salary_range": "{\"low\": 5100, \"high\": 12800}",
+    "top_industries": "[\"媒体\", \"广告公司\", \"互联网\", \"公关公司\", \"新媒体\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.26,
+    "overseas_rate": 0.08
   },
   {
     "name": "广告学",
@@ -573,7 +951,13 @@
     "employment_rate": 0.82,
     "avg_salary": 9000,
     "is_hot": 0,
-    "job_directions": "广告策划、品牌推广、创意设计"
+    "job_directions": "广告策划、品牌推广、创意设计",
+    "median_salary": 8100,
+    "salary_range": "{\"low\": 5400, \"high\": 13500}",
+    "top_industries": "[\"媒体\", \"广告公司\", \"互联网\", \"公关公司\", \"新媒体\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.08
   },
   {
     "name": "网络与新媒体",
@@ -582,7 +966,13 @@
     "employment_rate": 0.85,
     "avg_salary": 9500,
     "is_hot": 1,
-    "job_directions": "新媒体运营、内容创作、短视频"
+    "job_directions": "新媒体运营、内容创作、短视频",
+    "median_salary": 8600,
+    "salary_range": "{\"low\": 5700, \"high\": 14200}",
+    "top_industries": "[\"媒体\", \"广告公司\", \"互联网\", \"公关公司\", \"新媒体\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.07
   },
   {
     "name": "历史学",
@@ -591,7 +981,13 @@
     "employment_rate": 0.75,
     "avg_salary": 7000,
     "is_hot": 0,
-    "job_directions": "教师、博物馆、文化遗产保护"
+    "job_directions": "教师、博物馆、文化遗产保护",
+    "median_salary": 6300,
+    "salary_range": "{\"low\": 4200, \"high\": 10500}",
+    "top_industries": "[\"教育\", \"博物馆\", \"文化遗产\", \"出版社\", \"公务员\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.4,
+    "overseas_rate": 0.06
   },
   {
     "name": "哲学",
@@ -600,7 +996,13 @@
     "employment_rate": 0.72,
     "avg_salary": 7000,
     "is_hot": 0,
-    "job_directions": "教师、公务员、文化产业"
+    "job_directions": "教师、公务员、文化产业",
+    "median_salary": 6300,
+    "salary_range": "{\"low\": 4200, \"high\": 10500}",
+    "top_industries": "[\"教育\", \"公务员\", \"文化产业\", \"智库\", \"出版\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.41,
+    "overseas_rate": 0.06
   },
   {
     "name": "行政管理",
@@ -609,7 +1011,13 @@
     "employment_rate": 0.82,
     "avg_salary": 9000,
     "is_hot": 0,
-    "job_directions": "公务员、行政管理、人力资源"
+    "job_directions": "公务员、行政管理、人力资源",
+    "median_salary": 8100,
+    "salary_range": "{\"low\": 5400, \"high\": 13500}",
+    "top_industries": "[\"公务员\", \"事业单位\", \"非营利组织\", \"咨询\", \"教育\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.12
   },
   {
     "name": "人力资源管理",
@@ -618,7 +1026,13 @@
     "employment_rate": 0.85,
     "avg_salary": 10000,
     "is_hot": 0,
-    "job_directions": "HR、猎头、企业管理咨询"
+    "job_directions": "HR、猎头、企业管理咨询",
+    "median_salary": 9000,
+    "salary_range": "{\"low\": 6000, \"high\": 15000}",
+    "top_industries": "[\"企业管理\", \"咨询\", \"金融\", \"快消\", \"互联网\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.11
   },
   {
     "name": "市场营销",
@@ -627,7 +1041,13 @@
     "employment_rate": 0.83,
     "avg_salary": 10000,
     "is_hot": 0,
-    "job_directions": "市场策划、品牌管理、销售管理"
+    "job_directions": "市场策划、品牌管理、销售管理",
+    "median_salary": 9000,
+    "salary_range": "{\"low\": 6000, \"high\": 15000}",
+    "top_industries": "[\"企业管理\", \"咨询\", \"金融\", \"快消\", \"互联网\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.11
   },
   {
     "name": "物流管理",
@@ -636,7 +1056,13 @@
     "employment_rate": 0.85,
     "avg_salary": 9500,
     "is_hot": 0,
-    "job_directions": "供应链管理、物流规划、仓储管理"
+    "job_directions": "供应链管理、物流规划、仓储管理",
+    "median_salary": 8600,
+    "salary_range": "{\"low\": 5700, \"high\": 14200}",
+    "top_industries": "[\"物流快递\", \"电商\", \"供应链管理\", \"港口\", \"制造业\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.11
   },
   {
     "name": "电子商务",
@@ -645,7 +1071,13 @@
     "employment_rate": 0.87,
     "avg_salary": 11000,
     "is_hot": 1,
-    "job_directions": "电商运营、跨境电商、直播电商"
+    "job_directions": "电商运营、跨境电商、直播电商",
+    "median_salary": 9900,
+    "salary_range": "{\"low\": 6600, \"high\": 16500}",
+    "top_industries": "[\"电商平台\", \"跨境电商\", \"直播电商\", \"互联网\", \"金融科技\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.24,
+    "overseas_rate": 0.11
   },
   {
     "name": "旅游管理",
@@ -654,7 +1086,13 @@
     "employment_rate": 0.8,
     "avg_salary": 8000,
     "is_hot": 0,
-    "job_directions": "旅行社、酒店管理、景区运营"
+    "job_directions": "旅行社、酒店管理、景区运营",
+    "median_salary": 7200,
+    "salary_range": "{\"low\": 4800, \"high\": 12000}",
+    "top_industries": "[\"旅行社\", \"酒店集团\", \"景区运营\", \"OTA平台\", \"会展\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.26,
+    "overseas_rate": 0.12
   },
   {
     "name": "音乐表演",
@@ -663,7 +1101,13 @@
     "employment_rate": 0.75,
     "avg_salary": 8000,
     "is_hot": 0,
-    "job_directions": "演出团体、音乐教育、文化传媒"
+    "job_directions": "演出团体、音乐教育、文化传媒",
+    "median_salary": 7200,
+    "salary_range": "{\"low\": 4800, \"high\": 12000}",
+    "top_industries": "[\"演出团体\", \"教育培训\", \"文化传媒\", \"自媒体\", \"音乐制作\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.28,
+    "overseas_rate": 0.06
   },
   {
     "name": "视觉传达设计",
@@ -672,7 +1116,13 @@
     "employment_rate": 0.82,
     "avg_salary": 9000,
     "is_hot": 0,
-    "job_directions": "平面设计、UI设计、品牌设计"
+    "job_directions": "平面设计、UI设计、品牌设计",
+    "median_salary": 8100,
+    "salary_range": "{\"low\": 5400, \"high\": 13500}",
+    "top_industries": "[\"设计公司\", \"互联网\", \"广告传媒\", \"房地产\", \"制造业\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.05
   },
   {
     "name": "环境设计",
@@ -681,7 +1131,13 @@
     "employment_rate": 0.8,
     "avg_salary": 9500,
     "is_hot": 0,
-    "job_directions": "室内设计、景观设计、展览设计"
+    "job_directions": "室内设计、景观设计、展览设计",
+    "median_salary": 8600,
+    "salary_range": "{\"low\": 5700, \"high\": 14200}",
+    "top_industries": "[\"设计公司\", \"互联网\", \"广告传媒\", \"房地产\", \"制造业\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.26,
+    "overseas_rate": 0.05
   },
   {
     "name": "数字媒体艺术",
@@ -690,7 +1146,13 @@
     "employment_rate": 0.85,
     "avg_salary": 11000,
     "is_hot": 1,
-    "job_directions": "游戏设计、动画制作、影视后期"
+    "job_directions": "游戏设计、动画制作、影视后期",
+    "median_salary": 9900,
+    "salary_range": "{\"low\": 6600, \"high\": 16500}",
+    "top_industries": "[\"设计公司\", \"互联网\", \"广告传媒\", \"房地产\", \"制造业\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.04
   },
   {
     "name": "产品设计",
@@ -699,7 +1161,13 @@
     "employment_rate": 0.83,
     "avg_salary": 10000,
     "is_hot": 0,
-    "job_directions": "工业设计、产品经理、交互设计"
+    "job_directions": "工业设计、产品经理、交互设计",
+    "median_salary": 9000,
+    "salary_range": "{\"low\": 6000, \"high\": 15000}",
+    "top_industries": "[\"设计公司\", \"互联网\", \"广告传媒\", \"房地产\", \"制造业\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.05
   },
   {
     "name": "动画",
@@ -708,7 +1176,13 @@
     "employment_rate": 0.82,
     "avg_salary": 10000,
     "is_hot": 0,
-    "job_directions": "动画制作、游戏美术、特效制作"
+    "job_directions": "动画制作、游戏美术、特效制作",
+    "median_salary": 9000,
+    "salary_range": "{\"low\": 6000, \"high\": 15000}",
+    "top_industries": "[\"影视制作\", \"游戏公司\", \"广告传媒\", \"自媒体\", \"演出\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.05
   },
   {
     "name": "法学（知识产权法）",
@@ -717,7 +1191,13 @@
     "employment_rate": 0.82,
     "avg_salary": 11000,
     "is_hot": 0,
-    "job_directions": "知识产权律师、专利代理人"
+    "job_directions": "知识产权律师、专利代理人",
+    "median_salary": 9900,
+    "salary_range": "{\"low\": 6600, \"high\": 16500}",
+    "top_industries": "[\"律师事务所\", \"企业法务\", \"法院/检察院\", \"公务员\", \"知识产权\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.37,
+    "overseas_rate": 0.05
   },
   {
     "name": "翻译",
@@ -726,7 +1206,13 @@
     "employment_rate": 0.82,
     "avg_salary": 9000,
     "is_hot": 0,
-    "job_directions": "翻译公司、外企、国际组织"
+    "job_directions": "翻译公司、外企、国际组织",
+    "median_salary": 8100,
+    "salary_range": "{\"low\": 5400, \"high\": 13500}",
+    "top_industries": "[\"翻译公司\", \"外企\", \"教育培训\", \"外贸\", \"国际组织\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.08
   },
   {
     "name": "信息安全",
@@ -735,7 +1221,13 @@
     "employment_rate": 0.91,
     "avg_salary": 14500,
     "is_hot": 1,
-    "job_directions": "安全架构师、密码学工程师、安全审计"
+    "job_directions": "安全架构师、密码学工程师、安全审计",
+    "median_salary": 13000,
+    "salary_range": "{\"low\": 8700, \"high\": 21800}",
+    "top_industries": "[\"互联网/IT\", \"金融科技\", \"人工智能\", \"电子商务\", \"游戏\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.23,
+    "overseas_rate": 0.1
   },
   {
     "name": "交通运输",
@@ -744,7 +1236,13 @@
     "employment_rate": 0.84,
     "avg_salary": 9500,
     "is_hot": 0,
-    "job_directions": "交通规划、物流管理、智能交通"
+    "job_directions": "交通规划、物流管理、智能交通",
+    "median_salary": 8600,
+    "salary_range": "{\"low\": 5700, \"high\": 14200}",
+    "top_industries": "[\"交通运输\", \"物流快递\", \"智能交通\", \"城市轨道\", \"航空运输\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.05
   },
   {
     "name": "心理学",
@@ -753,7 +1251,13 @@
     "employment_rate": 0.78,
     "avg_salary": 8500,
     "is_hot": 0,
-    "job_directions": "心理咨询、人力资源、用户研究"
+    "job_directions": "心理咨询、人力资源、用户研究",
+    "median_salary": 7600,
+    "salary_range": "{\"low\": 5100, \"high\": 12800}",
+    "top_industries": "[\"心理咨询\", \"人力资源\", \"教育\", \"用户体验\", \"医疗机构\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.46,
+    "overseas_rate": 0.08
   },
   {
     "name": "传播学",
@@ -762,7 +1266,13 @@
     "employment_rate": 0.8,
     "avg_salary": 9000,
     "is_hot": 0,
-    "job_directions": "广告策划、品牌传播、内容运营"
+    "job_directions": "广告策划、品牌传播、内容运营",
+    "median_salary": 8100,
+    "salary_range": "{\"low\": 5400, \"high\": 13500}",
+    "top_industries": "[\"媒体\", \"广告公司\", \"互联网\", \"公关公司\", \"新媒体\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.26,
+    "overseas_rate": 0.08
   },
   {
     "name": "日语",
@@ -771,7 +1281,13 @@
     "employment_rate": 0.78,
     "avg_salary": 8000,
     "is_hot": 0,
-    "job_directions": "翻译、外贸、日企、教师"
+    "job_directions": "翻译、外贸、日企、教师",
+    "median_salary": 7200,
+    "salary_range": "{\"low\": 4800, \"high\": 12000}",
+    "top_industries": "[\"翻译公司\", \"外企\", \"教育培训\", \"外贸\", \"国际组织\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.27,
+    "overseas_rate": 0.08
   },
   {
     "name": "法语",
@@ -780,7 +1296,13 @@
     "employment_rate": 0.77,
     "avg_salary": 8500,
     "is_hot": 0,
-    "job_directions": "翻译、外交、外贸、国际组织"
+    "job_directions": "翻译、外交、外贸、国际组织",
+    "median_salary": 7600,
+    "salary_range": "{\"low\": 5100, \"high\": 12800}",
+    "top_industries": "[\"翻译公司\", \"外企\", \"教育培训\", \"外贸\", \"国际组织\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.27,
+    "overseas_rate": 0.08
   },
   {
     "name": "德语",
@@ -789,7 +1311,13 @@
     "employment_rate": 0.78,
     "avg_salary": 8500,
     "is_hot": 0,
-    "job_directions": "翻译、外贸、德企、汽车行业"
+    "job_directions": "翻译、外贸、德企、汽车行业",
+    "median_salary": 7600,
+    "salary_range": "{\"low\": 5100, \"high\": 12800}",
+    "top_industries": "[\"翻译公司\", \"外企\", \"教育培训\", \"外贸\", \"国际组织\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.27,
+    "overseas_rate": 0.08
   },
   {
     "name": "知识产权",
@@ -798,7 +1326,13 @@
     "employment_rate": 0.82,
     "avg_salary": 10500,
     "is_hot": 0,
-    "job_directions": "专利代理人、知识产权律师、技术转移"
+    "job_directions": "专利代理人、知识产权律师、技术转移",
+    "median_salary": 9400,
+    "salary_range": "{\"low\": 6300, \"high\": 15800}",
+    "top_industries": "[\"律师事务所\", \"企业法务\", \"法院/检察院\", \"公务员\", \"知识产权\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.37,
+    "overseas_rate": 0.05
   },
   {
     "name": "运动训练",
@@ -807,7 +1341,13 @@
     "employment_rate": 0.76,
     "avg_salary": 8000,
     "is_hot": 0,
-    "job_directions": "职业教练、运动员、体育经纪"
+    "job_directions": "职业教练、运动员、体育经纪",
+    "median_salary": 7200,
+    "salary_range": "{\"low\": 4800, \"high\": 12000}",
+    "top_industries": "[\"学校体育\", \"体育培训\", \"体育赛事\", \"健身行业\", \"体育媒体\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.27,
+    "overseas_rate": 0.05
   },
   {
     "name": "中西医临床医学",
@@ -816,7 +1356,13 @@
     "employment_rate": 0.83,
     "avg_salary": 9500,
     "is_hot": 0,
-    "job_directions": "中西医结合医师、康复医学"
+    "job_directions": "中西医结合医师、康复医学",
+    "median_salary": 8600,
+    "salary_range": "{\"low\": 5700, \"high\": 14200}",
+    "top_industries": "[\"综合医院\", \"中西医结合医院\", \"康复中心\", \"医药企业\", \"科研院所\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.43,
+    "overseas_rate": 0.05
   },
   {
     "name": "医学影像学",
@@ -825,7 +1371,13 @@
     "employment_rate": 0.88,
     "avg_salary": 10000,
     "is_hot": 0,
-    "job_directions": "影像科医师、放射诊断、核医学"
+    "job_directions": "影像科医师、放射诊断、核医学",
+    "median_salary": 9000,
+    "salary_range": "{\"low\": 6000, \"high\": 15000}",
+    "top_industries": "[\"公立医院\", \"私立医院\", \"医疗科研\", \"医药企业\", \"医疗器械\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.41,
+    "overseas_rate": 0.04
   },
   {
     "name": "公共事业管理",
@@ -834,7 +1386,13 @@
     "employment_rate": 0.78,
     "avg_salary": 8500,
     "is_hot": 0,
-    "job_directions": "公务员、事业单位、公共政策"
+    "job_directions": "公务员、事业单位、公共政策",
+    "median_salary": 7600,
+    "salary_range": "{\"low\": 5100, \"high\": 12800}",
+    "top_industries": "[\"公务员\", \"事业单位\", \"非营利组织\", \"咨询\", \"教育\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.27,
+    "overseas_rate": 0.12
   },
   {
     "name": "信息管理与信息系统",
@@ -843,7 +1401,13 @@
     "employment_rate": 0.86,
     "avg_salary": 11000,
     "is_hot": 0,
-    "job_directions": "系统分析师、IT咨询、数据分析"
+    "job_directions": "系统分析师、IT咨询、数据分析",
+    "median_salary": 9900,
+    "salary_range": "{\"low\": 6600, \"high\": 16500}",
+    "top_industries": "[\"IT咨询\", \"数据分析\", \"项目管理\", \"金融科技\", \"供应链\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.24,
+    "overseas_rate": 0.11
   },
   {
     "name": "工程管理",
@@ -852,7 +1416,13 @@
     "employment_rate": 0.84,
     "avg_salary": 10000,
     "is_hot": 0,
-    "job_directions": "项目管理、造价咨询、工程监理"
+    "job_directions": "项目管理、造价咨询、工程监理",
+    "median_salary": 9000,
+    "salary_range": "{\"low\": 6000, \"high\": 15000}",
+    "top_industries": "[\"IT咨询\", \"数据分析\", \"项目管理\", \"金融科技\", \"供应链\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.11
   },
   {
     "name": "音乐学",
@@ -861,7 +1431,13 @@
     "employment_rate": 0.72,
     "avg_salary": 7000,
     "is_hot": 0,
-    "job_directions": "音乐教师、演出、音乐制作"
+    "job_directions": "音乐教师、演出、音乐制作",
+    "median_salary": 6300,
+    "salary_range": "{\"low\": 4200, \"high\": 10500}",
+    "top_industries": "[\"演出团体\", \"教育培训\", \"文化传媒\", \"自媒体\", \"音乐制作\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.28,
+    "overseas_rate": 0.06
   },
   {
     "name": "戏剧影视文学",
@@ -870,6 +1446,867 @@
     "employment_rate": 0.74,
     "avg_salary": 8000,
     "is_hot": 0,
-    "job_directions": "编剧、策划、影视制作"
+    "job_directions": "编剧、策划、影视制作",
+    "median_salary": 7200,
+    "salary_range": "{\"low\": 4800, \"high\": 12000}",
+    "top_industries": "[\"影视制作\", \"游戏公司\", \"广告传媒\", \"自媒体\", \"演出\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.28,
+    "overseas_rate": 0.06
+  },
+  {
+    "name": "高分子材料与工程",
+    "category": "工学",
+    "sub_category": "材料类",
+    "employment_rate": 0.86,
+    "avg_salary": 10000,
+    "is_hot": 0,
+    "job_directions": "高分子研发、材料工程师、工艺工程师",
+    "median_salary": 9000,
+    "salary_range": "{\"low\": 6000, \"high\": 15000}",
+    "top_industries": "[\"新能源\", \"半导体\", \"航空航天\", \"汽车制造\", \"建筑材料\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.24,
+    "overseas_rate": 0.04
+  },
+  {
+    "name": "复合材料与工程",
+    "category": "工学",
+    "sub_category": "材料类",
+    "employment_rate": 0.85,
+    "avg_salary": 10500,
+    "is_hot": 0,
+    "job_directions": "复合材料研发、航空航天材料、新材料",
+    "median_salary": 9400,
+    "salary_range": "{\"low\": 6300, \"high\": 15800}",
+    "top_industries": "[\"新能源\", \"半导体\", \"航空航天\", \"汽车制造\", \"建筑材料\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.04
+  },
+  {
+    "name": "过程装备与控制工程",
+    "category": "工学",
+    "sub_category": "机械类",
+    "employment_rate": 0.87,
+    "avg_salary": 10000,
+    "is_hot": 0,
+    "job_directions": "化工设备、过程控制、自动化",
+    "median_salary": 9000,
+    "salary_range": "{\"low\": 6000, \"high\": 15000}",
+    "top_industries": "[\"汽车制造\", \"航空航天\", \"工程机械\", \"智能制造\", \"轨道交通\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.24,
+    "overseas_rate": 0.04
+  },
+  {
+    "name": "测控技术与仪器",
+    "category": "工学",
+    "sub_category": "仪器类",
+    "employment_rate": 0.88,
+    "avg_salary": 11000,
+    "is_hot": 0,
+    "job_directions": "仪器仪表、测控系统、自动化",
+    "median_salary": 9900,
+    "salary_range": "{\"low\": 6600, \"high\": 16500}",
+    "top_industries": "[\"互联网/IT\", \"金融\", \"教育\", \"制造业\", \"服务业\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.24,
+    "overseas_rate": 0.04
+  },
+  {
+    "name": "测绘工程",
+    "category": "工学",
+    "sub_category": "测绘类",
+    "employment_rate": 0.84,
+    "avg_salary": 9500,
+    "is_hot": 0,
+    "job_directions": "测绘院、GIS开发、国土规划",
+    "median_salary": 8600,
+    "salary_range": "{\"low\": 5700, \"high\": 14200}",
+    "top_industries": "[\"互联网/IT\", \"金融\", \"教育\", \"制造业\", \"服务业\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.05
+  },
+  {
+    "name": "采矿工程",
+    "category": "工学",
+    "sub_category": "矿业类",
+    "employment_rate": 0.85,
+    "avg_salary": 10000,
+    "is_hot": 0,
+    "job_directions": "矿业集团、地质勘探、安全管理",
+    "median_salary": 9000,
+    "salary_range": "{\"low\": 6000, \"high\": 15000}",
+    "top_industries": "[\"互联网/IT\", \"金融\", \"教育\", \"制造业\", \"服务业\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.04
+  },
+  {
+    "name": "石油工程",
+    "category": "工学",
+    "sub_category": "矿业类",
+    "employment_rate": 0.86,
+    "avg_salary": 12000,
+    "is_hot": 0,
+    "job_directions": "中石油、中石化、中海油",
+    "median_salary": 10800,
+    "salary_range": "{\"low\": 7200, \"high\": 18000}",
+    "top_industries": "[\"互联网/IT\", \"金融\", \"教育\", \"制造业\", \"服务业\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.24,
+    "overseas_rate": 0.04
+  },
+  {
+    "name": "纺织工程",
+    "category": "工学",
+    "sub_category": "纺织类",
+    "employment_rate": 0.82,
+    "avg_salary": 8000,
+    "is_hot": 0,
+    "job_directions": "纺织企业、面料研发、服装设计",
+    "median_salary": 7200,
+    "salary_range": "{\"low\": 4800, \"high\": 12000}",
+    "top_industries": "[\"互联网/IT\", \"金融\", \"教育\", \"制造业\", \"服务业\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.05
+  },
+  {
+    "name": "轻化工程",
+    "category": "工学",
+    "sub_category": "轻工类",
+    "employment_rate": 0.83,
+    "avg_salary": 8500,
+    "is_hot": 0,
+    "job_directions": "造纸、日化、皮革",
+    "median_salary": 7600,
+    "salary_range": "{\"low\": 5100, \"high\": 12800}",
+    "top_industries": "[\"互联网/IT\", \"金融\", \"教育\", \"制造业\", \"服务业\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.05
+  },
+  {
+    "name": "农业工程",
+    "category": "工学",
+    "sub_category": "农业工程类",
+    "employment_rate": 0.82,
+    "avg_salary": 8500,
+    "is_hot": 0,
+    "job_directions": "农业科技、农机研发、智慧农业",
+    "median_salary": 7600,
+    "salary_range": "{\"low\": 5100, \"high\": 12800}",
+    "top_industries": "[\"互联网/IT\", \"金融\", \"教育\", \"制造业\", \"服务业\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.05
+  },
+  {
+    "name": "林业工程",
+    "category": "工学",
+    "sub_category": "林业工程类",
+    "employment_rate": 0.8,
+    "avg_salary": 8000,
+    "is_hot": 0,
+    "job_directions": "林业局、木材加工、园林绿化",
+    "median_salary": 7200,
+    "salary_range": "{\"low\": 4800, \"high\": 12000}",
+    "top_industries": "[\"互联网/IT\", \"金融\", \"教育\", \"制造业\", \"服务业\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.26,
+    "overseas_rate": 0.05
+  },
+  {
+    "name": "安全工程",
+    "category": "工学",
+    "sub_category": "安全科学与工程类",
+    "employment_rate": 0.87,
+    "avg_salary": 10000,
+    "is_hot": 0,
+    "job_directions": "安全评价、消防工程、职业健康",
+    "median_salary": 9000,
+    "salary_range": "{\"low\": 6000, \"high\": 15000}",
+    "top_industries": "[\"互联网/IT\", \"金融\", \"教育\", \"制造业\", \"服务业\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.24,
+    "overseas_rate": 0.04
+  },
+  {
+    "name": "消防工程",
+    "category": "工学",
+    "sub_category": "安全科学与工程类",
+    "employment_rate": 0.88,
+    "avg_salary": 10500,
+    "is_hot": 0,
+    "job_directions": "消防救援、消防设计、安全评估",
+    "median_salary": 9400,
+    "salary_range": "{\"low\": 6300, \"high\": 15800}",
+    "top_industries": "[\"互联网/IT\", \"金融\", \"教育\", \"制造业\", \"服务业\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.24,
+    "overseas_rate": 0.04
+  },
+  {
+    "name": "密码科学与技术",
+    "category": "工学",
+    "sub_category": "计算机类",
+    "employment_rate": 0.91,
+    "avg_salary": 16000,
+    "is_hot": 1,
+    "job_directions": "密码工程师、安全架构、区块链",
+    "median_salary": 14400,
+    "salary_range": "{\"low\": 9600, \"high\": 24000}",
+    "top_industries": "[\"互联网/IT\", \"金融科技\", \"人工智能\", \"电子商务\", \"游戏\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.23,
+    "overseas_rate": 0.1
+  },
+  {
+    "name": "区块链工程",
+    "category": "工学",
+    "sub_category": "计算机类",
+    "employment_rate": 0.89,
+    "avg_salary": 15000,
+    "is_hot": 1,
+    "job_directions": "区块链开发、Web3、金融科技",
+    "median_salary": 13500,
+    "salary_range": "{\"low\": 9000, \"high\": 22500}",
+    "top_industries": "[\"互联网/IT\", \"金融科技\", \"人工智能\", \"电子商务\", \"游戏\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.23,
+    "overseas_rate": 0.1
+  },
+  {
+    "name": "虚拟现实技术",
+    "category": "工学",
+    "sub_category": "计算机类",
+    "employment_rate": 0.87,
+    "avg_salary": 14000,
+    "is_hot": 1,
+    "job_directions": "VR/AR开发、游戏引擎、数字孪生",
+    "median_salary": 12600,
+    "salary_range": "{\"low\": 8400, \"high\": 21000}",
+    "top_industries": "[\"互联网/IT\", \"金融科技\", \"人工智能\", \"电子商务\", \"游戏\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.24,
+    "overseas_rate": 0.11
+  },
+  {
+    "name": "应用物理学",
+    "category": "理学",
+    "sub_category": "物理学类",
+    "employment_rate": 0.83,
+    "avg_salary": 11000,
+    "is_hot": 0,
+    "job_directions": "半导体、光电、科研、教育",
+    "median_salary": 9900,
+    "salary_range": "{\"low\": 6600, \"high\": 16500}",
+    "top_industries": "[\"科研院所\", \"半导体\", \"光电技术\", \"教育\", \"新能源\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.43,
+    "overseas_rate": 0.08
+  },
+  {
+    "name": "应用化学",
+    "category": "理学",
+    "sub_category": "化学类",
+    "employment_rate": 0.82,
+    "avg_salary": 9500,
+    "is_hot": 0,
+    "job_directions": "化工研发、质检、新材料",
+    "median_salary": 8600,
+    "salary_range": "{\"low\": 5700, \"high\": 14200}",
+    "top_industries": "[\"化工\", \"制药\", \"新材料\", \"教育\", \"质检\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.44,
+    "overseas_rate": 0.08
+  },
+  {
+    "name": "天文学",
+    "category": "理学",
+    "sub_category": "天文学类",
+    "employment_rate": 0.78,
+    "avg_salary": 10000,
+    "is_hot": 0,
+    "job_directions": "天文台、科研院所、航天",
+    "median_salary": 9000,
+    "salary_range": "{\"low\": 6000, \"high\": 15000}",
+    "top_industries": "[\"互联网/IT\", \"金融\", \"教育\", \"制造业\", \"服务业\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.46,
+    "overseas_rate": 0.08
+  },
+  {
+    "name": "大气科学",
+    "category": "理学",
+    "sub_category": "大气科学类",
+    "employment_rate": 0.85,
+    "avg_salary": 9000,
+    "is_hot": 0,
+    "job_directions": "气象局、环保、航空",
+    "median_salary": 8100,
+    "salary_range": "{\"low\": 5400, \"high\": 13500}",
+    "top_industries": "[\"互联网/IT\", \"金融\", \"教育\", \"制造业\", \"服务业\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.42,
+    "overseas_rate": 0.07
+  },
+  {
+    "name": "海洋科学",
+    "category": "理学",
+    "sub_category": "海洋科学类",
+    "employment_rate": 0.8,
+    "avg_salary": 9000,
+    "is_hot": 0,
+    "job_directions": "海洋局、海洋研究所、水产",
+    "median_salary": 8100,
+    "salary_range": "{\"low\": 5400, \"high\": 13500}",
+    "top_industries": "[\"互联网/IT\", \"金融\", \"教育\", \"制造业\", \"服务业\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.45,
+    "overseas_rate": 0.08
+  },
+  {
+    "name": "地球物理学",
+    "category": "理学",
+    "sub_category": "地球物理学类",
+    "employment_rate": 0.82,
+    "avg_salary": 10000,
+    "is_hot": 0,
+    "job_directions": "地震局、石油勘探、科研院所",
+    "median_salary": 9000,
+    "salary_range": "{\"low\": 6000, \"high\": 15000}",
+    "top_industries": "[\"互联网/IT\", \"金融\", \"教育\", \"制造业\", \"服务业\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.44,
+    "overseas_rate": 0.08
+  },
+  {
+    "name": "地质学",
+    "category": "理学",
+    "sub_category": "地质学类",
+    "employment_rate": 0.8,
+    "avg_salary": 9000,
+    "is_hot": 0,
+    "job_directions": "地质调查、矿业、环境评估",
+    "median_salary": 8100,
+    "salary_range": "{\"low\": 5400, \"high\": 13500}",
+    "top_industries": "[\"互联网/IT\", \"金融\", \"教育\", \"制造业\", \"服务业\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.45,
+    "overseas_rate": 0.08
+  },
+  {
+    "name": "生态学",
+    "category": "理学",
+    "sub_category": "生物科学类",
+    "employment_rate": 0.78,
+    "avg_salary": 8500,
+    "is_hot": 0,
+    "job_directions": "环保机构、科研院所、自然保护区",
+    "median_salary": 7600,
+    "salary_range": "{\"low\": 5100, \"high\": 12800}",
+    "top_industries": "[\"生物医药\", \"科研院所\", \"教育\", \"基因检测\", \"农业\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.46,
+    "overseas_rate": 0.08
+  },
+  {
+    "name": "麻醉学",
+    "category": "医学",
+    "sub_category": "临床医学类",
+    "employment_rate": 0.9,
+    "avg_salary": 12000,
+    "is_hot": 0,
+    "job_directions": "医院麻醉科、疼痛科",
+    "median_salary": 10800,
+    "salary_range": "{\"low\": 7200, \"high\": 18000}",
+    "top_industries": "[\"公立医院\", \"私立医院\", \"医疗科研\", \"医药企业\", \"医疗器械\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.4,
+    "overseas_rate": 0.04
+  },
+  {
+    "name": "法医学",
+    "category": "医学",
+    "sub_category": "法医学类",
+    "employment_rate": 0.85,
+    "avg_salary": 10000,
+    "is_hot": 0,
+    "job_directions": "公安局、司法鉴定、保险",
+    "median_salary": 9000,
+    "salary_range": "{\"low\": 6000, \"high\": 15000}",
+    "top_industries": "[\"互联网/IT\", \"金融\", \"教育\", \"制造业\", \"服务业\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.42,
+    "overseas_rate": 0.04
+  },
+  {
+    "name": "康复治疗学",
+    "category": "医学",
+    "sub_category": "医学技术类",
+    "employment_rate": 0.88,
+    "avg_salary": 8000,
+    "is_hot": 0,
+    "job_directions": "康复医院、养老机构、体育康复",
+    "median_salary": 7200,
+    "salary_range": "{\"low\": 4800, \"high\": 12000}",
+    "top_industries": "[\"医院检验科\", \"第三方检测\", \"医疗器械\", \"体外诊断\", \"基因检测\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.41,
+    "overseas_rate": 0.04
+  },
+  {
+    "name": "卫生检验与检疫",
+    "category": "医学",
+    "sub_category": "公共卫生与预防医学类",
+    "employment_rate": 0.84,
+    "avg_salary": 8500,
+    "is_hot": 0,
+    "job_directions": "海关、疾控中心、检验检疫",
+    "median_salary": 7600,
+    "salary_range": "{\"low\": 5100, \"high\": 12800}",
+    "top_industries": "[\"疾控中心\", \"卫生监督\", \"公共卫生机构\", \"医药企业\", \"健康管理\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.43,
+    "overseas_rate": 0.05
+  },
+  {
+    "name": "中药学",
+    "category": "医学",
+    "sub_category": "药学类",
+    "employment_rate": 0.83,
+    "avg_salary": 8500,
+    "is_hot": 0,
+    "job_directions": "中药企业、中医院、药品研发",
+    "median_salary": 7600,
+    "salary_range": "{\"low\": 5100, \"high\": 12800}",
+    "top_industries": "[\"制药企业\", \"医院药剂科\", \"药品研发\", \"医药销售\", \"药品注册\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.43,
+    "overseas_rate": 0.05
+  },
+  {
+    "name": "药物制剂",
+    "category": "医学",
+    "sub_category": "药学类",
+    "employment_rate": 0.85,
+    "avg_salary": 9500,
+    "is_hot": 0,
+    "job_directions": "制药企业、药品研发、药品注册",
+    "median_salary": 8600,
+    "salary_range": "{\"low\": 5700, \"high\": 14200}",
+    "top_industries": "[\"制药企业\", \"医院药剂科\", \"药品研发\", \"医药销售\", \"药品注册\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.42,
+    "overseas_rate": 0.04
+  },
+  {
+    "name": "金融工程",
+    "category": "经济学",
+    "sub_category": "金融学类",
+    "employment_rate": 0.88,
+    "avg_salary": 15000,
+    "is_hot": 1,
+    "job_directions": "量化基金、投行、金融科技",
+    "median_salary": 13500,
+    "salary_range": "{\"low\": 9000, \"high\": 22500}",
+    "top_industries": "[\"银行\", \"证券\", \"基金\", \"保险\", \"金融科技\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.24,
+    "overseas_rate": 0.1
+  },
+  {
+    "name": "税收学",
+    "category": "经济学",
+    "sub_category": "财政学类",
+    "employment_rate": 0.85,
+    "avg_salary": 10000,
+    "is_hot": 0,
+    "job_directions": "税务局、会计师事务所、企业税务",
+    "median_salary": 9000,
+    "salary_range": "{\"low\": 6000, \"high\": 15000}",
+    "top_industries": "[\"税务局\", \"财政局\", \"会计师事务所\", \"银行\", \"审计\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.11
+  },
+  {
+    "name": "国民经济管理",
+    "category": "经济学",
+    "sub_category": "经济学类",
+    "employment_rate": 0.8,
+    "avg_salary": 10000,
+    "is_hot": 0,
+    "job_directions": "发改委、统计局、经济研究",
+    "median_salary": 9000,
+    "salary_range": "{\"low\": 6000, \"high\": 15000}",
+    "top_industries": "[\"银行\", \"证券\", \"政府经济部门\", \"咨询公司\", \"企业管理\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.26,
+    "overseas_rate": 0.12
+  },
+  {
+    "name": "国际政治",
+    "category": "法学",
+    "sub_category": "政治学类",
+    "employment_rate": 0.76,
+    "avg_salary": 9000,
+    "is_hot": 0,
+    "job_directions": "外交部、国际组织、智库",
+    "median_salary": 8100,
+    "salary_range": "{\"low\": 5400, \"high\": 13500}",
+    "top_industries": "[\"公务员\", \"政策研究\", \"智库\", \"国际组织\", \"行政管理\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.4,
+    "overseas_rate": 0.05
+  },
+  {
+    "name": "外交学",
+    "category": "法学",
+    "sub_category": "政治学类",
+    "employment_rate": 0.78,
+    "avg_salary": 9500,
+    "is_hot": 0,
+    "job_directions": "外交部、领事馆、国际组织",
+    "median_salary": 8600,
+    "salary_range": "{\"low\": 5700, \"high\": 14200}",
+    "top_industries": "[\"公务员\", \"政策研究\", \"智库\", \"国际组织\", \"行政管理\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.39,
+    "overseas_rate": 0.05
+  },
+  {
+    "name": "社会学",
+    "category": "法学",
+    "sub_category": "社会学类",
+    "employment_rate": 0.76,
+    "avg_salary": 8000,
+    "is_hot": 0,
+    "job_directions": "社会研究、公务员、NGO",
+    "median_salary": 7200,
+    "salary_range": "{\"low\": 4800, \"high\": 12000}",
+    "top_industries": "[\"社工机构\", \"社区服务\", \"公益组织\", \"民政部门\", \"心理咨询\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.4,
+    "overseas_rate": 0.05
+  },
+  {
+    "name": "民族学",
+    "category": "法学",
+    "sub_category": "社会学类",
+    "employment_rate": 0.74,
+    "avg_salary": 7500,
+    "is_hot": 0,
+    "job_directions": "民族文化研究、公务员、教育",
+    "median_salary": 6800,
+    "salary_range": "{\"low\": 4500, \"high\": 11200}",
+    "top_industries": "[\"社工机构\", \"社区服务\", \"公益组织\", \"民政部门\", \"心理咨询\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.4,
+    "overseas_rate": 0.06
+  },
+  {
+    "name": "小学教育",
+    "category": "教育学",
+    "sub_category": "教育学类",
+    "employment_rate": 0.88,
+    "avg_salary": 7000,
+    "is_hot": 0,
+    "job_directions": "小学教师、教育机构",
+    "median_salary": 6300,
+    "salary_range": "{\"low\": 4200, \"high\": 10500}",
+    "top_industries": "[\"公立学校\", \"培训机构\", \"教育科技\", \"教育管理\", \"教育研究\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.24,
+    "overseas_rate": 0.04
+  },
+  {
+    "name": "特殊教育",
+    "category": "教育学",
+    "sub_category": "教育学类",
+    "employment_rate": 0.85,
+    "avg_salary": 6500,
+    "is_hot": 0,
+    "job_directions": "特殊教育学校、康复机构",
+    "median_salary": 5800,
+    "salary_range": "{\"low\": 3900, \"high\": 9800}",
+    "top_industries": "[\"公立学校\", \"培训机构\", \"教育科技\", \"教育管理\", \"教育研究\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.04
+  },
+  {
+    "name": "教育技术学",
+    "category": "教育学",
+    "sub_category": "教育学类",
+    "employment_rate": 0.82,
+    "avg_salary": 9000,
+    "is_hot": 0,
+    "job_directions": "教育科技、在线教育、多媒体教学",
+    "median_salary": 8100,
+    "salary_range": "{\"low\": 5400, \"high\": 13500}",
+    "top_industries": "[\"公立学校\", \"培训机构\", \"教育科技\", \"教育管理\", \"教育研究\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.05
+  },
+  {
+    "name": "商务英语",
+    "category": "文学",
+    "sub_category": "外国语言文学类",
+    "employment_rate": 0.83,
+    "avg_salary": 9000,
+    "is_hot": 0,
+    "job_directions": "外企、外贸、跨境电商、翻译",
+    "median_salary": 8100,
+    "salary_range": "{\"low\": 5400, \"high\": 13500}",
+    "top_industries": "[\"翻译公司\", \"外企\", \"教育培训\", \"外贸\", \"国际组织\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.25,
+    "overseas_rate": 0.08
+  },
+  {
+    "name": "西班牙语",
+    "category": "文学",
+    "sub_category": "外国语言文学类",
+    "employment_rate": 0.8,
+    "avg_salary": 9000,
+    "is_hot": 0,
+    "job_directions": "翻译、外贸、国际组织、外交",
+    "median_salary": 8100,
+    "salary_range": "{\"low\": 5400, \"high\": 13500}",
+    "top_industries": "[\"翻译公司\", \"外企\", \"教育培训\", \"外贸\", \"国际组织\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.26,
+    "overseas_rate": 0.08
+  },
+  {
+    "name": "朝鲜语",
+    "category": "文学",
+    "sub_category": "外国语言文学类",
+    "employment_rate": 0.78,
+    "avg_salary": 8000,
+    "is_hot": 0,
+    "job_directions": "韩企、翻译、外贸、文化交流",
+    "median_salary": 7200,
+    "salary_range": "{\"low\": 4800, \"high\": 12000}",
+    "top_industries": "[\"翻译公司\", \"外企\", \"教育培训\", \"外贸\", \"国际组织\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.27,
+    "overseas_rate": 0.08
+  },
+  {
+    "name": "编辑出版学",
+    "category": "文学",
+    "sub_category": "新闻传播学类",
+    "employment_rate": 0.78,
+    "avg_salary": 8000,
+    "is_hot": 0,
+    "job_directions": "出版社、杂志社、新媒体编辑",
+    "median_salary": 7200,
+    "salary_range": "{\"low\": 4800, \"high\": 12000}",
+    "top_industries": "[\"媒体\", \"广告公司\", \"互联网\", \"公关公司\", \"新媒体\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.27,
+    "overseas_rate": 0.08
+  },
+  {
+    "name": "财务管理",
+    "category": "管理学",
+    "sub_category": "工商管理类",
+    "employment_rate": 0.87,
+    "avg_salary": 10000,
+    "is_hot": 0,
+    "job_directions": "财务、审计、银行、证券",
+    "median_salary": 9000,
+    "salary_range": "{\"low\": 6000, \"high\": 15000}",
+    "top_industries": "[\"企业管理\", \"咨询\", \"金融\", \"快消\", \"互联网\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.24,
+    "overseas_rate": 0.11
+  },
+  {
+    "name": "审计学",
+    "category": "管理学",
+    "sub_category": "工商管理类",
+    "employment_rate": 0.86,
+    "avg_salary": 10000,
+    "is_hot": 0,
+    "job_directions": "会计师事务所、审计局、内审",
+    "median_salary": 9000,
+    "salary_range": "{\"low\": 6000, \"high\": 15000}",
+    "top_industries": "[\"企业管理\", \"咨询\", \"金融\", \"快消\", \"互联网\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.24,
+    "overseas_rate": 0.11
+  },
+  {
+    "name": "图书馆学",
+    "category": "管理学",
+    "sub_category": "图书情报与档案管理类",
+    "employment_rate": 0.78,
+    "avg_salary": 7500,
+    "is_hot": 0,
+    "job_directions": "图书馆、档案馆、信息管理",
+    "median_salary": 6800,
+    "salary_range": "{\"low\": 4500, \"high\": 11200}",
+    "top_industries": "[\"互联网/IT\", \"金融\", \"教育\", \"制造业\", \"服务业\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.27,
+    "overseas_rate": 0.12
+  },
+  {
+    "name": "档案学",
+    "category": "管理学",
+    "sub_category": "图书情报与档案管理类",
+    "employment_rate": 0.8,
+    "avg_salary": 8000,
+    "is_hot": 0,
+    "job_directions": "档案馆、政府机关、企业档案",
+    "median_salary": 7200,
+    "salary_range": "{\"low\": 4800, \"high\": 12000}",
+    "top_industries": "[\"互联网/IT\", \"金融\", \"教育\", \"制造业\", \"服务业\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.26,
+    "overseas_rate": 0.12
+  },
+  {
+    "name": "工业工程",
+    "category": "管理学",
+    "sub_category": "管理科学与工程类",
+    "employment_rate": 0.88,
+    "avg_salary": 11000,
+    "is_hot": 0,
+    "job_directions": "制造业、咨询、供应链优化",
+    "median_salary": 9900,
+    "salary_range": "{\"low\": 6600, \"high\": 16500}",
+    "top_industries": "[\"IT咨询\", \"数据分析\", \"项目管理\", \"金融科技\", \"供应链\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.24,
+    "overseas_rate": 0.1
+  },
+  {
+    "name": "美术学",
+    "category": "艺术学",
+    "sub_category": "美术学类",
+    "employment_rate": 0.75,
+    "avg_salary": 8000,
+    "is_hot": 0,
+    "job_directions": "美术教师、画廊、自由艺术家",
+    "median_salary": 7200,
+    "salary_range": "{\"low\": 4800, \"high\": 12000}",
+    "top_industries": "[\"互联网/IT\", \"金融\", \"教育\", \"制造业\", \"服务业\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.28,
+    "overseas_rate": 0.06
+  },
+  {
+    "name": "绘画",
+    "category": "艺术学",
+    "sub_category": "美术学类",
+    "employment_rate": 0.72,
+    "avg_salary": 7500,
+    "is_hot": 0,
+    "job_directions": "自由画家、插画师、美术教育",
+    "median_salary": 6800,
+    "salary_range": "{\"low\": 4500, \"high\": 11200}",
+    "top_industries": "[\"互联网/IT\", \"金融\", \"教育\", \"制造业\", \"服务业\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.28,
+    "overseas_rate": 0.06
+  },
+  {
+    "name": "播音与主持艺术",
+    "category": "艺术学",
+    "sub_category": "戏剧与影视学类",
+    "employment_rate": 0.78,
+    "avg_salary": 9000,
+    "is_hot": 0,
+    "job_directions": "电视台、广播电台、新媒体主播",
+    "median_salary": 8100,
+    "salary_range": "{\"low\": 5400, \"high\": 13500}",
+    "top_industries": "[\"影视制作\", \"游戏公司\", \"广告传媒\", \"自媒体\", \"演出\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.27,
+    "overseas_rate": 0.05
+  },
+  {
+    "name": "广播电视编导",
+    "category": "艺术学",
+    "sub_category": "戏剧与影视学类",
+    "employment_rate": 0.76,
+    "avg_salary": 9000,
+    "is_hot": 0,
+    "job_directions": "电视台、影视公司、短视频",
+    "median_salary": 8100,
+    "salary_range": "{\"low\": 5400, \"high\": 13500}",
+    "top_industries": "[\"影视制作\", \"游戏公司\", \"广告传媒\", \"自媒体\", \"演出\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.27,
+    "overseas_rate": 0.05
+  },
+  {
+    "name": "摄影",
+    "category": "艺术学",
+    "sub_category": "美术学类",
+    "employment_rate": 0.75,
+    "avg_salary": 8500,
+    "is_hot": 0,
+    "job_directions": "摄影师、影视制作、广告拍摄",
+    "median_salary": 7600,
+    "salary_range": "{\"low\": 5100, \"high\": 12800}",
+    "top_industries": "[\"互联网/IT\", \"金融\", \"教育\", \"制造业\", \"服务业\"]",
+    "employment_locations": "[\"深圳\", \"北京\", \"上海\"]",
+    "postgraduate_rate": 0.28,
+    "overseas_rate": 0.06
+  },
+  {
+    "name": "逻辑学",
+    "category": "哲学",
+    "sub_category": "哲学类",
+    "employment_rate": 0.73,
+    "avg_salary": 7500,
+    "is_hot": 0,
+    "job_directions": "教育、科研、公务员、法律",
+    "median_salary": 6800,
+    "salary_range": "{\"low\": 4500, \"high\": 11200}",
+    "top_industries": "[\"教育\", \"公务员\", \"文化产业\", \"智库\", \"出版\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.41,
+    "overseas_rate": 0.06
+  },
+  {
+    "name": "考古学",
+    "category": "历史学",
+    "sub_category": "历史学类",
+    "employment_rate": 0.75,
+    "avg_salary": 7500,
+    "is_hot": 0,
+    "job_directions": "考古研究所、博物馆、文物局",
+    "median_salary": 6800,
+    "salary_range": "{\"low\": 4500, \"high\": 11200}",
+    "top_industries": "[\"教育\", \"博物馆\", \"文化遗产\", \"出版社\", \"公务员\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.4,
+    "overseas_rate": 0.06
+  },
+  {
+    "name": "文物与博物馆学",
+    "category": "历史学",
+    "sub_category": "历史学类",
+    "employment_rate": 0.76,
+    "avg_salary": 7500,
+    "is_hot": 0,
+    "job_directions": "博物馆、文物局、文化遗产保护",
+    "median_salary": 6800,
+    "salary_range": "{\"low\": 4500, \"high\": 11200}",
+    "top_industries": "[\"教育\", \"博物馆\", \"文化遗产\", \"出版社\", \"公务员\"]",
+    "employment_locations": "[\"北京\", \"上海\", \"广州\"]",
+    "postgraduate_rate": 0.4,
+    "overseas_rate": 0.05
   }
 ]

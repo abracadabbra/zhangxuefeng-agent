@@ -12,6 +12,10 @@ dependencies = [
     "python-dotenv>=1.0.1",
     "redis>=5.0.0",
     "sentry-sdk[fastapi]>=2.0.0",
+    "sqlalchemy>=2.0.35",
+    "alembic>=1.13.0",
+    "openai>=1.51.0",
+    "sse-starlette>=2.1.0",
 ]
 
 [project.optional-dependencies]
@@ -23,7 +27,7 @@ dev = [
 ]
 
 [tool.setuptools.packages.find]
-include = ["app*", "backend*"]
+include = ["backend*"]
 
 [tool.ruff]
 line-length = 100
@@ -34,4 +38,3 @@ select = ["E", "F", "I", "UP", "B"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
-testpaths = ["tests"]

@@ -25,6 +25,7 @@ class School(Base):
     # 关联
     admission_scores = relationship("AdmissionScore", back_populates="school")
     enrollment_plans = relationship("EnrollmentPlan", back_populates="school")
+    subject_rankings = relationship("SubjectRanking", back_populates="school")
 
     def __repr__(self):
         return f"<School(id={self.id}, name='{self.name}', level='{self.level}')>"

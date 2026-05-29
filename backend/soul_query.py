@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from backend.user_profile import UserProfile
 
 # 最大追问轮次
-MAX_QUERY_ROUNDS = 3
+MAX_QUERY_ROUNDS = 5
 
 # 必问字段的张雪峰风格话术
 REQUIRED_QUESTIONS: dict[str, list[str]] = {

@@ -27,7 +27,8 @@ from backend.agent.core import AgentCore
 from backend.soul_query import SoulQueryEngine, QueryState
 from backend.user_profile import UserProfile, load_profile, save_profile, update_profile
 from backend.database import init_db
-from backend.routers import schools_router, majors_router, scores_router, plans_router
+from backend.routers import schools_router, majors_router, scores_router, plans_router, subject_rankings_router
+from backend.session_store import SessionStore
 
 # ============== Config ==============
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
@@ -53,9 +54,10 @@ class SessionInfo(BaseModel):
     created_at: str
     message_count: int
     user_context: Optional[dict]
+    messages: list[dict] = Field(default_factory=list, description="完整消息历史")
 
-# ============== In-Memory Store ==============
-sessions: dict[str, dict] = {}
+# ============== Persistent Store ==============
+session_store = SessionStore()
 
 # ============== Agent Instance ==============
 agent: AgentCore = None
@@ -94,8 +96,8 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=os.getenv("CORS_ORIGINS", "*").split(","),
+    allow_credentials=os.getenv("CORS_ORIGINS", "*") != "*",
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -105,6 +107,7 @@ app.include_router(schools_router)
 app.include_router(majors_router)
 app.include_router(scores_router)
 app.include_router(plans_router)
+app.include_router(subject_rankings_router)
 
 
 # ============== Helper ==============
@@ -119,17 +122,6 @@ _CONTEXT_KEY_MAP = {
     "风险偏好": "risk_tolerance",
     "职业方向": "career_goal",
 }
-
-
-def _normalize_user_context(ctx: dict | None) -> dict:
-    """将中文 key 的 user_context 映射为 UserProfile 字段名"""
-    if not ctx:
-        return {}
-    normalized = {}
-    for k, v in ctx.items():
-        en_key = _CONTEXT_KEY_MAP.get(k, k)
-        normalized[en_key] = v
-    return normalized
 
 
 def _extract_profile_from_message(message: str, profile: UserProfile) -> bool:
@@ -148,7 +140,6 @@ def _extract_profile_from_message(message: str, profile: UserProfile) -> bool:
             profile.score = score
             updated = True
 
-    # 提取省份
     provinces = [
         "北京", "天津", "上海", "重庆", "河北", "山西", "辽宁", "吉林",
         "黑龙江", "江苏", "浙江", "安徽", "福建", "江西", "山东", "河南",
@@ -206,25 +197,20 @@ async def db_status():
     """数据库状态检查"""
     from backend.database import SessionLocal
     from backend.models import School, Major, AdmissionScore, EnrollmentPlan
-    db = SessionLocal()
-    try:
-        school_count = db.query(School).count()
-        major_count = db.query(Major).count()
-        score_count = db.query(AdmissionScore).count()
-        plan_count = db.query(EnrollmentPlan).count()
-        return {
-            "status": "connected",
-            "tables": {
-                "schools": school_count,
-                "majors": major_count,
-                "admission_scores": score_count,
-                "enrollment_plans": plan_count,
-            },
-        }
-    except Exception as e:
-        return {"status": "error", "detail": str(e)}
-    finally:
-        db.close()
+    from contextlib import closing
+    with closing(SessionLocal()) as db:
+        try:
+            return {
+                "status": "connected",
+                "tables": {
+                    "schools": db.query(School).count(),
+                    "majors": db.query(Major).count(),
+                    "admission_scores": db.query(AdmissionScore).count(),
+                    "enrollment_plans": db.query(EnrollmentPlan).count(),
+                },
+            }
+        except Exception as e:
+            return {"status": "error", "detail": str(e)}
 
 
 @app.post("/chat", response_model=ChatResponse)
@@ -233,40 +219,28 @@ async def chat(req: ChatRequest):
     if not req.message.strip():
         raise HTTPException(status_code=400, detail="消息不能为空")
 
-    # 获取或创建会话
+    # 获取或创建会话（持久化）
     session_id = req.session_id or str(uuid.uuid4())
-    if session_id not in sessions:
-        sessions[session_id] = {
-            "created_at": datetime.now().isoformat(),
-            "history": [],
-            "message_count": 0,
-            "user_context": _normalize_user_context(req.user_context),
-            "query_state": QueryState(),
-        }
+    session = session_store.get_or_create(session_id, user_context=req.user_context)
+    query_state: QueryState = session["query_state"]
 
-    session = sessions[session_id]
-
-    # 更新上下文（中文 key 自动映射为英文）
     if req.user_context:
-        session["user_context"].update(_normalize_user_context(req.user_context))
+        session["user_context"].update(req.user_context)
+        session_store.update_context(session_id, session["user_context"])
 
     # 加载用户画像（Redis 持久化）
     try:
         profile = await load_profile(session_id)
     except Exception:
-        # Redis 不可用时降级为内存模式
         profile = UserProfile()
 
-    # 用 session 中的 user_context 补充画像（请求传入的字段优先）
-    # 需要将中文 key 映射为英文 field name
     if session["user_context"]:
         for key, val in session["user_context"].items():
             if val is None:
                 continue
-            # 映射中文 key 到英文 field name
-            en_key = _CONTEXT_KEY_MAP.get(key, key)
-            if en_key in UserProfile.model_fields and getattr(profile, en_key, None) is None:
-                setattr(profile, en_key, val)
+            field = _CONTEXT_KEY_MAP.get(key)
+            if field and field in UserProfile.model_fields and getattr(profile, field, None) is None:
+                setattr(profile, field, val)
 
     # 从用户消息中尝试提取画像信息
     profile_updated = _extract_profile_from_message(req.message, profile)
@@ -274,17 +248,15 @@ async def chat(req: ChatRequest):
         try:
             await save_profile(session_id, profile)
         except Exception:
-            pass  # Redis 不可用时静默失败
+            pass
 
     # 灵魂追问：检查画像完整性
-    query_state = session["query_state"]
     if not soul_engine.is_query_complete(profile):
         question = soul_engine.get_next_question(profile, query_state)
         if question:
-            # 记录追问到历史
-            session["history"].append({"role": "user", "content": req.message})
-            session["history"].append({"role": "assistant", "content": question})
-            session["message_count"] += 2
+            session_store.add_message(session_id, "user", req.message)
+            session_store.add_message(session_id, "assistant", question)
+            session_store.update_query_state(session_id, query_state)
             return ChatResponse(
                 session_id=session_id,
                 reply=question,
@@ -293,15 +265,14 @@ async def chat(req: ChatRequest):
             )
 
     # 画像完整，正常调用 LLM
-    # 注入画像到 user_context
     session["user_context"] = profile.to_context_dict()
+    session_store.update_context(session_id, session["user_context"])
 
     # 检查 API Key
     if not OPENAI_API_KEY:
         error_reply = "抱歉，AI 服务暂时不可用（API Key 未配置）。请联系管理员配置 OPENAI_API_KEY 环境变量。"
-        session["history"].append({"role": "user", "content": req.message})
-        session["history"].append({"role": "assistant", "content": error_reply})
-        session["message_count"] += 2
+        session_store.add_message(session_id, "user", req.message)
+        session_store.add_message(session_id, "assistant", error_reply)
         return ChatResponse(
             session_id=session_id,
             reply=error_reply,
@@ -311,7 +282,7 @@ async def chat(req: ChatRequest):
         )
 
     # 构建历史消息
-    messages = [msg for msg in session["history"]]
+    messages = list(session["history"])
     messages.append({"role": "user", "content": req.message})
 
     agent_instance = get_agent()
@@ -319,7 +290,7 @@ async def chat(req: ChatRequest):
     # 流式输出
     if req.stream:
         return EventSourceResponse(
-            _stream_response(agent_instance, messages, session, session_id, req.message),
+            _stream_response(agent_instance, messages, session_id, req.message, session["user_context"]),
             media_type="text/event-stream",
         )
 
@@ -329,9 +300,8 @@ async def chat(req: ChatRequest):
     except Exception as e:
         logger.error(f"LLM 调用失败: {e}")
         error_reply = f"抱歉，AI 服务暂时出现问题，请稍后重试。错误：{type(e).__name__}"
-        session["history"].append({"role": "user", "content": req.message})
-        session["history"].append({"role": "assistant", "content": error_reply})
-        session["message_count"] += 2
+        session_store.add_message(session_id, "user", req.message)
+        session_store.add_message(session_id, "assistant", error_reply)
         return ChatResponse(
             session_id=session_id,
             reply=error_reply,
@@ -340,10 +310,9 @@ async def chat(req: ChatRequest):
             usage=None,
         )
 
-    # 更新历史
-    session["history"].append({"role": "user", "content": req.message})
-    session["history"].append({"role": "assistant", "content": result["reply"]})
-    session["message_count"] += 2
+    # 持久化历史
+    session_store.add_message(session_id, "user", req.message)
+    session_store.add_message(session_id, "assistant", result["reply"])
 
     return ChatResponse(
         session_id=session_id,
@@ -357,16 +326,16 @@ async def chat(req: ChatRequest):
 async def _stream_response(
     agent_instance: AgentCore,
     messages: list[dict],
-    session: dict,
     session_id: str,
     user_message: str,
+    user_context: dict,
 ):
     """SSE 流式响应生成器"""
     full_reply = ""
     tool_calls_log = []
 
     try:
-        async for event in agent_instance.chat_stream(messages, user_context=session["user_context"]):
+        async for event in agent_instance.chat_stream(messages, user_context=user_context):
             if event["type"] == "text":
                 full_reply += event["content"]
                 yield {
@@ -400,10 +369,9 @@ async def _stream_response(
             "data": json.dumps({"type": "done", "usage": None}, ensure_ascii=False),
         }
 
-    # 更新历史
-    session["history"].append({"role": "user", "content": user_message})
-    session["history"].append({"role": "assistant", "content": full_reply})
-    session["message_count"] += 2
+    # 持久化历史
+    session_store.add_message(session_id, "user", user_message)
+    session_store.add_message(session_id, "assistant", full_reply)
 
 
 # ============== 画像管理 API ==============
@@ -431,7 +399,7 @@ async def get_profile(session_id: str):
     try:
         profile = await load_profile(session_id)
     except Exception:
-        session = sessions.get(session_id, {})
+        session = session_store.get_or_create(session_id)
         ctx = session.get("user_context", {})
         profile = UserProfile(**ctx) if ctx else UserProfile()
 
@@ -467,13 +435,12 @@ async def get_next_question(session_id: str):
     try:
         profile = await load_profile(session_id)
     except Exception:
-        session = sessions.get(session_id, {})
+        session = session_store.get_or_create(session_id)
         ctx = session.get("user_context", {})
         profile = UserProfile(**ctx) if ctx else UserProfile()
 
-    # 获取或创建 query_state
-    session = sessions.get(session_id, {})
-    query_state = session.get("query_state", QueryState())
+    session = session_store.get_or_create(session_id)
+    query_state: QueryState = session["query_state"]
 
     question = soul_engine.get_next_question(profile, query_state)
 
@@ -485,34 +452,125 @@ async def get_next_question(session_id: str):
     )
 
 
+@app.get("/sessions")
+async def list_sessions(limit: int = 20):
+    """列出最近的会话"""
+    return session_store.list_recent(limit=limit)
+
+
 @app.get("/session/{session_id}", response_model=SessionInfo)
 async def get_session(session_id: str):
-    if session_id not in sessions:
-        raise HTTPException(status_code=404, detail="会话不存在")
-    s = sessions[session_id]
+    s = session_store.get_or_create(session_id)
     return SessionInfo(
         session_id=session_id,
         created_at=s["created_at"],
         message_count=s["message_count"],
         user_context=s["user_context"],
+        messages=s["history"],
     )
 
 
 @app.delete("/session/{session_id}")
 async def delete_session(session_id: str):
-    if session_id in sessions:
-        del sessions[session_id]
+    session_store.delete(session_id)
     return {"status": "deleted", "session_id": session_id}
+
+
+@app.get("/session/{session_id}/export")
+async def export_session(session_id: str):
+    """导出对话记录为 Markdown"""
+    if not session_store.exists(session_id):
+        raise HTTPException(status_code=404, detail="会话不存在")
+    s = session_store.get_or_create(session_id)
+
+    lines = [
+        f"# 张雪峰 AI 咨询记录",
+        f"",
+        f"**会话 ID**: `{session_id}`",
+        f"**时间**: {s['created_at']}",
+        f"",
+        f"---",
+        f"",
+    ]
+
+    role_map = {"user": "用户", "assistant": "张雪峰 AI"}
+    for msg in s["history"]:
+        role = role_map.get(msg["role"], msg["role"])
+        content = msg.get("content", "")
+        if content:
+            lines.append(f"**{role}**: {content}")
+            lines.append("")
+
+    from fastapi.responses import PlainTextResponse
+    return PlainTextResponse(
+        content="\n".join(lines),
+        media_type="text/markdown; charset=utf-8",
+        headers={"Content-Disposition": f"attachment; filename=chat-{session_id[:8]}.md"},
+    )
+
+
+# ============== 反馈 API ==============
+
+class FeedbackRequest(BaseModel):
+    session_id: str
+    message_index: int
+    rating: int = Field(..., ge=1, le=5)
+    comment: Optional[str] = None
+
+
+@app.post("/api/v1/feedback")
+async def submit_feedback(req: FeedbackRequest):
+    """提交用户反馈"""
+    from backend.models.feedback import Feedback
+    from backend.database import SessionLocal
+    db = SessionLocal()
+    try:
+        fb = Feedback(
+            session_id=req.session_id,
+            message_index=req.message_index,
+            rating=req.rating,
+            comment=req.comment,
+        )
+        db.add(fb)
+        db.commit()
+        return {"status": "ok", "id": fb.id}
+    finally:
+        db.close()
+
+
+@app.get("/api/v1/feedback/stats")
+async def feedback_stats():
+    """反馈统计"""
+    from backend.models.feedback import Feedback
+    from backend.database import SessionLocal
+    from sqlalchemy import func
+    db = SessionLocal()
+    try:
+        total = db.query(func.count(Feedback.id)).scalar()
+        avg_rating = db.query(func.avg(Feedback.rating)).scalar()
+        distribution = (
+            db.query(Feedback.rating, func.count(Feedback.id))
+            .group_by(Feedback.rating)
+            .all()
+        )
+        return {
+            "total": total,
+            "avg_rating": round(float(avg_rating), 2) if avg_rating else 0,
+            "distribution": {str(r): c for r, c in distribution},
+        }
+    finally:
+        db.close()
 
 
 @app.get("/tools")
 async def list_tools():
     """返回所有已注册工具的定义"""
-    from tools.definitions import TOOLS
+    from backend.tools.definitions import TOOLS
     return {"tools": TOOLS}
 
 
 # ============== Run ==============
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.getenv("PORT", "8000"))
+    uvicorn.run(app, host="0.0.0.0", port=port)

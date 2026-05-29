@@ -38,5 +38,5 @@ def get_db():
 
 def init_db():
     """创建所有表（仅用于开发/测试，生产用 Alembic）"""
-    from backend.models import school, major, admission_score, enrollment_plan  # noqa: F401
+    from backend.models import school, major, admission_score, enrollment_plan, chat, feedback  # noqa: F401
     Base.metadata.create_all(bind=engine)

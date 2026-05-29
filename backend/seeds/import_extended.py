@@ -8,6 +8,7 @@
 """
 import json
 import sys
+from contextlib import closing
 from pathlib import Path
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
@@ -163,10 +164,9 @@ def run_extended_import():
     engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
     Base.metadata.create_all(bind=engine)
 
-    Session = SessionLocal = __import__('sqlalchemy.orm', fromlist=['sessionmaker']).sessionmaker(bind=engine)
-    db = Session()
+    Session = sessionmaker(bind=engine)
 
-    try:
+    with closing(Session()) as db:
         # 1. 导入扩展院校
         print("\n[1/3] 导入扩展院校...")
         school_files = [
@@ -217,9 +217,9 @@ def run_extended_import():
         db.commit()
         print(f"  ✓ 专业总数: {len(major_map)}")
 
-        # 3. 导入扩展分数线
+        # 3. 导入扩展分数线（优先使用全量数据）
         print("\n[3/4] 导入扩展分数线...")
-        score_files = ["seed_scores.json", "seed_scores_extended.json", "seed_scores_province.json", "seed_scores_v2.json"]
+        score_files = ["seed_scores_all.json", "seed_scores.json", "seed_scores_extended.json", "seed_scores_province.json", "seed_scores_v2.json"]
 
         all_scores = []
         for filename in score_files:
@@ -259,11 +259,8 @@ def run_extended_import():
         print("=" * 60)
 
     except Exception as e:
-        db.rollback()
         print(f"\n导入失败: {e}")
         raise
-    finally:
-        db.close()
 
 
 if __name__ == "__main__":

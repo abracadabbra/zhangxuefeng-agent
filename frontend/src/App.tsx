@@ -1,10 +1,16 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import ChatInterface from './components/ChatInterface'
 import SoulQuestionForm from './components/SoulQuestionForm'
 import type { UserProfile } from './types'
 
 type View = 'portal' | 'form' | 'chat'
 type Scenario = 'gaokao' | 'kaoyan' | 'career'
+
+interface SessionSummary {
+  session_id: string
+  created_at: string
+  message_count: number
+}
 
 const SCENARIOS = [
   {
@@ -36,14 +42,20 @@ const SCENARIOS = [
 function App() {
   const [view, setView] = useState<View>('portal')
   const [scenario, setScenario] = useState<Scenario>('gaokao')
-  const [sessionId] = useState(() => crypto.randomUUID())
+  const [sessionId, setSessionId] = useState(() => crypto.randomUUID())
 
   const handleScenarioSelect = (s: Scenario) => {
+    setSessionId(crypto.randomUUID())
     setScenario(s)
     setView('form')
   }
 
   const handleFormComplete = (_profile: UserProfile) => {
+    setView('chat')
+  }
+
+  const handleResumeSession = (sid: string) => {
+    setSessionId(sid)
     setView('chat')
   }
 
@@ -89,7 +101,7 @@ function App() {
       {/* Main Content */}
       <main className="flex-1">
         {view === 'portal' && (
-          <PortalHome onSelect={handleScenarioSelect} />
+          <PortalHome onSelect={handleScenarioSelect} onResume={handleResumeSession} />
         )}
         {view === 'form' && (
           <SoulQuestionForm
@@ -120,7 +132,15 @@ function App() {
 }
 
 /* ── Portal Homepage - 报纸头版风格 ────────────────────────── */
-function PortalHome({ onSelect }: { onSelect: (s: Scenario) => void }) {
+function PortalHome({ onSelect, onResume }: { onSelect: (s: Scenario) => void; onResume: (sid: string) => void }) {
+  const [sessions, setSessions] = useState<SessionSummary[]>([])
+
+  useEffect(() => {
+    fetch('/api/sessions?limit=10')
+      .then(r => r.json())
+      .then(data => setSessions(data))
+      .catch(() => {})
+  }, [])
   const today = new Date()
   const dateStr = `${today.getFullYear()} 年 ${today.getMonth() + 1} 月 ${today.getDate()} 日`
 
@@ -207,6 +227,35 @@ function PortalHome({ onSelect }: { onSelect: (s: Scenario) => void }) {
           </button>
         ))}
       </div>
+
+      {/* 历史会话 */}
+      {sessions.length > 0 && (
+        <div className="border-2 border-ink bg-paper p-4 mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="stamp text-xs">历史会话</span>
+            <div className="h-px flex-1 bg-ink" />
+          </div>
+          <div className="space-y-2">
+            {sessions.map(s => (
+              <button
+                key={s.session_id}
+                onClick={() => onResume(s.session_id)}
+                className="w-full flex items-center justify-between px-4 py-2 border border-ink/30 hover:border-ink hover:bg-paper-dark/50 transition-colors text-left"
+              >
+                <span className="font-mono text-sm text-ink truncate max-w-[60%]">
+                  {s.session_id.slice(0, 8)}...
+                </span>
+                <span className="text-xs text-ink-light font-mono">
+                  {s.message_count} 条消息
+                </span>
+                <span className="text-xs text-ink-light font-mono">
+                  {new Date(s.created_at).toLocaleDateString()}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* 底部数据快报横条 */}
       <div className="border-2 border-ink bg-paper-dark p-4">

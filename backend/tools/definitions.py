@@ -9,6 +9,7 @@
 - calculate_match：分数匹配院校推荐
 """
 import json
+from contextlib import contextmanager
 from sqlalchemy.orm import Session
 
 from .registry import register_tool
@@ -24,9 +25,14 @@ from ..schemas.major import MajorQuery
 from ..schemas.admission_score import AdmissionScoreQuery
 
 
+@contextmanager
 def _get_db() -> Session:
-    """获取数据库会话"""
-    return SessionLocal()
+    """获取数据库会话（上下文管理器，自动关闭）"""
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 @register_tool(
@@ -58,18 +64,15 @@ def _get_db() -> Session:
 )
 async def search_admission(school_name: str, province: str = "", year: int = 0, category: str = "") -> str:
     """搜索高校录取分数线"""
-    db = _get_db()
-    try:
-        # 查找学校
+    with _get_db() as db:
         school = get_school_by_name(db, school_name)
         if not school:
             return json.dumps({
                 "status": "not_found",
                 "message": f"未找到学校：{school_name}",
-                "suggestions": "请检查学校名称是否正确"
+                "hint": "school_name 必须是具体学校名称（如'北京大学'），不能是省份、批次或科类。如需按省份查询，请使用 province 参数。"
             }, ensure_ascii=False)
 
-        # 构建查询
         query = AdmissionScoreQuery(
             school_id=school.id,
             province=province if province else None,
@@ -93,13 +96,6 @@ async def search_admission(school_name: str, province: str = "", year: int = 0, 
             "scores": results,
             "total": total
         }, ensure_ascii=False, default=str)
-    except Exception as e:
-        return json.dumps({
-            "status": "error",
-            "message": f"查询失败：{str(e)}"
-        }, ensure_ascii=False)
-    finally:
-        db.close()
 
 
 @register_tool(
@@ -123,14 +119,13 @@ async def search_admission(school_name: str, province: str = "", year: int = 0, 
 )
 async def search_employment(major_name: str, degree_level: str = "") -> str:
     """搜索专业就业数据"""
-    db = _get_db()
-    try:
+    with _get_db() as db:
         major = get_major_by_name(db, major_name)
         if not major:
             return json.dumps({
                 "status": "not_found",
                 "message": f"未找到专业：{major_name}",
-                "suggestions": "请检查专业名称是否正确"
+                "hint": "major_name 必须是具体专业名称（如'计算机科学与技术'），不能是大类（如'工科'）或行业（如'互联网'）。"
             }, ensure_ascii=False)
 
         return json.dumps({
@@ -149,13 +144,6 @@ async def search_employment(major_name: str, degree_level: str = "") -> str:
                 "is_hot": major.is_hot
             }
         }, ensure_ascii=False)
-    except Exception as e:
-        return json.dumps({
-            "status": "error",
-            "message": f"查询失败：{str(e)}"
-        }, ensure_ascii=False)
-    finally:
-        db.close()
 
 
 @register_tool(
@@ -180,8 +168,7 @@ async def search_employment(major_name: str, degree_level: str = "") -> str:
 )
 async def compare_schools(school_names: list[str], dimensions: list[str] | None = None) -> str:
     """对比多所院校"""
-    db = _get_db()
-    try:
+    with _get_db() as db:
         schools = []
         for name in school_names:
             school = get_school_by_name(db, name)
@@ -204,7 +191,8 @@ async def compare_schools(school_names: list[str], dimensions: list[str] | None 
         if not schools:
             return json.dumps({
                 "status": "not_found",
-                "message": "未找到任何匹配的学校"
+                "message": "未找到任何匹配的学校",
+                "hint": "请确保传入的是具体学校名称列表（如['北京大学','清华大学']），不是省份或批次。"
             }, ensure_ascii=False)
 
         return json.dumps({
@@ -212,13 +200,6 @@ async def compare_schools(school_names: list[str], dimensions: list[str] | None 
             "schools": schools,
             "comparison_count": len(schools)
         }, ensure_ascii=False)
-    except Exception as e:
-        return json.dumps({
-            "status": "error",
-            "message": f"对比失败：{str(e)}"
-        }, ensure_ascii=False)
-    finally:
-        db.close()
 
 
 @register_tool(
@@ -244,13 +225,10 @@ async def compare_schools(school_names: list[str], dimensions: list[str] | None 
     },
 )
 async def search_policy(keyword: str, school_name: str = "", year: int = 0) -> str:
-    """搜索招生政策（当前为 stub，后续对接政策数据源）"""
+    """搜索招生政策（暂未开放）"""
     return json.dumps({
-        "status": "not_implemented",
-        "message": "招生政策搜索功能待实现",
-        "keyword": keyword,
-        "school_name": school_name,
-        "year": year
+        "status": "unavailable",
+        "message": "招生政策搜索功能暂未开放，请关注后续版本更新。如有政策问题，可直接向我提问，我会基于已有知识为你解答。",
     }, ensure_ascii=False)
 
 
@@ -288,39 +266,34 @@ async def search_policy(keyword: str, school_name: str = "", year: int = 0) -> s
 )
 async def calculate_match(score: float, province: str, category: str, strategy: str = "", limit: int = 10) -> str:
     """分数匹配院校推荐"""
-    db = _get_db()
-    try:
-        # 根据策略设置分数范围
+    with _get_db() as db:
         if strategy == "冲":
             min_score = score
             max_score = score + 30
         elif strategy == "保":
             min_score = score - 50
             max_score = score
-        else:  # 稳
+        else:
             min_score = score - 20
             max_score = score + 10
 
-        # 查询匹配的分数线记录
         query = AdmissionScoreQuery(
             province=province,
             subject_type=category,
             min_score_floor=int(min_score),
             max_score_ceil=int(max_score),
             page=1,
-            page_size=limit * 2  # 多查一些用于去重
+            page_size=limit * 2
         )
 
         results, total = get_admission_scores(db, query)
 
-        # 按学校去重，取最低分
         school_map = {}
         for r in results:
             sid = r["school_id"]
             if sid not in school_map or r["min_score"] < school_map[sid]["min_score"]:
                 school_map[sid] = r
 
-        # 排序并截取
         matched = sorted(school_map.values(), key=lambda x: x["min_score"])[:limit]
 
         return json.dumps({
@@ -335,13 +308,6 @@ async def calculate_match(score: float, province: str, category: str, strategy: 
             "matched_schools": matched,
             "total_matches": len(matched)
         }, ensure_ascii=False, default=str)
-    except Exception as e:
-        return json.dumps({
-            "status": "error",
-            "message": f"匹配失败：{str(e)}"
-        }, ensure_ascii=False)
-    finally:
-        db.close()
 
 
 # 导出所有工具定义供 Agent 使用

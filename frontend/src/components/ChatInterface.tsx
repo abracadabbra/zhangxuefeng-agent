@@ -31,6 +31,31 @@ export default function ChatInterface({ sessionId }: ChatInterfaceProps) {
     }
   }, [isLoading])
 
+  // 加载历史消息
+  useEffect(() => {
+    fetch(`/api/session/${sessionId}`)
+      .then(r => {
+        if (!r.ok) return null
+        return r.json()
+      })
+      .then(data => {
+        if (data?.messages?.length > 0) {
+          const history: Message[] = data.messages
+            .filter((m: { role: string }) => m.role === 'user' || m.role === 'assistant')
+            .map((m: { role: string; content: string }) => ({
+              id: crypto.randomUUID(),
+              role: m.role as 'user' | 'assistant',
+              content: m.content || '',
+              timestamp: new Date(),
+            }))
+          if (history.length > 0) {
+            setMessages(history)
+          }
+        }
+      })
+      .catch(() => {})
+  }, [sessionId])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!input.trim() || isLoading) return
@@ -209,7 +234,17 @@ export default function ChatInterface({ sessionId }: ChatInterfaceProps) {
         <div className="border-b-2 border-ink px-6 py-3 bg-paper-dark/50">
           <div className="flex items-center justify-between">
             <h2 className="font-serif font-bold text-ink text-lg">专栏对话</h2>
-            <span className="text-xs font-mono text-ink-light">实时咨询</span>
+            <div className="flex items-center gap-3">
+              {messages.length > 0 && (
+                <button
+                  onClick={() => window.open(`/api/session/${sessionId}/export`, '_blank')}
+                  className="text-xs font-mono text-ink-light hover:text-ink border border-ink/30 hover:border-ink px-2 py-1 transition-colors"
+                >
+                  导出
+                </button>
+              )}
+              <span className="text-xs font-mono text-ink-light">实时咨询</span>
+            </div>
           </div>
         </div>
 

@@ -17,11 +17,11 @@ services:
     depends_on:
       - redis
     command: >
-      uvicorn app.main:app
+      uvicorn backend.main:app
       --host 0.0.0.0
       --port 8000
       --reload
-      --reload-dir /app/app
+      --reload-dir /app/backend
 
   redis:
     image: redis:7-alpine

@@ -344,10 +344,8 @@ fly ssh console
 
 ```
 zhangxuefeng-agent/
-├── app/                        # Docker 构建入口（打包用）
-│   └── main.py
-├── backend/                    # 后端源码
-│   ├── main.py                 # FastAPI 应用主入口
+├── backend/                    # FastAPI 后端
+│   ├── main.py                 # 应用入口
 │   ├── agent/                  # Agent 核心逻辑
 │   ├── routers/                # API 路由（schools/majors/scores/plans）
 │   ├── models/                 # SQLAlchemy ORM 模型
@@ -386,7 +384,7 @@ zhangxuefeng-agent/
 ModuleNotFoundError: No module named 'backend'
 ```
 
-**解决**：确保在项目根目录执行 `pip install -e ".[dev]"`，或使用 `uvicorn backend.main:app` 而非 `uvicorn app.main:app`。
+**解决**：确保在项目根目录执行 `pip install -e ".[dev]"`。
 
 ### 2. 前端请求后端 404
 

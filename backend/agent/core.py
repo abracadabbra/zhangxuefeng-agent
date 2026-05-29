@@ -8,7 +8,9 @@ Agent 核心引擎 — OpenAI API 对接 + Function Calling 调度
 4. 流式输出支持
 """
 import json
+import os
 import logging
+import asyncio
 from typing import AsyncGenerator
 
 from openai import AsyncOpenAI
@@ -20,8 +22,76 @@ from ..tools.definitions import TOOLS
 
 logger = logging.getLogger(__name__)
 
-# 最大工具调用轮次
 MAX_TOOL_ROUNDS = 5
+MAX_HISTORY_ROUNDS = 20  # 保留最近 20 轮对话（40 条消息）
+MAX_RETRIES = 2
+RETRYABLE_STATUS_CODES = {429, 500, 502, 503}
+
+
+async def _retry_api_call(coro_factory, max_retries: int = MAX_RETRIES):
+    """
+    带指数退避的 API 调用重试。
+
+    coro_factory: 每次重试时调用的协程工厂函数（不能复用已消费的协程）
+    仅对 429/500/502/503 重试，其他错误直接抛出。
+    """
+    last_exc = None
+    for attempt in range(max_retries + 1):
+        try:
+            return await coro_factory()
+        except Exception as e:
+            status = getattr(e, "status_code", None) or getattr(e, "code", None)
+            if status in RETRYABLE_STATUS_CODES and attempt < max_retries:
+                delay = 2 ** attempt
+                logger.warning(f"API call failed (status={status}), retrying in {delay}s... (attempt {attempt + 1}/{max_retries})")
+                await asyncio.sleep(delay)
+                last_exc = e
+            else:
+                raise
+    raise last_exc
+
+
+def _trim_messages(messages: list[dict], max_rounds: int = MAX_HISTORY_ROUNDS) -> list[dict]:
+    """
+    裁剪消息历史，保留 system prompt + 最近 N 轮对话。
+
+    1 轮 = 1 条 user + 1 条 assistant（或 tool 调用链）。
+    超出部分从最旧的非 system 消息开始删除。
+    """
+    if len(messages) <= 1 + max_rounds * 2:
+        return messages
+
+    system = messages[0]
+    recent = messages[-(max_rounds * 2):]
+    trimmed_count = len(messages) - 1 - len(recent)
+    if trimmed_count > 0:
+        logger.info(f"Context trimmed: dropped {trimmed_count} old messages, keeping {len(recent)} recent")
+    return [system] + recent
+
+_SKILL_CACHE: str | None = None
+
+
+def load_skill_prompt(skill_path: str | None = None) -> str:
+    """加载 SKILL.md，剥离 YAML 前置元数据，返回纯提示词"""
+    global _SKILL_CACHE
+    if _SKILL_CACHE is not None:
+        return _SKILL_CACHE
+
+    path = skill_path or os.getenv("SKILL_PATH", "SKILL.md")
+    try:
+        with open(path, encoding="utf-8") as f:
+            content = f.read()
+        if content.startswith("---"):
+            _, _, body = content.partition("---")
+            _, _, body = body.partition("---")
+            _SKILL_CACHE = body.strip()
+        else:
+            _SKILL_CACHE = content.strip()
+    except FileNotFoundError:
+        logger.warning("SKILL.md not found at %s, falling back to built-in prompt", path)
+        _SKILL_CACHE = SYSTEM_PROMPT
+
+    return _SKILL_CACHE
 
 
 class AgentCore:
@@ -32,10 +102,12 @@ class AgentCore:
         api_key: str,
         base_url: str = "https://api.openai.com/v1",
         model: str = "gpt-4o-mini",
+        skill_path: str | None = None,
         timeout: float = 60.0,
         max_retries: int = 2,
     ):
         self.model = model
+        self.skill_path = skill_path
         self.client = AsyncOpenAI(
             api_key=api_key,
             base_url=base_url,
@@ -45,7 +117,7 @@ class AgentCore:
 
     def _build_system_prompt(self, user_context: dict | None = None) -> str:
         """构建系统提示词，注入用户上下文"""
-        prompt = SYSTEM_PROMPT
+        prompt = load_skill_prompt(self.skill_path)
 
         if user_context:
             ctx_parts = []
@@ -78,18 +150,20 @@ class AgentCore:
         返回：{"reply": str, "tool_calls": list, "usage": dict}
         """
         system_prompt = self._build_system_prompt(user_context)
-        full_messages = [{"role": "system", "content": system_prompt}] + messages
+        full_messages = _trim_messages([{"role": "system", "content": system_prompt}] + messages)
 
         all_tool_calls = []
 
         for round_idx in range(MAX_TOOL_ROUNDS):
-            response: ChatCompletion = await self.client.chat.completions.create(
-                model=self.model,
-                messages=full_messages,
-                tools=TOOLS if TOOLS else None,
-                tool_choice="auto" if TOOLS else None,
-                temperature=temperature,
-                max_tokens=max_tokens,
+            response: ChatCompletion = await _retry_api_call(
+                lambda: self.client.chat.completions.create(
+                    model=self.model,
+                    messages=full_messages,
+                    tools=TOOLS if TOOLS else None,
+                    tool_choice="auto" if TOOLS else None,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                )
             )
 
             choice = response.choices[0]
@@ -158,15 +232,10 @@ class AgentCore:
         - {"type": "done", "usage": {...}}：完成
         """
         system_prompt = self._build_system_prompt(user_context)
-        full_messages = [{"role": "system", "content": system_prompt}] + messages
+        full_messages = _trim_messages([{"role": "system", "content": system_prompt}] + messages)
 
         for round_idx in range(MAX_TOOL_ROUNDS):
-            # 调试：记录 API 调用
-            logger.info(f"=== API Call Round {round_idx + 1} ===")
-            logger.info(f"Messages count: {len(full_messages)}")
-
-            # 打印完整的消息结构（用于调试）
-            import json
+            logger.info(f"API Call Round {round_idx + 1}, messages: {len(full_messages)}")
             for i, msg in enumerate(full_messages):
                 logger.info(f"  msg[{i}]: role={msg.get('role')}")
                 if msg.get('role') == 'system':
@@ -176,14 +245,16 @@ class AgentCore:
                 elif msg.get('role') == 'tool':
                     logger.info(f"    tool_call_id={msg.get('tool_call_id')}, content_len={len(str(msg.get('content', '')))}")
 
-            stream = await self.client.chat.completions.create(
-                model=self.model,
-                messages=full_messages,
-                tools=TOOLS if TOOLS else None,
-                tool_choice="auto" if TOOLS else None,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                stream=True,
+            stream = await _retry_api_call(
+                lambda: self.client.chat.completions.create(
+                    model=self.model,
+                    messages=full_messages,
+                    tools=TOOLS if TOOLS else None,
+                    tool_choice="auto" if TOOLS else None,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    stream=True,
+                )
             )
 
             collected_content = ""

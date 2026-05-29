@@ -16,7 +16,7 @@ WORKDIR /app
 COPY --from=builder /install /usr/local
 
 # 复制应用代码
-COPY app/ ./app/
+COPY backend/ ./backend/
 COPY SKILL.md .
 
 # 创建数据目录
@@ -29,4 +29,4 @@ USER appuser
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]

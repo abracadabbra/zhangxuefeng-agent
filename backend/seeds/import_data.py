@@ -5,18 +5,18 @@
     cd backend && python -m seeds.import_data
 """
 import json
-import os
 from pathlib import Path
 
-from backend.database import SessionLocal, engine, Base
-from backend.models import School, Major, AdmissionScore, EnrollmentPlan
+from contextlib import closing
+from backend.database import Base, SessionLocal, engine
+from backend.models import AdmissionScore, EnrollmentPlan, Major, School, SubjectRanking
 
 
 def load_json(filename: str) -> list[dict]:
     """加载 JSON 种子数据文件"""
     data_dir = Path(__file__).parent
     filepath = data_dir / filename
-    with open(filepath, "r", encoding="utf-8") as f:
+    with open(filepath, encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -52,6 +52,12 @@ def import_majors(db, majors_data: list[dict]) -> dict[str, int]:
             sub_category=item.get("sub_category"),
             employment_rate=item.get("employment_rate"),
             avg_salary=item.get("avg_salary"),
+            median_salary=item.get("median_salary"),
+            salary_range=item.get("salary_range"),
+            top_industries=item.get("top_industries"),
+            employment_locations=item.get("employment_locations"),
+            postgraduate_rate=item.get("postgraduate_rate"),
+            overseas_rate=item.get("overseas_rate"),
             description=item.get("description"),
             job_directions=item.get("job_directions"),
             is_hot=item.get("is_hot", 0),
@@ -64,11 +70,13 @@ def import_majors(db, majors_data: list[dict]) -> dict[str, int]:
 
 
 def import_scores(db, scores_data: list[dict], school_map: dict[str, int]):
-    """导入分数线数据"""
+    """导入分数线数据，支持 upsert（重复数据跳过）"""
+    imported = 0
+    skipped = 0
     for item in scores_data:
         school_id = school_map.get(item["school_name"])
         if not school_id:
-            print(f"  [跳过] 院校不存在: {item['school_name']}")
+            skipped += 1
             continue
 
         score = AdmissionScore(
@@ -84,7 +92,14 @@ def import_scores(db, scores_data: list[dict], school_map: dict[str, int]):
             min_rank=item.get("min_rank"),
         )
         db.add(score)
+        imported += 1
+        # 每 1000 条 flush 一次，避免内存溢出
+        if imported % 1000 == 0:
+            db.flush()
     db.commit()
+    if skipped:
+        print(f"  [跳过] {skipped} 条（院校不存在）")
+    return imported
 
 
 def import_plans(db, plans_data: list[dict], school_map: dict[str, int], major_map: dict[str, int]):
@@ -115,6 +130,32 @@ def import_plans(db, plans_data: list[dict], school_map: dict[str, int], major_m
     db.commit()
 
 
+def import_subject_rankings(db, rankings_data: list[dict], school_map: dict[str, int]):
+    """导入学科排名数据"""
+    imported = 0
+    skipped = 0
+    for item in rankings_data:
+        school_id = school_map.get(item["school_name"])
+        if not school_id:
+            skipped += 1
+            continue
+
+        ranking = SubjectRanking(
+            school_id=school_id,
+            major_category=item["major_category"],
+            ranking_source=item["ranking_source"],
+            ranking_year=item["ranking_year"],
+            ranking_position=item.get("ranking_position"),
+            grade=item.get("grade"),
+        )
+        db.add(ranking)
+        imported += 1
+    db.commit()
+    if skipped:
+        print(f"  [跳过] {skipped} 条（院校不存在）")
+    return imported
+
+
 def run_import():
     """执行全量数据导入"""
     print("=" * 50)
@@ -124,42 +165,45 @@ def run_import():
     # 创建表（如果不存在）
     Base.metadata.create_all(bind=engine)
 
-    db = SessionLocal()
-    try:
+    with closing(SessionLocal()) as db:
         # 1. 导入院校
         schools_data = load_json("seed_schools.json")
-        print(f"\n[1/4] 导入院校 ({len(schools_data)} 条)...")
+        print(f"\n[1/5] 导入院校 ({len(schools_data)} 条)...")
         school_map = import_schools(db, schools_data)
         print(f"  ✓ 成功导入 {len(school_map)} 所院校")
 
         # 2. 导入专业
         majors_data = load_json("seed_majors.json")
-        print(f"\n[2/4] 导入专业 ({len(majors_data)} 条)...")
+        print(f"\n[2/5] 导入专业 ({len(majors_data)} 条)...")
         major_map = import_majors(db, majors_data)
         print(f"  ✓ 成功导入 {len(major_map)} 个专业")
 
-        # 3. 导入分数线
-        scores_data = load_json("seed_scores.json")
-        print(f"\n[3/4] 导入分数线 ({len(scores_data)} 条)...")
-        import_scores(db, scores_data, school_map)
-        print(f"  ✓ 成功导入 {len(scores_data)} 条分数线")
+        # 3. 导入分数线（优先使用全量数据 seed_scores_all.json）
+        scores_file = "seed_scores_all.json"
+        scores_data = load_json(scores_file)
+        print(f"\n[3/5] 导入分数线 ({scores_file}, {len(scores_data)} 条)...")
+        imported = import_scores(db, scores_data, school_map)
+        print(f"  ✓ 成功导入 {imported} 条分数线")
 
         # 4. 导入招生计划
         plans_data = load_json("seed_plans.json")
-        print(f"\n[4/4] 导入招生计划 ({len(plans_data)} 条)...")
+        print(f"\n[4/5] 导入招生计划 ({len(plans_data)} 条)...")
         import_plans(db, plans_data, school_map, major_map)
         print(f"  ✓ 成功导入 {len(plans_data)} 条招生计划")
+
+        # 5. 导入学科排名
+        rankings_data = load_json("seed_subject_rankings.json")
+        print(f"\n[5/5] 导入学科排名 ({len(rankings_data)} 条)...")
+        imported = import_subject_rankings(db, rankings_data, school_map)
+        print(f"  ✓ 成功导入 {imported} 条学科排名")
 
         print("\n" + "=" * 50)
         print("数据导入完成！")
         print("=" * 50)
 
     except Exception as e:
-        db.rollback()
         print(f"\n导入失败: {e}")
         raise
-    finally:
-        db.close()
 
 
 if __name__ == "__main__":

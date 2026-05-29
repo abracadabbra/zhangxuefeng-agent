@@ -1,0 +1,111 @@
+[
+  {"school_name": "清华大学", "major_category": "工学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "清华大学", "major_category": "理学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A"},
+  {"school_name": "清华大学", "major_category": "管理学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "清华大学", "major_category": "艺术学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "清华大学", "major_category": "法学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A"},
+  {"school_name": "清华大学", "major_category": "经济学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A"},
+
+  {"school_name": "北京大学", "major_category": "理学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "北京大学", "major_category": "文学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "北京大学", "major_category": "哲学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "北京大学", "major_category": "法学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "北京大学", "major_category": "经济学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "北京大学", "major_category": "医学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "北京大学", "major_category": "历史学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "北京大学", "major_category": "管理学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A"},
+
+  {"school_name": "浙江大学", "major_category": "工学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "浙江大学", "major_category": "理学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A"},
+  {"school_name": "浙江大学", "major_category": "农学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "浙江大学", "major_category": "管理学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "浙江大学", "major_category": "医学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A"},
+
+  {"school_name": "上海交通大学", "major_category": "工学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "上海交通大学", "major_category": "医学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "上海交通大学", "major_category": "管理学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+
+  {"school_name": "复旦大学", "major_category": "理学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "复旦大学", "major_category": "文学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "复旦大学", "major_category": "哲学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "复旦大学", "major_category": "经济学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "复旦大学", "major_category": "医学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A"},
+
+  {"school_name": "南京大学", "major_category": "理学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "南京大学", "major_category": "文学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A"},
+  {"school_name": "南京大学", "major_category": "天文学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "南京大学", "major_category": "地质学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+
+  {"school_name": "中国科学技术大学", "major_category": "理学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "中国科学技术大学", "major_category": "工学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A"},
+
+  {"school_name": "哈尔滨工业大学", "major_category": "工学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "哈尔滨工业大学", "major_category": "管理学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A"},
+
+  {"school_name": "西安交通大学", "major_category": "工学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "西安交通大学", "major_category": "管理学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+
+  {"school_name": "北京航空航天大学", "major_category": "工学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "北京航空航天大学", "major_category": "管理学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A"},
+
+  {"school_name": "东南大学", "major_category": "工学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+
+  {"school_name": "北京理工大学", "major_category": "工学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+
+  {"school_name": "天津大学", "major_category": "工学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+
+  {"school_name": "同济大学", "major_category": "工学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+
+  {"school_name": "华中科技大学", "major_category": "工学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "华中科技大学", "major_category": "医学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A"},
+
+  {"school_name": "中山大学", "major_category": "医学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "中山大学", "major_category": "理学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A"},
+
+  {"school_name": "武汉大学", "major_category": "理学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "武汉大学", "major_category": "法学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "武汉大学", "major_category": "文学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A"},
+
+  {"school_name": "四川大学", "major_category": "医学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "四川大学", "major_category": "文学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A"},
+
+  {"school_name": "中南大学", "major_category": "工学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "中南大学", "major_category": "医学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A"},
+
+  {"school_name": "北京师范大学", "major_category": "教育学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "北京师范大学", "major_category": "文学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "北京师范大学", "major_category": "心理学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+
+  {"school_name": "华东师范大学", "major_category": "教育学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+
+  {"school_name": "中国人民大学", "major_category": "法学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "中国人民大学", "major_category": "经济学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "中国人民大学", "major_category": "哲学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+  {"school_name": "中国人民大学", "major_category": "管理学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+
+  {"school_name": "中国农业大学", "major_category": "农学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+
+  {"school_name": "北京中医药大学", "major_category": "医学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+
+  {"school_name": "上海中医药大学", "major_category": "医学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+
+  {"school_name": "南京农业大学", "major_category": "农学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+
+  {"school_name": "华中农业大学", "major_category": "农学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+
+  {"school_name": "中国海洋大学", "major_category": "理学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+
+  {"school_name": "北京交通大学", "major_category": "工学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+
+  {"school_name": "北京科技大学", "major_category": "工学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+
+  {"school_name": "南京理工大学", "major_category": "工学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+
+  {"school_name": "南京航空航天大学", "major_category": "工学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+
+  {"school_name": "河海大学", "major_category": "工学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+
+  {"school_name": "江南大学", "major_category": "工学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"},
+
+  {"school_name": "东华大学", "major_category": "工学", "ranking_source": "教育部第四轮", "ranking_year": 2017, "grade": "A+"}
+]
