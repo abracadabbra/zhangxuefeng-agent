@@ -10,19 +10,15 @@
 """
 import json
 from contextlib import contextmanager
+
 from sqlalchemy.orm import Session
 
-from .registry import register_tool
+from ..crud.admission_score import get_admission_scores
+from ..crud.major import get_major_by_name
+from ..crud.school import get_school_by_name
 from ..database import SessionLocal
-from ..models.school import School
-from ..models.major import Major
-from ..models.admission_score import AdmissionScore
-from ..crud.school import get_school_by_name, get_schools
-from ..crud.major import get_major_by_name, get_majors_by_employment
-from ..crud.admission_score import get_admission_scores, get_score_stats
-from ..schemas.school import SchoolQuery
-from ..schemas.major import MajorQuery
 from ..schemas.admission_score import AdmissionScoreQuery
+from .registry import register_tool
 
 
 @contextmanager
@@ -225,10 +221,71 @@ async def compare_schools(school_names: list[str], dimensions: list[str] | None 
     },
 )
 async def search_policy(keyword: str, school_name: str = "", year: int = 0) -> str:
-    """搜索招生政策（暂未开放）"""
+    """搜索招生政策（基于预置政策库）"""
+    policy_db = {
+        "强基计划": {
+            "title": "强基计划",
+            "summary": "教育部自2020年起实施的招生改革计划，聚焦高端芯片与软件、智能科技、新材料、先进制造和国家安全等关键领域。36所双一流A类高校参与，高考成绩占比不低于85%，校测成绩占比不超过15%。",
+            "key_points": ["报名时间一般在4月", "只能报考1所高校", "录取在提前批之前", "入校后原则上不得转专业"],
+            "source": "教育部阳光高考平台",
+        },
+        "提前批": {
+            "title": "提前批次录取",
+            "summary": "在普通批次之前进行录取的批次，包括军事、公安、航海、消防、公费师范生、定向医学生等类型。未被录取不影响后续批次。",
+            "key_points": ["一般在6月底填报", "不影响后续批次录取", "部分有体检/面试要求", "公费师范生需回生源地任教6年"],
+            "source": "各省教育考试院",
+        },
+        "综合评价": {
+            "title": "综合评价招生",
+            "summary": "综合高考成绩、校测成绩和学业水平考试成绩进行录取的招生模式。高考成绩占比一般不低于60%。",
+            "key_points": ["部分高校在部分省份试点", "需要额外申请和参加校测", "录取批次一般在提前批", "代表高校：南科大、上科大、昆山杜克等"],
+            "source": "各高校招生简章",
+        },
+        "艺术特长生": {
+            "title": "艺术特长生招生",
+            "summary": "2024年起已取消高校高水平艺术团招生，改为从在校生中遴选。艺术类专业招生仍保留，但文化课要求提高。",
+            "key_points": ["2024年起取消高水平艺术团招生", "艺术类专业招生仍保留", "文化课成绩要求逐步提高至普通类本科线"],
+            "source": "教育部2021年艺考改革文件",
+        },
+        "专项计划": {
+            "title": "高校专项计划",
+            "summary": "面向农村和脱贫地区学生的定向招生计划，包括国家专项、地方专项和高校专项三类。可降分录取，最多可降20分。",
+            "key_points": ["国家专项：面向集中连片特殊困难县等", "地方专项：面向各省实施区域农村学生", "高校专项：95所高校，需单独报名", "一般可降5-20分录取"],
+            "source": "教育部高校招生工作规定",
+        },
+    }
+
+    # 模糊匹配
+    matched_policies = []
+    for key, policy in policy_db.items():
+        if key in keyword or keyword in key:
+            matched_policies.append(policy)
+
+    # 如果没有精确匹配，返回关键词相关的通用建议
+    if not matched_policies:
+        # 尝试匹配部分关键词
+        for key, policy in policy_db.items():
+            for char in keyword:
+                if char in key:
+                    matched_policies.append(policy)
+                    break
+            if matched_policies:
+                break
+
+    if matched_policies:
+        return json.dumps({
+            "status": "success",
+            "query": keyword,
+            "results": matched_policies,
+            "source": "预置政策库（仅供参考，请以各省教育考试院最新公告为准）",
+            "disclaimer": "政策信息可能存在时效性，请以官方最新发布为准。",
+        }, ensure_ascii=False)
+
     return json.dumps({
-        "status": "unavailable",
-        "message": "招生政策搜索功能暂未开放，请关注后续版本更新。如有政策问题，可直接向我提问，我会基于已有知识为你解答。",
+        "status": "not_found",
+        "message": f"未找到与「{keyword}」直接相关的政策信息。常见政策包括：强基计划、提前批、综合评价、专项计划等。",
+        "suggestions": "请尝试更具体的关键词，如「强基计划」「提前批」「综合评价」「专项计划」。",
+        "source": "预置政策库",
     }, ensure_ascii=False)
 
 
@@ -310,6 +367,88 @@ async def calculate_match(score: float, province: str, category: str, strategy: 
         }, ensure_ascii=False, default=str)
 
 
+@register_tool(
+    name="semantic_search",
+    description="语义搜索学校和专业。支持自然语言查询，如'计算机相关专业'、'北京的985高校'等。使用向量相似度匹配，能理解查询意图。",
+    parameters={
+        "type": "object",
+        "properties": {
+            "query": {
+                "type": "string",
+                "description": "搜索查询，支持自然语言，如 '计算机相关专业'、'就业率高的医学专业'、'北京的985高校'",
+            },
+            "type": {
+                "type": "string",
+                "enum": ["school", "major"],
+                "description": "搜索类型：school（学校）或 major（专业）",
+            },
+            "province": {
+                "type": "string",
+                "description": "省份过滤（仅对学校有效），如 '北京'、'上海'",
+            },
+            "category": {
+                "type": "string",
+                "description": "学科门类过滤（仅对专业有效），如 '工学'、'医学'",
+            },
+            "top_k": {
+                "type": "integer",
+                "description": "返回结果数量，默认 10",
+            },
+        },
+        "required": ["query", "type"],
+    },
+)
+async def semantic_search(
+    query: str,
+    type: str,
+    province: str = "",
+    category: str = "",
+    top_k: int = 10,
+) -> str:
+    """语义搜索学校和专业"""
+    from ..search.crud import semantic_search_majors, semantic_search_schools
+
+    try:
+        if type == "school":
+            results = await semantic_search_schools(
+                query=query,
+                province=province if province else None,
+                top_k=top_k,
+            )
+            return json.dumps({
+                "status": "success",
+                "type": "school",
+                "query": query,
+                "results": results,
+                "total": len(results),
+            }, ensure_ascii=False)
+        elif type == "major":
+            results = await semantic_search_majors(
+                query=query,
+                category=category if category else None,
+                top_k=top_k,
+            )
+            return json.dumps({
+                "status": "success",
+                "type": "major",
+                "query": query,
+                "results": results,
+                "total": len(results),
+            }, ensure_ascii=False)
+        else:
+            return json.dumps({
+                "status": "error",
+                "message": f"不支持的搜索类型: {type}，请使用 'school' 或 'major'",
+            }, ensure_ascii=False)
+    except Exception as e:
+        return json.dumps({
+            "status": "error",
+            "message": f"语义搜索失败: {str(e)}",
+            "hint": "请确保已运行数据嵌入脚本: python -m backend.seeds.embed_data",
+        }, ensure_ascii=False)
+
+
 # 导出所有工具定义供 Agent 使用
 from .registry import tool_registry
+
 TOOLS = tool_registry.get_all_definitions()

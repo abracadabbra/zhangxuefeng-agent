@@ -1,16 +1,18 @@
 import { useState, useRef, useEffect } from 'react'
 import MessageBubble from './MessageBubble'
 import SourcePanel from './SourcePanel'
-import type { Message, ToolCall } from '../types'
+import type { Message, ToolCall, UserProfile } from '../types'
 
 interface ChatInterfaceProps {
   sessionId: string
+  userProfile?: UserProfile | null
 }
 
-export default function ChatInterface({ sessionId }: ChatInterfaceProps) {
+export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [profileSent, setProfileSent] = useState(false)
   // 独立维护数据来源状态，避免因 messages 变化导致闪烁
   const [lastSources, setLastSources] = useState<ToolCall[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -72,14 +74,26 @@ export default function ChatInterface({ sessionId }: ChatInterfaceProps) {
     setIsLoading(true)
 
     try {
+      // 第一条消息时附带用户画像
+      const body: Record<string, unknown> = {
+        session_id: sessionId,
+        message: userMessage.content,
+        stream: true,
+      }
+      if (userProfile && !profileSent) {
+        body.user_context = {
+          分数: userProfile.score,
+          省份: userProfile.province,
+          科类: userProfile.subject,
+          家庭条件: userProfile.familyCondition,
+        }
+        setProfileSent(true)
+      }
+
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          session_id: sessionId,
-          message: userMessage.content,
-          stream: true,
-        }),
+        body: JSON.stringify(body),
       })
 
       if (!response.ok) throw new Error('请求失败')

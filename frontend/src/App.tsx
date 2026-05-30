@@ -50,7 +50,28 @@ function App() {
     setView('form')
   }
 
-  const handleFormComplete = (_profile: UserProfile) => {
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
+
+  const handleFormComplete = (profile: UserProfile) => {
+    setUserProfile(profile)
+    // 将 profile 保存到后端 Redis
+    const fields: Record<string, string> = {}
+    if (profile.score != null) fields['score'] = String(profile.score)
+    if (profile.province) fields['province'] = profile.province
+    if (profile.subject) fields['subject'] = profile.subject
+    if (profile.familyCondition) fields['family_background'] = profile.familyCondition
+    if (profile.budget) fields['target_city'] = profile.budget
+
+    Promise.all(
+      Object.entries(fields).map(([field, value]) =>
+        fetch(`/api/profile/${sessionId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ field, value }),
+        })
+      )
+    ).catch(() => {})
+
     setView('chat')
   }
 
@@ -112,7 +133,7 @@ function App() {
         )}
         {view === 'chat' && (
           <div className="max-w-7xl mx-auto p-4 h-[calc(100vh-80px)]">
-            <ChatInterface sessionId={sessionId} />
+            <ChatInterface sessionId={sessionId} userProfile={userProfile} />
           </div>
         )}
       </main>

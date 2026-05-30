@@ -250,6 +250,13 @@ async def chat(req: ChatRequest):
         except Exception:
             pass
 
+    # 如果画像有数据但 Redis 中为空（前端通过 user_context 传入），持久化
+    if profile.is_required_complete():
+        try:
+            await save_profile(session_id, profile)
+        except Exception:
+            pass
+
     # 灵魂追问：检查画像完整性
     if not soul_engine.is_query_complete(profile):
         question = soul_engine.get_next_question(profile, query_state)
