@@ -19,7 +19,7 @@ const SCENARIOS = [
     subtitle: '分数出来别慌，我帮你算明白',
     icon: '🎓',
     section: 'A 版',
-    description: '3000+ 院校真实数据，历年分数线完整收录',
+    description: '3700+ 院校数据，覆盖 31 省份、3 年分数线',
   },
   {
     id: 'kaoyan' as Scenario,
@@ -286,16 +286,16 @@ function PortalHome({ onSelect, onResume }: { onSelect: (s: Scenario) => void; o
         </div>
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
-            <div className="text-2xl sm:text-3xl font-bold text-ink font-mono">3,000+</div>
-            <div className="text-xs text-ink-light font-serif mt-1">院校真实数据</div>
+            <div className="text-2xl sm:text-3xl font-bold text-ink font-mono">3,700+</div>
+            <div className="text-xs text-ink-light font-serif mt-1">覆盖全国院校</div>
           </div>
           <div>
-            <div className="text-2xl sm:text-3xl font-bold text-ink font-mono">200+</div>
-            <div className="text-xs text-ink-light font-serif mt-1">专业全覆盖</div>
+            <div className="text-2xl sm:text-3xl font-bold text-ink font-mono">85,000+</div>
+            <div className="text-xs text-ink-light font-serif mt-1">录取分数线</div>
           </div>
           <div>
-            <div className="text-2xl sm:text-3xl font-bold text-ink font-mono">10 年</div>
-            <div className="text-xs text-ink-light font-serif mt-1">历年数据收录</div>
+            <div className="text-2xl sm:text-3xl font-bold text-ink font-mono">31 省</div>
+            <div className="text-xs text-ink-light font-serif mt-1">全覆盖 · 3 年</div>
           </div>
         </div>
       </div>
