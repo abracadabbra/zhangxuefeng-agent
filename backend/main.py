@@ -558,6 +558,43 @@ async def delete_session(session_id: str):
     return {"status": "deleted", "session_id": session_id}
 
 
+# ============== 推荐 API ==============
+
+class RecommendRequest(BaseModel):
+    session_id: Optional[str] = Field(None, description="会话ID")
+    message: str = Field(..., description="推荐请求，如'推荐计算机专业'")
+    user_context: Optional[dict] = Field(default=None, description="用户背景信息")
+
+
+@app.post("/recommend")
+async def recommend(req: RecommendRequest):
+    """结构化推荐接口 — 返回学校/专业推荐结果"""
+    if not USE_LANGCHAIN:
+        raise HTTPException(status_code=501, detail="推荐接口需要启用 LangChain (USE_LANGCHAIN=true)")
+
+    session_id = req.session_id or str(uuid.uuid4())
+    agent_instance = get_agent()
+
+    # 检查是否支持结构化输出
+    if not hasattr(agent_instance, "chat_structured"):
+        raise HTTPException(status_code=501, detail="Agent 不支持结构化输出")
+
+    try:
+        result = await agent_instance.chat_structured(
+            message=req.message,
+            session_id=session_id,
+            user_context=req.user_context,
+        )
+        return {
+            "session_id": session_id,
+            "recommendations": result.recommendations,
+            "summary": result.summary,
+        }
+    except Exception as e:
+        logger.error(f"推荐失败: {e}")
+        raise HTTPException(status_code=500, detail=f"推荐失败: {type(e).__name__}")
+
+
 @app.get("/session/{session_id}/export")
 async def export_session(session_id: str):
     """导出对话记录为 Markdown"""
