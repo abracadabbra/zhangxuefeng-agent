@@ -13,7 +13,7 @@ export default function Skeleton({
   lines = 1,
   className = '',
 }: SkeletonProps) {
-  const baseClass = 'bg-ink/10 dark:bg-night-muted/20 animate-pulse rounded'
+  const baseClass = 'bg-ink/10-muted/20 animate-pulse rounded'
 
   if (variant === 'avatar') {
     return (
@@ -59,7 +59,7 @@ export function MessageSkeleton({ isUser = false }: { isUser?: boolean }) {
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div className={`flex max-w-[85%] sm:max-w-[80%] ${isUser ? 'flex-row-reverse' : 'flex-row'} gap-2 sm:gap-3`}>
         <Skeleton variant="avatar" width={32} height={32} className="sm:!w-10 sm:!h-10" />
-        <div className="px-4 sm:px-5 py-3 sm:py-4 border-2 border-ink/10 dark:border-night-border/30 bg-paper dark:bg-night-card">
+        <div className="px-4 sm:px-5 py-3 sm:py-4 border-2 border-ink/10/30 bg-paper">
           <Skeleton variant="text" lines={isUser ? 2 : 4} />
         </div>
       </div>
