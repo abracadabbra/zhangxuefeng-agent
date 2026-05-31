@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import ChatInterface from './components/ChatInterface'
 import SoulQuestionForm from './components/SoulQuestionForm'
+import { useTheme } from './contexts/ThemeContext'
 import type { UserProfile } from './types'
 
 type View = 'portal' | 'form' | 'chat'
@@ -12,37 +14,44 @@ interface SessionSummary {
   message_count: number
 }
 
-const SCENARIOS = [
-  {
-    id: 'gaokao' as Scenario,
-    title: '高考志愿填报',
-    subtitle: '分数出来别慌，我帮你算明白',
-    icon: '🎓',
-    section: 'A 版',
-    description: '3700+ 院校、580+ 专业、85000+ 分数线',
-  },
-  {
-    id: 'kaoyan' as Scenario,
-    title: '考研规划',
-    subtitle: '选对学校和专业，比努力更重要',
-    icon: '📚',
-    section: 'B 版',
-    description: '院校报录比、复试线、调剂信息全覆盖',
-  },
-  {
-    id: 'career' as Scenario,
-    title: '职业规划',
-    subtitle: '选专业之前，先看看就业真相',
-    icon: '💼',
-    section: 'C 版',
-    description: '专业就业率、薪资水平、行业趋势分析',
-  },
-]
-
 function App() {
+  const { t, i18n } = useTranslation()
   const [view, setView] = useState<View>('portal')
   const [scenario, setScenario] = useState<Scenario>('gaokao')
   const [sessionId, setSessionId] = useState(() => crypto.randomUUID())
+  const { theme, toggleTheme } = useTheme()
+
+  const toggleLanguage = () => {
+    const newLang = i18n.language === 'zh' ? 'en' : 'zh'
+    i18n.changeLanguage(newLang)
+  }
+
+  const scenarios = [
+    {
+      id: 'gaokao' as Scenario,
+      title: t('scenarios.gaokao.title'),
+      subtitle: t('scenarios.gaokao.subtitle'),
+      icon: '🎓',
+      section: t('scenarios.gaokao.section'),
+      description: t('scenarios.gaokao.description'),
+    },
+    {
+      id: 'kaoyan' as Scenario,
+      title: t('scenarios.kaoyan.title'),
+      subtitle: t('scenarios.kaoyan.subtitle'),
+      icon: '📚',
+      section: t('scenarios.kaoyan.section'),
+      description: t('scenarios.kaoyan.description'),
+    },
+    {
+      id: 'career' as Scenario,
+      title: t('scenarios.career.title'),
+      subtitle: t('scenarios.career.subtitle'),
+      icon: '💼',
+      section: t('scenarios.career.section'),
+      description: t('scenarios.career.description'),
+    },
+  ]
 
   const handleScenarioSelect = (s: Scenario) => {
     setSessionId(crypto.randomUUID())
@@ -54,7 +63,6 @@ function App() {
 
   const handleFormComplete = (profile: UserProfile) => {
     setUserProfile(profile)
-    // 将 profile 保存到后端 Redis
     const fields: Record<string, string> = {}
     if (profile.score != null) fields['score'] = String(profile.score)
     if (profile.province) fields['province'] = profile.province
@@ -85,44 +93,87 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-paper paper-texture">
-      {/* Header - 报头风格 */}
-      <header className="bg-paper-dark/80 backdrop-blur-md border-b-2 border-ink sticky top-0 z-50">
+    <div className="min-h-screen flex flex-col bg-paper dark:bg-night paper-texture">
+      {/* Skip to main content link */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100]
+                   focus:px-4 focus:py-2 focus:bg-ink focus:text-paper focus:font-serif focus:font-bold"
+      >
+        {t('a11y.skipToContent', { defaultValue: '跳转到主要内容' })}
+      </a>
+
+      {/* Header */}
+      <header role="banner" className="bg-paper-dark/80 dark:bg-night-card/80 backdrop-blur-md border-b-2 border-ink dark:border-night-border sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <button
               onClick={handleBackToPortal}
               className="flex items-center gap-3 group"
+              aria-label={t('header.title')}
             >
-              <div className="w-12 h-12 bg-ink flex items-center justify-center">
-                <span className="text-gold font-bold text-xl font-serif">张</span>
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-ink dark:bg-gold flex items-center justify-center">
+                <span className="text-gold dark:text-ink font-bold text-lg sm:text-xl font-serif">张</span>
               </div>
               <div className="text-left">
-                <h1 className="text-xl font-bold text-ink font-serif leading-tight tracking-wide">
-                  张雪峰 AI 咨询
+                <h1 className="text-lg sm:text-xl font-bold text-ink dark:text-paper font-serif leading-tight tracking-wide">
+                  {t('header.title')}
                 </h1>
-                <p className="text-xs text-ink-light font-mono tracking-widest uppercase">
-                  Data-Driven Truth
+                <p className="text-[10px] sm:text-xs text-ink-light dark:text-night-muted font-mono tracking-widest uppercase">
+                  {t('header.subtitle')}
                 </p>
               </div>
             </button>
 
-            {view !== 'portal' && (
+            <div className="flex items-center gap-2">
+              {/* Language switch */}
               <button
-                onClick={handleBackToPortal}
-                className="px-4 py-2 text-sm font-serif text-ink border border-ink hover:bg-ink hover:text-paper transition-colors"
+                onClick={toggleLanguage}
+                className="w-9 h-9 flex items-center justify-center border border-ink/30 dark:border-night-border
+                           hover:bg-ink/10 dark:hover:bg-night-border/50 transition-colors text-xs font-mono font-bold text-ink dark:text-paper"
+                aria-label={i18n.language === 'zh' ? 'Switch to English' : '切换到中文'}
               >
-                ← 返回首页
+                {i18n.language === 'zh' ? 'EN' : '中'}
               </button>
-            )}
+
+              {/* Theme toggle */}
+              <button
+                onClick={toggleTheme}
+                className="w-9 h-9 flex items-center justify-center border border-ink/30 dark:border-night-border
+                           hover:bg-ink/10 dark:hover:bg-night-border/50 transition-colors"
+                aria-label={theme === 'light' ? t('header.switchToDark') : t('header.switchToLight')}
+              >
+                {theme === 'light' ? (
+                  <svg className="w-4 h-4 text-ink" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
+                  </svg>
+                )}
+              </button>
+
+              {view !== 'portal' && (
+                <button
+                  onClick={handleBackToPortal}
+                  className="hidden sm:block px-4 py-2 text-sm font-serif text-ink dark:text-paper
+                             border border-ink dark:border-night-border
+                             hover:bg-ink hover:text-paper dark:hover:bg-paper dark:hover:text-ink transition-colors"
+                  aria-label={t('header.backHome')}
+                >
+                  {t('header.backHome')}
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1">
+      <main id="main-content" role="main" aria-label={t('a11y.mainContent', { defaultValue: '主要内容' })} className="flex-1 pb-16 sm:pb-0">
         {view === 'portal' && (
-          <PortalHome onSelect={handleScenarioSelect} onResume={handleResumeSession} />
+          <PortalHome onSelect={handleScenarioSelect} onResume={handleResumeSession} scenarios={scenarios} />
         )}
         {view === 'form' && (
           <SoulQuestionForm
@@ -132,28 +183,123 @@ function App() {
           />
         )}
         {view === 'chat' && (
-          <div className="max-w-7xl mx-auto p-4 h-[calc(100vh-80px)]">
+          <div className="max-w-7xl mx-auto p-2 sm:p-4 h-[calc(100vh-80px)] sm:h-[calc(100vh-80px)]">
             <ChatInterface sessionId={sessionId} userProfile={userProfile} />
           </div>
         )}
       </main>
 
-      {/* Footer - 报纸页脚 */}
+      {/* Footer (portal only, desktop) */}
       {view === 'portal' && (
-        <footer className="border-t-2 border-ink bg-paper-dark/50 py-4">
-          <div className="max-w-6xl mx-auto px-4 flex flex-wrap justify-between items-center text-xs text-ink-light font-mono">
-            <span>第 2026 期 · 高考特刊</span>
-            <span>数据驱动 · 说真话 · 不画饼</span>
-            <span>© 张雪峰 AI 咨询</span>
+        <footer role="contentinfo" aria-label={t('a11y.footer', { defaultValue: '页脚' })} className="hidden sm:block border-t-2 border-ink dark:border-night-border bg-paper-dark/50 dark:bg-night-card/50 py-4">
+          <div className="max-w-6xl mx-auto px-4 flex flex-wrap justify-between items-center text-xs text-ink-light dark:text-night-muted font-mono">
+            <span>{t('footer.issue')}</span>
+            <span>{t('footer.motto')}</span>
+            <span>{t('footer.copyright')}</span>
           </div>
         </footer>
       )}
+
+      {/* Mobile bottom nav */}
+      <MobileBottomNav
+        view={view}
+        onBackToPortal={handleBackToPortal}
+        onToggleTheme={toggleTheme}
+        theme={theme}
+      />
     </div>
   )
 }
 
-/* ── Portal Homepage - 报纸头版风格 ────────────────────────── */
-function PortalHome({ onSelect, onResume }: { onSelect: (s: Scenario) => void; onResume: (sid: string) => void }) {
+/* ── Mobile Bottom Nav ─────────────────────────────────── */
+function MobileBottomNav({
+  view,
+  onBackToPortal,
+  onToggleTheme,
+  theme,
+}: {
+  view: View
+  onBackToPortal: () => void
+  onToggleTheme: () => void
+  theme: 'light' | 'dark'
+}) {
+  const { t } = useTranslation()
+
+  return (
+    <nav role="navigation" aria-label={t('a11y.mobileNav', { defaultValue: '移动端导航' })} className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-paper dark:bg-night-card
+                    border-t-2 border-ink dark:border-night-border
+                    safe-area-bottom">
+      <div className="flex items-center justify-around h-14">
+        <button
+          onClick={onBackToPortal}
+          aria-label={t('mobileNav.home')}
+          aria-current={view === 'portal' ? 'page' : undefined}
+          className={`flex flex-col items-center gap-0.5 px-3 py-1 transition-colors
+            ${view === 'portal' ? 'text-gold' : 'text-ink-light dark:text-night-muted'}`}
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+          </svg>
+          <span className="text-[10px] font-mono">{t('mobileNav.home')}</span>
+        </button>
+
+        <button
+          onClick={onToggleTheme}
+          aria-label={theme === 'light' ? t('header.switchToDark') : t('header.switchToLight')}
+          className="flex flex-col items-center gap-0.5 px-3 py-1 text-ink-light dark:text-night-muted transition-colors"
+        >
+          {theme === 'light' ? (
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+            </svg>
+          ) : (
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
+            </svg>
+          )}
+          <span className="text-[10px] font-mono">{theme === 'light' ? t('header.nightMode') : t('header.dayMode')}</span>
+        </button>
+
+        <button
+          aria-label={t('mobileNav.chat')}
+          aria-current={view === 'chat' ? 'page' : undefined}
+          className={`flex flex-col items-center gap-0.5 px-3 py-1 transition-colors
+            ${view === 'chat' ? 'text-gold' : 'text-ink-light dark:text-night-muted'}`}
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 0 1-.825-.242m9.345-8.334a2.126 2.126 0 0 0-.476-.095 48.64 48.64 0 0 0-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0 0 11.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155" />
+          </svg>
+          <span className="text-[10px] font-mono">{t('mobileNav.chat')}</span>
+        </button>
+
+        <button
+          aria-label={t('mobileNav.profile')}
+          className="flex flex-col items-center gap-0.5 px-3 py-1 text-ink-light dark:text-night-muted transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+          </svg>
+          <span className="text-[10px] font-mono">{t('mobileNav.profile')}</span>
+        </button>
+      </div>
+    </nav>
+  )
+}
+
+/* ── Portal Homepage ────────────────────────── */
+function PortalHome({ onSelect, onResume, scenarios }: {
+  onSelect: (s: Scenario) => void
+  onResume: (sid: string) => void
+  scenarios: Array<{
+    id: Scenario
+    title: string
+    subtitle: string
+    icon: string
+    section: string
+    description: string
+  }>
+}) {
+  const { t } = useTranslation()
   const [sessions, setSessions] = useState<SessionSummary[]>([])
 
   useEffect(() => {
@@ -166,80 +312,74 @@ function PortalHome({ onSelect, onResume }: { onSelect: (s: Scenario) => void; o
   const dateStr = `${today.getFullYear()} 年 ${today.getMonth() + 1} 月 ${today.getDate()} 日`
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 sm:py-12">
-      {/* Masthead 报头区域 */}
-      <div className="text-center mb-10">
-        {/* 顶部装饰线 */}
+    <div className="max-w-5xl mx-auto px-4 py-6 sm:py-12">
+      {/* Masthead */}
+      <div className="text-center mb-8 sm:mb-10">
         <div className="rule-thick mb-4" />
         <div className="rule-double mb-6" />
 
-        {/* 日期和卷号 */}
-        <div className="flex justify-between items-center text-xs font-mono text-ink-light mb-4 px-4">
+        <div className="flex justify-between items-center text-[10px] sm:text-xs font-mono text-ink-light dark:text-night-muted mb-4 px-2 sm:px-4">
           <span>{dateStr}</span>
-          <span>第 2026 期 · 高考特刊</span>
-          <span>全国版</span>
+          <span className="hidden sm:inline">{t('portal.dateLabel')}</span>
+          <span>{t('portal.nationalEdition')}</span>
         </div>
 
-        {/* 主标题 */}
-        <h2 className="text-4xl sm:text-6xl font-black text-ink font-serif leading-tight mb-3 tracking-wide">
-          选学校、选专业、选城市
+        <h2 className="text-3xl sm:text-6xl font-black text-ink dark:text-paper font-serif leading-tight mb-3 tracking-wide">
+          {t('portal.mainTitle')}
         </h2>
-        <div className="flex items-center justify-center gap-4 mb-4">
-          <div className="h-px flex-1 bg-ink" />
-          <span className="text-lg sm:text-2xl font-bold text-gold font-serif">
-            先看数据，再做决定
+        <div className="flex items-center justify-center gap-2 sm:gap-4 mb-4 px-2">
+          <div className="h-px flex-1 bg-ink dark:bg-night-border" />
+          <span className="text-base sm:text-2xl font-bold text-gold font-serif whitespace-nowrap">
+            {t('portal.mainSubtitle')}
           </span>
-          <div className="h-px flex-1 bg-ink" />
+          <div className="h-px flex-1 bg-ink dark:bg-night-border" />
         </div>
 
-        {/* 副标题 */}
-        <p className="text-base sm:text-lg text-ink-light max-w-2xl mx-auto leading-relaxed font-serif">
-          不画饼、不灌鸡汤、不和稀泥。
+        <p className="text-sm sm:text-lg text-ink-light dark:text-night-muted max-w-2xl mx-auto leading-relaxed font-serif px-2">
+          {t('portal.description')}
           <br className="hidden sm:block" />
-          我是张雪峰 AI 咨询，用数据帮你做最务实的选择。
+          {t('portal.descriptionLine2')}
         </p>
 
         <div className="rule-double mt-6" />
         <div className="rule-single mt-1" />
       </div>
 
-      {/* 三个场景卡片 - 报纸分类广告风格 */}
-      <div className="grid gap-6 sm:grid-cols-3 mb-10">
-        {SCENARIOS.map((s) => (
+      {/* Scenario cards */}
+      <div role="list" aria-label={t('a11y.scenarioCards', { defaultValue: '咨询场景选择' })} className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-3 mb-8 sm:mb-10">
+        {scenarios.map((s) => (
           <button
             key={s.id}
             onClick={() => onSelect(s.id)}
-            className="group relative bg-paper border-2 border-ink p-6 text-left transition-all duration-300 hover:shadow-warm-xl hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 outline-none"
+            className="group relative bg-paper dark:bg-night-card border-2 border-ink dark:border-night-border
+                       p-5 sm:p-6 text-left transition-all duration-300
+                       hover:shadow-warm-xl dark:hover:shadow-night-lg hover:-translate-y-1
+                       active:scale-[0.98] sm:active:scale-100
+                       focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 outline-none"
           >
-            {/* 版面标识 */}
-            <div className="absolute top-0 left-0 bg-ink text-paper px-3 py-1 text-xs font-mono font-bold">
+            <div className="absolute top-0 left-0 bg-ink dark:bg-gold text-paper dark:text-ink px-3 py-1 text-xs font-mono font-bold">
               {s.section}
             </div>
 
-            {/* Icon */}
-            <div className="text-4xl mb-4 mt-4">
+            <div className="text-3xl sm:text-4xl mb-3 sm:mb-4 mt-4">
               {s.icon}
             </div>
 
-            {/* 标题 */}
-            <h3 className="text-xl font-bold text-ink font-serif mb-2 tracking-wide">
+            <h3 className="text-lg sm:text-xl font-bold text-ink dark:text-paper font-serif mb-2 tracking-wide">
               {s.title}
             </h3>
 
-            {/* 副标题 */}
-            <p className="text-ink-light text-sm leading-relaxed mb-3 font-serif italic">
+            <p className="text-ink-light dark:text-night-muted text-sm leading-relaxed mb-3 font-serif italic">
               {s.subtitle}
             </p>
 
-            {/* 描述 */}
-            <p className="text-xs text-ink-light font-mono mb-4">
+            <p className="text-xs text-ink-light dark:text-night-muted font-mono mb-4">
               {s.description}
             </p>
 
-            {/* 分割线和进入按钮 */}
             <div className="rule-single pt-3">
               <div className="flex items-center gap-1 text-gold font-bold text-sm group-hover:gap-2 transition-all font-serif">
-                开始咨询
+                {t('scenarios.startConsult')}
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                 </svg>
@@ -249,27 +389,31 @@ function PortalHome({ onSelect, onResume }: { onSelect: (s: Scenario) => void; o
         ))}
       </div>
 
-      {/* 历史会话 */}
+      {/* Session history */}
       {sessions.length > 0 && (
-        <div className="border-2 border-ink bg-paper p-4 mb-6">
+        <div className="border-2 border-ink dark:border-night-border bg-paper dark:bg-night-card p-4 mb-6">
           <div className="flex items-center gap-2 mb-3">
-            <span className="stamp text-xs">历史会话</span>
-            <div className="h-px flex-1 bg-ink" />
+            <span className="stamp text-xs">{t('sessions.title')}</span>
+            <div className="h-px flex-1 bg-ink dark:bg-night-border" />
           </div>
           <div className="space-y-2">
             {sessions.map(s => (
               <button
                 key={s.session_id}
                 onClick={() => onResume(s.session_id)}
-                className="w-full flex items-center justify-between px-4 py-2 border border-ink/30 hover:border-ink hover:bg-paper-dark/50 transition-colors text-left"
+                className="w-full flex items-center justify-between px-4 py-3 sm:py-2
+                           border border-ink/30 dark:border-night-border
+                           hover:border-ink dark:hover:border-gold
+                           hover:bg-paper-dark/50 dark:hover:bg-night-border/30 transition-colors text-left
+                           active:bg-paper-dark dark:active:bg-night-border/50"
               >
-                <span className="font-mono text-sm text-ink truncate max-w-[60%]">
+                <span className="font-mono text-sm text-ink dark:text-paper truncate max-w-[40%] sm:max-w-[60%]">
                   {s.session_id.slice(0, 8)}...
                 </span>
-                <span className="text-xs text-ink-light font-mono">
-                  {s.message_count} 条消息
+                <span className="text-xs text-ink-light dark:text-night-muted font-mono hidden sm:inline">
+                  {t('sessions.messages', { count: s.message_count })}
                 </span>
-                <span className="text-xs text-ink-light font-mono">
+                <span className="text-xs text-ink-light dark:text-night-muted font-mono">
                   {new Date(s.created_at).toLocaleDateString()}
                 </span>
               </button>
@@ -278,32 +422,31 @@ function PortalHome({ onSelect, onResume }: { onSelect: (s: Scenario) => void; o
         </div>
       )}
 
-      {/* 底部数据快报横条 */}
-      <div className="border-2 border-ink bg-paper-dark p-4">
+      {/* Data highlights */}
+      <div className="border-2 border-ink dark:border-night-border bg-paper-dark dark:bg-night-card p-4">
         <div className="flex items-center gap-2 mb-3">
-          <span className="stamp text-xs">数据快报</span>
-          <div className="h-px flex-1 bg-ink" />
+          <span className="stamp text-xs">{t('dataBrief.title')}</span>
+          <div className="h-px flex-1 bg-ink dark:bg-night-border" />
         </div>
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
-            <div className="text-2xl sm:text-3xl font-bold text-ink font-mono">3,700+</div>
-            <div className="text-xs text-ink-light font-serif mt-1">覆盖全国院校</div>
+            <div className="text-xl sm:text-3xl font-bold text-ink dark:text-paper font-mono">3,700+</div>
+            <div className="text-[10px] sm:text-xs text-ink-light dark:text-night-muted font-serif mt-1">{t('dataBrief.universities')}</div>
           </div>
           <div>
-            <div className="text-2xl sm:text-3xl font-bold text-ink font-mono">580+</div>
-            <div className="text-xs text-ink-light font-serif mt-1">本科专业</div>
+            <div className="text-xl sm:text-3xl font-bold text-ink dark:text-paper font-mono">580+</div>
+            <div className="text-[10px] sm:text-xs text-ink-light dark:text-night-muted font-serif mt-1">{t('dataBrief.majors')}</div>
           </div>
           <div>
-            <div className="text-2xl sm:text-3xl font-bold text-ink font-mono">85,000+</div>
-            <div className="text-xs text-ink-light font-serif mt-1">录取分数线</div>
+            <div className="text-xl sm:text-3xl font-bold text-ink dark:text-paper font-mono">85,000+</div>
+            <div className="text-[10px] sm:text-xs text-ink-light dark:text-night-muted font-serif mt-1">{t('dataBrief.scores')}</div>
           </div>
         </div>
       </div>
 
-      {/* 底部装饰 */}
       <div className="rule-single mt-8" />
       <div className="text-center mt-4">
-        <span className="text-xs text-ink-light font-mono">— 第 1 版 —</span>
+        <span className="text-xs text-ink-light dark:text-night-muted font-mono">{t('portal.pageLabel')}</span>
       </div>
     </div>
   )

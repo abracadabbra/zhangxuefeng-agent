@@ -1,0 +1,26 @@
+{
+  "name": "张雪峰 AI 志愿填报助手",
+  "short_name": "张雪峰AI",
+  "description": "基于张雪峰老师志愿填报方法论的 AI 智能助手，提供高考志愿填报、考研择校、职业规划等一站式升学规划服务。",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1a2e",
+  "theme_color": "#1a1a2e",
+  "orientation": "portrait-primary",
+  "lang": "zh-CN",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

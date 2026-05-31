@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import MessageBubble from './MessageBubble'
 import SourcePanel from './SourcePanel'
 import type { Message, ToolCall, UserProfile } from '../types'
@@ -9,12 +10,13 @@ interface ChatInterfaceProps {
 }
 
 export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceProps) {
+  const { t } = useTranslation()
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [profileSent, setProfileSent] = useState(false)
-  // 独立维护数据来源状态，避免因 messages 变化导致闪烁
   const [lastSources, setLastSources] = useState<ToolCall[]>([])
+  const [showSources, setShowSources] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
@@ -26,7 +28,6 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
     scrollToBottom()
   }, [messages])
 
-  // 加载完成后重新聚焦输入框
   useEffect(() => {
     if (!isLoading) {
       inputRef.current?.focus()
@@ -74,7 +75,6 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
     setIsLoading(true)
 
     try {
-      // 第一条消息时附带用户画像
       const body: Record<string, unknown> = {
         session_id: sessionId,
         message: userMessage.content,
@@ -96,15 +96,13 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
         body: JSON.stringify(body),
       })
 
-      if (!response.ok) throw new Error('请求失败')
+      if (!response.ok) throw new Error('Request failed')
 
       const contentType = response.headers.get('content-type') || ''
 
-      // 检查是否为 SSE 流式响应
       if (contentType.includes('text/event-stream')) {
-        // SSE 流式处理
         const reader = response.body?.getReader()
-        if (!reader) throw new Error('无法读取响应流')
+        if (!reader) throw new Error('Cannot read response stream')
 
         const decoder = new TextDecoder()
         const assistantMessage: Message = {
@@ -146,9 +144,7 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
                     arguments: data.arguments,
                   }
                   assistantMessage.toolCalls?.push(toolCall)
-                  // 追加到 sources（累积模式）
                   setLastSources(prev => [...prev, toolCall])
-                  // 触发消息更新
                   setMessages(prev => {
                     const updated = [...prev]
                     const lastMsg = updated[updated.length - 1]
@@ -158,7 +154,6 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
                     return updated
                   })
                 } else if (data.type === 'tool_result') {
-                  // 更新 assistantMessage 中的 toolCall
                   if (assistantMessage.toolCalls) {
                     const idx = assistantMessage.toolCalls.findIndex(
                       tc => tc.name === data.name && !tc.result
@@ -170,13 +165,11 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
                       }
                     }
                   }
-                  // 更新 sources 中对应的结果（追加模式）
                   setLastSources(prev => prev.map(tc =>
                     tc.name === data.name && !tc.result
                       ? { ...tc, result: data.result }
                       : tc
                   ))
-                  // 触发消息更新
                   setMessages(prev => {
                     const updated = [...prev]
                     const lastMsg = updated[updated.length - 1]
@@ -193,7 +186,6 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
           }
         }
       } else {
-        // 普通 JSON 响应处理
         const data = await response.json()
         const toolCalls: ToolCall[] = data.tool_calls?.map((tc: { id?: string; name: string; arguments: Record<string, unknown>; result?: string }) => ({
           id: tc.id || crypto.randomUUID(),
@@ -210,7 +202,6 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
           toolCalls,
         }
 
-        // 有 tool_calls 时追加到 sources（累积模式）
         if (toolCalls.length > 0) {
           setLastSources(prev => [...prev, ...toolCalls])
         }
@@ -224,7 +215,7 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
         {
           id: crypto.randomUUID(),
           role: 'assistant',
-          content: '抱歉，发生了错误，请重试。',
+          content: t('chat.errorMessage'),
           timestamp: new Date(),
         },
       ])
@@ -241,37 +232,49 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
   }
 
   return (
-    <div className="flex h-[calc(100vh-100px)] gap-6">
-      {/* 聊天区域 - 占 2/3 */}
-      <div className="flex-1 flex flex-col border-2 border-ink bg-paper">
+    <div className="flex flex-col lg:flex-row h-[calc(100vh-140px)] sm:h-[calc(100vh-100px)] gap-0 lg:gap-6">
+      {/* 聊天区域 */}
+      <div className="flex-1 flex flex-col border-2 border-ink dark:border-night-border bg-paper dark:bg-night-card min-h-0">
         {/* 消息头部 */}
-        <div className="border-b-2 border-ink px-6 py-3 bg-paper-dark/50">
+        <div className="border-b-2 border-ink dark:border-night-border px-4 sm:px-6 py-3 bg-paper-dark/50 dark:bg-night/50 flex-shrink-0">
           <div className="flex items-center justify-between">
-            <h2 className="font-serif font-bold text-ink text-lg">专栏对话</h2>
-            <div className="flex items-center gap-3">
+            <h2 className="font-serif font-bold text-ink dark:text-paper text-base sm:text-lg">{t('chat.title')}</h2>
+            <div className="flex items-center gap-2 sm:gap-3">
               {messages.length > 0 && (
                 <button
                   onClick={() => window.open(`/api/session/${sessionId}/export`, '_blank')}
-                  className="text-xs font-mono text-ink-light hover:text-ink border border-ink/30 hover:border-ink px-2 py-1 transition-colors"
+                  className="text-xs font-mono text-ink-light dark:text-night-muted hover:text-ink dark:hover:text-paper
+                             border border-ink/30 dark:border-night-border hover:border-ink dark:hover:border-gold
+                             px-2 py-1 transition-colors"
                 >
-                  导出
+                  {t('chat.export')}
                 </button>
               )}
-              <span className="text-xs font-mono text-ink-light">实时咨询</span>
+              {/* 移动端数据来源切换 */}
+              {lastSources.length > 0 && (
+                <button
+                  onClick={() => setShowSources(prev => !prev)}
+                  className="lg:hidden text-xs font-mono text-ink-light dark:text-night-muted hover:text-ink dark:hover:text-paper
+                             border border-ink/30 dark:border-night-border px-2 py-1 transition-colors"
+                >
+                  {t('sourcePanel.title')} ({lastSources.length})
+                </button>
+              )}
+              <span className="text-xs font-mono text-ink-light dark:text-night-muted hidden sm:inline">{t('chat.liveConsult')}</span>
             </div>
           </div>
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 sm:space-y-6 overscroll-contain">
           {messages.length === 0 && (
-            <div className="text-center py-16">
+            <div className="text-center py-10 sm:py-16">
               <div className="quote-mark mb-4">"</div>
-              <p className="text-xl font-serif text-ink mb-2">
-                你好！我是张雪峰 AI 助手
+              <p className="text-lg sm:text-xl font-serif text-ink dark:text-paper mb-2">
+                {t('chat.welcomeTitle')}
               </p>
-              <p className="text-sm text-ink-light font-serif">
-                高考志愿填报、考研择校、职业规划，有什么问题尽管问我！
+              <p className="text-sm text-ink-light dark:text-night-muted font-serif">
+                {t('chat.welcomeDesc')}
               </p>
               <div className="rule-single mt-8 max-w-xs mx-auto" />
             </div>
@@ -283,16 +286,16 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
 
           {isLoading && (
             <div className="flex items-center gap-3 py-4">
-              <div className="w-8 h-8 bg-ink flex items-center justify-center">
-                <span className="text-gold font-bold text-sm font-serif">张</span>
+              <div className="w-8 h-8 bg-ink dark:bg-gold flex items-center justify-center flex-shrink-0">
+                <span className="text-gold dark:text-ink font-bold text-sm font-serif">张</span>
               </div>
-              <div className="flex items-center gap-2 text-ink-light">
+              <div className="flex items-center gap-2 text-ink-light dark:text-night-muted">
                 <div className="flex space-x-1">
-                  <div className="w-2 h-2 bg-ink-light rounded-full animate-bounce" />
-                  <div className="w-2 h-2 bg-ink-light rounded-full animate-bounce [animation-delay:0.2s]" />
-                  <div className="w-2 h-2 bg-ink-light rounded-full animate-bounce [animation-delay:0.4s]" />
+                  <div className="w-2 h-2 bg-ink-light dark:bg-night-muted rounded-full animate-bounce" />
+                  <div className="w-2 h-2 bg-ink-light dark:bg-night-muted rounded-full animate-bounce [animation-delay:0.2s]" />
+                  <div className="w-2 h-2 bg-ink-light dark:bg-night-muted rounded-full animate-bounce [animation-delay:0.4s]" />
                 </div>
-                <span className="text-sm font-serif">正在分析数据...</span>
+                <span className="text-sm font-serif">{t('chat.analyzing')}</span>
               </div>
             </div>
           )}
@@ -301,17 +304,20 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
         </div>
 
         {/* Input Area - 读者来信投稿区 */}
-        <form onSubmit={handleSubmit} className="border-t-2 border-ink p-4 bg-paper-dark/30">
-          <div className="flex items-end gap-3">
-            <div className="flex-1">
-              <div className="text-xs text-ink-light font-mono mb-2">读者来信</div>
+        <form onSubmit={handleSubmit} className="border-t-2 border-ink dark:border-night-border p-3 sm:p-4 bg-paper-dark/30 dark:bg-night/30 flex-shrink-0">
+          <div className="flex items-end gap-2 sm:gap-3">
+            <div className="flex-1 min-w-0">
+              <div className="text-xs text-ink-light dark:text-night-muted font-mono mb-1 sm:mb-2">{t('chat.readerLetter')}</div>
               <textarea
                 ref={inputRef}
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="输入你的问题..."
-                className="w-full resize-none border-2 border-ink bg-paper px-4 py-3 font-serif text-ink placeholder:text-ink-light/50 focus:outline-none focus:border-gold transition-colors"
+                placeholder={t('chat.inputPlaceholder')}
+                className="w-full resize-none border-2 border-ink dark:border-night-border bg-paper dark:bg-night
+                           px-3 sm:px-4 py-2 sm:py-3 font-serif text-ink dark:text-paper
+                           placeholder:text-ink-light/50 dark:placeholder:text-night-muted/50
+                           focus:outline-none focus:border-gold transition-colors"
                 rows={2}
                 disabled={isLoading}
               />
@@ -319,16 +325,38 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
             <button
               type="submit"
               disabled={!input.trim() || isLoading}
-              className="px-6 py-3 bg-ink text-paper font-serif font-bold hover:bg-ink-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors self-end"
+              className="px-4 sm:px-6 py-2 sm:py-3 bg-ink dark:bg-gold text-paper dark:text-ink
+                         font-serif font-bold hover:bg-ink-light dark:hover:bg-gold/80
+                         disabled:opacity-50 disabled:cursor-not-allowed transition-colors self-end
+                         text-sm sm:text-base flex-shrink-0"
             >
-              发送
+              {t('chat.send')}
             </button>
           </div>
         </form>
       </div>
 
-      {/* 数据来源面板 - 占 1/3，参考文献风格 */}
-      <SourcePanel sources={lastSources} />
+      {/* 数据来源面板 - 桌面端固定显示，移动端可切换 */}
+      <div className={`
+        ${showSources ? 'block' : 'hidden'} lg:block
+        lg:w-[320px] xl:w-[380px] flex-shrink-0
+        fixed lg:static inset-0 z-40 lg:z-auto
+        bg-paper dark:bg-night lg:bg-transparent
+      `}>
+        {/* 移动端遮罩 */}
+        {showSources && (
+          <div
+            className="lg:hidden absolute inset-0 bg-black/30"
+            onClick={() => setShowSources(false)}
+          />
+        )}
+        <div className={`
+          ${showSources ? 'absolute right-0 top-0 bottom-0 w-[85vw] max-w-[380px]' : ''}
+          lg:relative lg:w-full
+        `}>
+          <SourcePanel sources={lastSources} onClose={() => setShowSources(false)} />
+        </div>
+      </div>
     </div>
   )
 }

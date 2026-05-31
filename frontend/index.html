@@ -2,9 +2,61 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- SEO: 基础 meta 标签 -->
+    <title>张雪峰 AI 志愿填报助手 - 高考志愿、考研择校、职业规划智能咨询</title>
+    <meta name="description" content="基于张雪峰老师志愿填报方法论的 AI 智能助手，提供高考志愿填报、考研择校、职业规划等一站式升学规划服务。院校数据、专业分析、录取分数线查询，助你科学择校。" />
+    <meta name="keywords" content="张雪峰,高考志愿填报,考研择校,职业规划,AI咨询,志愿填报助手,院校查询,专业分析,录取分数线,升学规划" />
+    <meta name="author" content="张雪峰 AI 团队" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#1a1a2e" />
+
+    <!-- SEO: Open Graph 标签 -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="张雪峰 AI 志愿填报助手 - 高考志愿、考研择校、职业规划智能咨询" />
+    <meta property="og:description" content="基于张雪峰老师志愿填报方法论的 AI 智能助手，提供高考志愿填报、考研择校、职业规划等一站式升学规划服务。" />
+    <meta property="og:site_name" content="张雪峰 AI 志愿填报助手" />
+    <meta property="og:locale" content="zh_CN" />
+
+    <!-- SEO: Twitter Card 标签 -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="张雪峰 AI 志愿填报助手" />
+    <meta name="twitter:description" content="基于张雪峰老师志愿填报方法论的 AI 智能助手，提供高考志愿填报、考研择校、职业规划等一站式升学规划服务。" />
+
+    <!-- PWA: manifest 和图标 -->
+    <link rel="manifest" href="/manifest.json" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>张雪峰 AI 咨询 Agent</title>
+    <link rel="apple-touch-icon" href="/vite.svg" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="张雪峰AI" />
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <!-- SEO: 结构化数据 (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "张雪峰 AI 志愿填报助手",
+      "description": "基于张雪峰老师志愿填报方法论的 AI 智能助手，提供高考志愿填报、考研择校、职业规划等一站式升学规划服务。",
+      "applicationCategory": "EducationalApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "CNY"
+      },
+      "featureList": [
+        "高考志愿填报智能推荐",
+        "院校录取数据查询",
+        "专业就业前景分析",
+        "考研择校指导",
+        "职业规划建议"
+      ]
+    }
+    </script>
+
     <!-- Google Fonts: 报纸风格字体系统 -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -13,5 +65,16 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <!-- PWA: 注册 Service Worker -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {
+            // SW registration failed — silently ignore
+          });
+        });
+      }
+    </script>
   </body>
 </html>

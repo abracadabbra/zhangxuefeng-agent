@@ -1,46 +1,11 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { UserProfile } from '../types'
 
 interface SoulQuestionFormProps {
   scenario: 'gaokao' | 'kaoyan' | 'career'
   onComplete: (profile: UserProfile) => void
   onBack: () => void
-}
-
-const SCENARIO_CONFIG = {
-  gaokao: {
-    title: '高考志愿填报',
-    emoji: '🎓',
-    section: 'A 版',
-    steps: [
-      { key: 'score', label: '高考分数', placeholder: '例如：580', type: 'number' },
-      { key: 'province', label: '所在省份', placeholder: '例如：河南', type: 'select' },
-      { key: 'subject', label: '科类', placeholder: '选择科类', type: 'select' },
-      { key: 'familyBudget', label: '家庭经济情况', placeholder: '选择情况', type: 'select' },
-    ],
-  },
-  kaoyan: {
-    title: '考研规划',
-    emoji: '📚',
-    section: 'B 版',
-    steps: [
-      { key: 'currentSchool', label: '本科学校', placeholder: '例如：河南大学', type: 'text' },
-      { key: 'major', label: '本科专业', placeholder: '例如：计算机科学', type: 'text' },
-      { key: 'gpa', label: 'GPA / 绩点', placeholder: '例如：3.5', type: 'text' },
-      { key: 'targetSchool', label: '目标院校', placeholder: '例如：北京大学', type: 'text' },
-    ],
-  },
-  career: {
-    title: '职业规划',
-    emoji: '💼',
-    section: 'C 版',
-    steps: [
-      { key: 'education', label: '当前学历', placeholder: '例如：本科', type: 'select' },
-      { key: 'major', label: '专业方向', placeholder: '例如：金融学', type: 'text' },
-      { key: 'interests', label: '兴趣方向', placeholder: '例如：互联网、金融', type: 'text' },
-      { key: 'concerns', label: '最关心的问题', placeholder: '例如：薪资、稳定性', type: 'text' },
-    ],
-  },
 }
 
 const PROVINCES = [
@@ -50,36 +15,56 @@ const PROVINCES = [
   '云南', '西藏', '陕西', '甘肃', '青海', '宁夏', '新疆',
 ]
 
-const SUBJECTS = ['理科', '文科', '物理类', '历史类', '综合改革']
+const SUBJECT_KEYS = ['science', 'arts', 'physics', 'history', 'comprehensive'] as const
+const BUDGET_KEYS = ['low', 'medium', 'high', 'unlimited'] as const
+const EDUCATION_KEYS = ['highSchool', 'college', 'bachelor', 'master', 'phd'] as const
 
-const BUDGET_OPTIONS = [
-  '一般（公办优先）',
-  '中等（公私皆可）',
-  '较好（中外合作可考虑）',
-  '不限',
-]
+const STEP_KEYS = {
+  gaokao: ['score', 'province', 'subject', 'familyBudget'],
+  kaoyan: ['currentSchool', 'major', 'gpa', 'targetSchool'],
+  career: ['education', 'major', 'interests', 'concerns'],
+} as const
 
-const EDUCATION_LEVELS = ['高中', '大专', '本科', '硕士', '博士']
+const STEP_TYPES: Record<string, string> = {
+  score: 'number',
+  province: 'select',
+  subject: 'select',
+  familyBudget: 'select',
+  education: 'select',
+}
 
-const VERSION_LABELS = ['第一版', '第二版', '第三版', '第四版']
+const SCENARIO_META = {
+  gaokao: { emoji: '🎓', sectionKey: 'scenarios.gaokao.section', titleKey: 'scenarios.gaokao.title' },
+  kaoyan: { emoji: '📚', sectionKey: 'scenarios.kaoyan.section', titleKey: 'scenarios.kaoyan.title' },
+  career: { emoji: '💼', sectionKey: 'scenarios.career.section', titleKey: 'scenarios.career.title' },
+}
 
 export default function SoulQuestionForm({ scenario, onComplete, onBack }: SoulQuestionFormProps) {
+  const { t } = useTranslation()
   const [currentStep, setCurrentStep] = useState(0)
   const [formData, setFormData] = useState<Record<string, string>>({})
 
-  const config = SCENARIO_CONFIG[scenario]
-  const step = config.steps[currentStep]
-  const isLast = currentStep === config.steps.length - 1
-  const progress = ((currentStep + 1) / config.steps.length) * 100
+  const meta = SCENARIO_META[scenario]
+  const stepKeys = STEP_KEYS[scenario]
+  const currentStepKey = stepKeys[currentStep]
+  const stepLabel = t(`form.${scenario}.steps.${currentStepKey}.label`)
+  const stepPlaceholder = t(`form.${scenario}.steps.${currentStepKey}.placeholder`)
+  const stepHint = t(`form.${scenario}.steps.${currentStepKey}.hint`)
+  const stepNote = t(`form.${scenario}.steps.${currentStepKey}.note`)
+  const isLast = currentStep === stepKeys.length - 1
+
+  const subjects = SUBJECT_KEYS.map(k => t(`form.subjects.${k}`))
+  const budgetOptions = BUDGET_KEYS.map(k => t(`form.budget.${k}`))
+  const educationLevels = EDUCATION_KEYS.map(k => t(`form.education.${k}`))
+  const versionLabels = t('form.versionLabels', { returnObjects: true }) as string[]
 
   const handleNext = () => {
     if (isLast) {
-      // 构建用户画像并完成
       const profile: UserProfile = {
         score: parseInt(formData.score) || undefined,
         province: formData.province,
-        subject: formData.subject as '理科' | '文科' | '物理类' | '历史类',
-        family_budget: formData.familyBudget as UserProfile['family_budget'],
+        subject: formData.subject,
+        familyCondition: formData.familyBudget,
       }
       onComplete(profile)
     } else {
@@ -95,20 +80,21 @@ export default function SoulQuestionForm({ scenario, onComplete, onBack }: SoulQ
     }
   }
 
-  const canProceed = formData[step.key]?.trim()
+  const canProceed = formData[currentStepKey]?.trim()
 
   const renderInput = () => {
-    const value = formData[step.key] || ''
+    const value = formData[currentStepKey] || ''
 
-    if (step.key === 'province') {
+    if (currentStepKey === 'province') {
       return (
         <select
           value={value}
-          onChange={(e) => setFormData(prev => ({ ...prev, [step.key]: e.target.value }))}
-          className="w-full px-4 py-3 border-2 border-ink bg-paper font-serif text-lg text-ink
+          onChange={(e) => setFormData(prev => ({ ...prev, [currentStepKey]: e.target.value }))}
+          className="w-full px-4 py-3 border-2 border-ink dark:border-night-border bg-paper dark:bg-night
+                     font-serif text-lg text-ink dark:text-paper
                      focus:border-gold focus:outline-none transition-colors"
         >
-          <option value="">选择省份</option>
+          <option value="">{t('form.gaokao.steps.province.selectPlaceholder')}</option>
           {PROVINCES.map(p => (
             <option key={p} value={p}>{p}</option>
           ))}
@@ -116,18 +102,18 @@ export default function SoulQuestionForm({ scenario, onComplete, onBack }: SoulQ
       )
     }
 
-    if (step.key === 'subject') {
+    if (currentStepKey === 'subject') {
       return (
         <div className="grid grid-cols-2 gap-3">
-          {SUBJECTS.map(s => (
+          {subjects.map(s => (
             <button
               key={s}
               type="button"
-              onClick={() => setFormData(prev => ({ ...prev, [step.key]: s }))}
+              onClick={() => setFormData(prev => ({ ...prev, [currentStepKey]: s }))}
               className={`px-4 py-3 border-2 text-base font-serif font-medium transition-all
                 ${value === s
-                  ? 'border-gold bg-gold-light text-ink shadow-warm'
-                  : 'border-rule bg-paper text-ink-light hover:border-ink hover:bg-paper-dark'
+                  ? 'border-gold bg-gold-light dark:bg-gold/20 text-ink shadow-warm'
+                  : 'border-rule dark:border-night-border bg-paper dark:bg-night text-ink-light dark:text-night-muted hover:border-ink dark:hover:border-gold hover:bg-paper-dark dark:hover:bg-night-border/30'
                 }`}
             >
               {s}
@@ -137,18 +123,18 @@ export default function SoulQuestionForm({ scenario, onComplete, onBack }: SoulQ
       )
     }
 
-    if (step.key === 'familyBudget') {
+    if (currentStepKey === 'familyBudget') {
       return (
         <div className="space-y-3">
-          {BUDGET_OPTIONS.map(b => (
+          {budgetOptions.map(b => (
             <button
               key={b}
               type="button"
-              onClick={() => setFormData(prev => ({ ...prev, [step.key]: b }))}
+              onClick={() => setFormData(prev => ({ ...prev, [currentStepKey]: b }))}
               className={`w-full px-4 py-3 border-2 text-left text-base font-serif transition-all
                 ${value === b
-                  ? 'border-gold bg-gold-light text-ink shadow-warm'
-                  : 'border-rule bg-paper text-ink-light hover:border-ink hover:bg-paper-dark'
+                  ? 'border-gold bg-gold-light dark:bg-gold/20 text-ink shadow-warm'
+                  : 'border-rule dark:border-night-border bg-paper dark:bg-night text-ink-light dark:text-night-muted hover:border-ink dark:hover:border-gold hover:bg-paper-dark dark:hover:bg-night-border/30'
                 }`}
             >
               {b}
@@ -158,18 +144,18 @@ export default function SoulQuestionForm({ scenario, onComplete, onBack }: SoulQ
       )
     }
 
-    if (step.key === 'education') {
+    if (currentStepKey === 'education') {
       return (
         <div className="grid grid-cols-2 gap-3">
-          {EDUCATION_LEVELS.map(e => (
+          {educationLevels.map(e => (
             <button
               key={e}
               type="button"
-              onClick={() => setFormData(prev => ({ ...prev, [step.key]: e }))}
+              onClick={() => setFormData(prev => ({ ...prev, [currentStepKey]: e }))}
               className={`px-4 py-3 border-2 text-base font-serif font-medium transition-all
                 ${value === e
-                  ? 'border-gold bg-gold-light text-ink shadow-warm'
-                  : 'border-rule bg-paper text-ink-light hover:border-ink hover:bg-paper-dark'
+                  ? 'border-gold bg-gold-light dark:bg-gold/20 text-ink shadow-warm'
+                  : 'border-rule dark:border-night-border bg-paper dark:bg-night text-ink-light dark:text-night-muted hover:border-ink dark:hover:border-gold hover:bg-paper-dark dark:hover:bg-night-border/30'
                 }`}
             >
               {e}
@@ -181,13 +167,14 @@ export default function SoulQuestionForm({ scenario, onComplete, onBack }: SoulQ
 
     return (
       <input
-        type={step.type === 'number' ? 'number' : 'text'}
+        type={STEP_TYPES[currentStepKey] === 'number' ? 'number' : 'text'}
         value={value}
-        onChange={(e) => setFormData(prev => ({ ...prev, [step.key]: e.target.value }))}
-        placeholder={step.placeholder}
-        className="w-full px-4 py-3 border-2 border-ink bg-paper font-serif text-lg text-ink
+        onChange={(e) => setFormData(prev => ({ ...prev, [currentStepKey]: e.target.value }))}
+        placeholder={stepPlaceholder}
+        className="w-full px-4 py-3 border-2 border-ink dark:border-night-border bg-paper dark:bg-night
+                   font-serif text-lg text-ink dark:text-paper
                    focus:border-gold focus:outline-none transition-colors
-                   placeholder:text-ink-light/50"
+                   placeholder:text-ink-light/50 dark:placeholder:text-night-muted/50"
         autoFocus
       />
     )
@@ -196,128 +183,109 @@ export default function SoulQuestionForm({ scenario, onComplete, onBack }: SoulQ
   return (
     <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-4">
       <div className="w-full max-w-lg">
-        {/* 报纸式表单头 */}
-        <div className="border-2 border-ink bg-paper mb-6">
-          <div className="bg-ink text-paper px-4 py-2 flex items-center justify-between">
-            <span className="font-mono text-sm font-bold">{config.section}</span>
-            <span className="font-mono text-xs">{config.emoji} {config.title}</span>
+        {/* Form header */}
+        <div className="border-2 border-ink dark:border-night-border bg-paper dark:bg-night-card mb-6">
+          <div className="bg-ink dark:bg-gold text-paper dark:text-ink px-4 py-2 flex items-center justify-between">
+            <span className="font-mono text-sm font-bold">{t(meta.sectionKey)}</span>
+            <span className="font-mono text-xs">{meta.emoji} {t(meta.titleKey)}</span>
           </div>
           <div className="px-6 py-4 text-center">
-            <h2 className="text-2xl font-black text-ink font-serif tracking-wide">
-              {config.title}
+            <h2 className="text-2xl font-black text-ink dark:text-paper font-serif tracking-wide">
+              {t(meta.titleKey)}
             </h2>
-            <p className="text-sm text-ink-light font-serif mt-1">
-              第 {currentStep + 1} 步，共 {config.steps.length} 步
+            <p className="text-sm text-ink-light dark:text-night-muted font-serif mt-1">
+              {t('form.stepOf', { current: currentStep + 1, total: stepKeys.length })}
             </p>
           </div>
         </div>
 
-        {/* 进度条 - 报纸版面标记 */}
+        {/* Progress bar */}
         <div className="mb-6">
           <div className="flex justify-between">
-            {config.steps.map((s, i) => (
+            {stepKeys.map((key, i) => (
               <div
-                key={s.key}
+                key={key}
                 className={`flex flex-col items-center gap-1 transition-colors
-                  ${i < currentStep ? 'text-gold' : i === currentStep ? 'text-ink' : 'text-ink-light/50'}`}
+                  ${i < currentStep ? 'text-gold' : i === currentStep ? 'text-ink dark:text-paper' : 'text-ink-light/50 dark:text-night-muted/50'}`}
               >
-                <div className={`w-full h-1 ${i <= currentStep ? 'bg-ink' : 'bg-rule'}`} />
-                <span className="text-xs font-mono mt-1">{VERSION_LABELS[i]}</span>
+                <div className={`w-full h-1 ${i <= currentStep ? 'bg-ink dark:bg-gold' : 'bg-rule dark:bg-night-border'}`} />
+                <span className="text-xs font-mono mt-1">{versionLabels[i]}</span>
                 <span className={`w-6 h-6 flex items-center justify-center text-xs font-mono font-bold border-2
                   ${i < currentStep
                     ? 'border-gold bg-gold text-paper'
                     : i === currentStep
-                      ? 'border-ink bg-ink text-paper'
-                      : 'border-rule bg-paper text-ink-light'
+                      ? 'border-ink dark:border-gold bg-ink dark:bg-gold text-paper dark:text-ink'
+                      : 'border-rule dark:border-night-border bg-paper dark:bg-night text-ink-light dark:text-night-muted'
                   }`}>
                   {i < currentStep ? '✓' : i + 1}
                 </span>
-                <span className="text-xs font-serif hidden sm:block">{s.label}</span>
+                <span className="text-xs font-serif hidden sm:block">{t(`form.${scenario}.steps.${key}.label`)}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* 表单卡片 - 报纸问卷风格 */}
-        <div className="border-2 border-ink bg-paper">
-          <div className="px-6 py-5">
-            <label className="block text-lg font-bold font-serif text-ink mb-2">
-              {step.label}
+        {/* Form card */}
+        <div className="border-2 border-ink dark:border-night-border bg-paper dark:bg-night-card">
+          <div className="px-5 sm:px-6 py-5">
+            <label className="block text-lg font-bold font-serif text-ink dark:text-paper mb-2">
+              {stepLabel}
             </label>
             <div className="rule-single mb-4" />
-            <p className="text-sm text-ink-light font-serif mb-4 italic">
-              {step.key === 'score' && '填写你的高考总分，我会根据分数推荐合适院校'}
-              {step.key === 'province' && '不同省份分数线差异很大，这个信息很关键'}
-              {step.key === 'subject' && '选科决定了可报考的专业范围'}
-              {step.key === 'familyBudget' && '我会根据实际情况推荐性价比最高的方案'}
-              {step.key === 'currentSchool' && '了解你的起点，才能规划路径'}
-              {step.key === 'major' && '你的专业背景决定了考研方向'}
-              {step.key === 'gpa' && '成绩是考研择校的重要参考'}
-              {step.key === 'targetSchool' && '有了目标才能倒推备考策略'}
-              {step.key === 'education' && '你的学历起点决定了职业发展路径'}
-              {step.key === 'interests' && '兴趣是最好的老师，也是职业选择的指南针'}
-              {step.key === 'concerns' && '说出你最纠结的问题，我来给你掰开了讲'}
+            <p className="text-sm text-ink-light dark:text-night-muted font-serif mb-4 italic">
+              {stepHint}
             </p>
 
             {renderInput()}
 
-            {/* 编者注 */}
-            <div className="mt-4 pt-3 border-t border-rule">
-              <p className="text-xs text-ink-light font-serif">
-                <span className="font-bold">编者注：</span>
-                {step.key === 'score' && '请如实填写，分数越准确，推荐越精准'}
-                {step.key === 'province' && '请选择参加高考的省份，这将影响分数线参考'}
-                {step.key === 'subject' && '请选择你的高考科类或选科组合'}
-                {step.key === 'familyBudget' && '此信息仅用于推荐，不会泄露'}
-                {step.key === 'currentSchool' && '本科学校层次会影响考研目标院校的选择'}
-                {step.key === 'major' && '本科专业决定了考研的可选方向'}
-                {step.key === 'gpa' && 'GPA 是考研择校的重要参考指标'}
-                {step.key === 'targetSchool' && '目标院校决定了备考策略和难度'}
-                {step.key === 'education' && '当前学历决定了职业发展的起点'}
-                {step.key === 'interests' && '兴趣方向将影响专业和职业推荐'}
-                {step.key === 'concerns' && '说出你的真实顾虑，我会给出务实建议'}
+            {/* Editor's note */}
+            <div className="mt-4 pt-3 border-t border-rule dark:border-night-border">
+              <p className="text-xs text-ink-light dark:text-night-muted font-serif">
+                <span className="font-bold">{t('form.editorNote')}</span>
+                {stepNote}
               </p>
             </div>
           </div>
 
-          {/* 操作按钮 */}
-          <div className="border-t-2 border-ink px-6 py-4 flex gap-3">
+          {/* Action buttons */}
+          <div className="border-t-2 border-ink dark:border-night-border px-5 sm:px-6 py-4 flex gap-3">
             <button
               onClick={handleBack}
-              className="flex-1 px-4 py-3 border-2 border-ink text-ink font-serif font-bold hover:bg-ink hover:text-paper transition-colors"
+              className="flex-1 px-4 py-3 border-2 border-ink dark:border-night-border text-ink dark:text-paper
+                         font-serif font-bold hover:bg-ink hover:text-paper dark:hover:bg-paper dark:hover:text-ink transition-colors"
             >
-              {currentStep === 0 ? '返回' : '上一步'}
+              {currentStep === 0 ? t('form.back') : t('form.prevStep')}
             </button>
             <button
               onClick={handleNext}
               disabled={!canProceed}
               className={`flex-[2] px-4 py-3 font-serif font-bold text-base transition-all
                 ${canProceed
-                  ? 'bg-ink text-paper hover:bg-ink-light shadow-warm-lg'
-                  : 'bg-rule text-ink-light cursor-not-allowed'
+                  ? 'bg-ink dark:bg-gold text-paper dark:text-ink hover:bg-ink-light dark:hover:bg-gold/80 shadow-warm-lg'
+                  : 'bg-rule dark:bg-night-border text-ink-light dark:text-night-muted cursor-not-allowed'
                 }`}
             >
-              {isLast ? '开始咨询 →' : '下一步 →'}
+              {isLast ? t('form.startConsult') : t('form.nextStep')}
             </button>
           </div>
         </div>
 
-        {/* 快捷入口 */}
+        {/* Quick entry */}
         <div className="text-center mt-6">
           <button
             onClick={() => {
-              // 跳过表单，直接使用空画像进入聊天
               onComplete({} as UserProfile)
             }}
-            className="text-sm text-ink-light hover:text-ink font-serif underline underline-offset-4 transition-colors"
+            className="text-sm text-ink-light dark:text-night-muted hover:text-ink dark:hover:text-paper
+                       font-serif underline underline-offset-4 transition-colors"
           >
-            跳过，直接提问 →
+            {t('form.skipDirect')}
           </button>
         </div>
 
-        {/* 页码 */}
+        {/* Page number */}
         <div className="text-center mt-4">
-          <span className="text-xs text-ink-light font-mono">— 第 {currentStep + 1} 版 —</span>
+          <span className="text-xs text-ink-light dark:text-night-muted font-mono">{t('form.pageLabel', { page: currentStep + 1 })}</span>
         </div>
       </div>
     </div>
