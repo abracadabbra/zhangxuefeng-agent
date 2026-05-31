@@ -1,9 +1,22 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense, lazy } from 'react'
 import { useTranslation } from 'react-i18next'
-import ChatInterface from './components/ChatInterface'
-import SoulQuestionForm from './components/SoulQuestionForm'
+import Loading from './components/Loading'
 import { useTheme } from './contexts/ThemeContext'
 import type { UserProfile } from './types'
+
+/* ── Lazy-loaded components (code-split) ──────────────────── */
+const ChatInterface = lazy(() => import('./components/ChatInterface'))
+const SoulQuestionForm = lazy(() => import('./components/SoulQuestionForm'))
+
+// Pre-declared lazy chunks for code-splitting (consumed by ChatInterface or future views)
+const RecommendationCard = lazy(() => import('./components/RecommendationCard'))
+const DataVisualization = lazy(() => import('./components/DataVisualization'))
+const AdmissionSimulator = lazy(() => import('./components/AdmissionSimulator'))
+
+// Ensure lazy chunks are registered at module scope for Vite code-splitting
+void RecommendationCard
+void DataVisualization
+void AdmissionSimulator
 
 type View = 'portal' | 'form' | 'chat'
 type Scenario = 'gaokao' | 'kaoyan' | 'career'
@@ -176,16 +189,20 @@ function App() {
           <PortalHome onSelect={handleScenarioSelect} onResume={handleResumeSession} scenarios={scenarios} />
         )}
         {view === 'form' && (
-          <SoulQuestionForm
-            scenario={scenario}
-            onComplete={handleFormComplete}
-            onBack={handleBackToPortal}
-          />
+          <Suspense fallback={<Loading fullScreen />}>
+            <SoulQuestionForm
+              scenario={scenario}
+              onComplete={handleFormComplete}
+              onBack={handleBackToPortal}
+            />
+          </Suspense>
         )}
         {view === 'chat' && (
-          <div className="max-w-7xl mx-auto p-2 sm:p-4 h-[calc(100vh-80px)] sm:h-[calc(100vh-80px)]">
-            <ChatInterface sessionId={sessionId} userProfile={userProfile} />
-          </div>
+          <Suspense fallback={<Loading fullScreen />}>
+            <div className="max-w-7xl mx-auto p-2 sm:p-4 h-[calc(100vh-80px)] sm:h-[calc(100vh-80px)]">
+              <ChatInterface sessionId={sessionId} userProfile={userProfile} />
+            </div>
+          </Suspense>
         )}
       </main>
 
@@ -350,6 +367,8 @@ function PortalHome({ onSelect, onResume, scenarios }: {
         {scenarios.map((s) => (
           <button
             key={s.id}
+            role="listitem"
+            aria-label={`${s.title} - ${s.subtitle}`}
             onClick={() => onSelect(s.id)}
             className="group relative bg-paper dark:bg-night-card border-2 border-ink dark:border-night-border
                        p-5 sm:p-6 text-left transition-all duration-300
@@ -391,7 +410,7 @@ function PortalHome({ onSelect, onResume, scenarios }: {
 
       {/* Session history */}
       {sessions.length > 0 && (
-        <div className="border-2 border-ink dark:border-night-border bg-paper dark:bg-night-card p-4 mb-6">
+        <div role="region" aria-label={t('sessions.title')} className="border-2 border-ink dark:border-night-border bg-paper dark:bg-night-card p-4 mb-6">
           <div className="flex items-center gap-2 mb-3">
             <span className="stamp text-xs">{t('sessions.title')}</span>
             <div className="h-px flex-1 bg-ink dark:bg-night-border" />
@@ -401,6 +420,7 @@ function PortalHome({ onSelect, onResume, scenarios }: {
               <button
                 key={s.session_id}
                 onClick={() => onResume(s.session_id)}
+                aria-label={t('sessions.resumeLabel', { id: s.session_id.slice(0, 8), count: s.message_count, defaultValue: `恢复会话 ${s.session_id.slice(0, 8)}，${s.message_count} 条消息` })}
                 className="w-full flex items-center justify-between px-4 py-3 sm:py-2
                            border border-ink/30 dark:border-night-border
                            hover:border-ink dark:hover:border-gold
