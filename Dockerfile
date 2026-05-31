@@ -3,9 +3,9 @@ FROM python:3.11-slim AS builder
 
 WORKDIR /build
 
-# 安装依赖到独立目录
+# 安装依赖（包含 langchain 可选依赖）
 COPY pyproject.toml .
-RUN pip install --no-cache-dir --prefix=/install .
+RUN pip install --no-cache-dir --prefix=/install ".[langchain]"
 
 # ============== Runtime ==============
 FROM python:3.11-slim
@@ -20,7 +20,7 @@ COPY backend/ ./backend/
 COPY SKILL.md .
 
 # 创建数据目录
-RUN mkdir -p /app/data
+RUN mkdir -p /app/data /app/backend/chroma_data
 
 # 非 root 用户
 RUN adduser --disabled-password --gecos "" appuser && \

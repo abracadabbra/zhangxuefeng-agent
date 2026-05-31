@@ -11,6 +11,10 @@ services:
       - MODEL=${MODEL:-gpt-4o-mini}
       - REDIS_URL=redis://redis:6379/0
       - DATABASE_URL=sqlite:///./data/zhangxuefeng.db
+      - USE_LANGCHAIN=${USE_LANGCHAIN:-false}
+      - LLM_PROVIDER=${LLM_PROVIDER:-openai}
+      - LLM_MODEL=${LLM_MODEL:-gpt-4o-mini}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
     volumes:
       - ./SKILL.md:/app/SKILL.md:ro
       - sqlite-data:/app/data
