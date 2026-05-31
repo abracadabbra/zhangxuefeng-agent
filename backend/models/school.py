@@ -1,7 +1,7 @@
 """
 院校表 ORM 模型
 """
-from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy import Column, Integer, String, Float, Index
 from sqlalchemy.orm import relationship
 from backend.database import Base
 
@@ -26,6 +26,13 @@ class School(Base):
     admission_scores = relationship("AdmissionScore", back_populates="school")
     enrollment_plans = relationship("EnrollmentPlan", back_populates="school")
     subject_rankings = relationship("SubjectRanking", back_populates="school")
+
+    __table_args__ = (
+        Index("ix_schools_province", "province"),
+        Index("ix_schools_level", "level"),
+        Index("ix_schools_is_985", "is_985"),
+        Index("ix_schools_is_211", "is_211"),
+    )
 
     def __repr__(self):
         return f"<School(id={self.id}, name='{self.name}', level='{self.level}')>"

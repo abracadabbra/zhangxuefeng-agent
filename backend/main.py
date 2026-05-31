@@ -27,6 +27,8 @@ from backend.agent.core import AgentCore
 from backend.soul_query import SoulQueryEngine, QueryState
 from backend.user_profile import UserProfile, load_profile, save_profile, update_profile
 from backend.database import init_db
+from backend.middleware.rate_limit import RateLimitMiddleware
+from backend.cache import cache_flush
 from backend.routers import schools_router, majors_router, scores_router, plans_router, subject_rankings_router
 from backend.session_store import SessionStore
 
@@ -89,8 +91,16 @@ def get_agent():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print(f"[{datetime.now()}] 张雪峰 Agent 启动 | Model: {MODEL}")
+
+    # 初始化数据库
     init_db()
     print(f"[{datetime.now()}] 数据库初始化完成")
+
+    # 配置 LangSmith
+    if USE_LANGCHAIN:
+        from backend.agent.langsmith_config import setup_langsmith
+        setup_langsmith()
+
     yield
     print(f"[{datetime.now()}] 张雪峰 Agent 关闭")
 
@@ -101,6 +111,8 @@ app = FastAPI(
     version="0.2.0",
     lifespan=lifespan,
 )
+
+app.add_middleware(RateLimitMiddleware)
 
 app.add_middleware(
     CORSMiddleware,

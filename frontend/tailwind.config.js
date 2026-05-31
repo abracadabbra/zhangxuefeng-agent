@@ -4,6 +4,7 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
@@ -24,6 +25,13 @@ export default {
           DEFAULT: '#c23c2e',
         },
         rule: '#e0ddd6',
+        // 暗色模式专用色
+        'night': {
+          DEFAULT: '#0d1117',
+          card: '#161b22',
+          border: '#30363d',
+          muted: '#8b949e',
+        },
         // 保留原有 primary 色系用于兼容
         primary: {
           50: '#eff6ff',
@@ -47,6 +55,8 @@ export default {
         'warm': '0 2px 8px rgba(26, 26, 46, 0.08)',
         'warm-lg': '0 4px 16px rgba(26, 26, 46, 0.12)',
         'warm-xl': '0 8px 32px rgba(26, 26, 46, 0.16)',
+        'night': '0 2px 8px rgba(0, 0, 0, 0.3)',
+        'night-lg': '0 4px 16px rgba(0, 0, 0, 0.4)',
       },
     },
   },

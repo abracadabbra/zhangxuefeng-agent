@@ -3,7 +3,7 @@
 
 核心四元组: (school, major, province, year)
 """
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, UniqueConstraint
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, UniqueConstraint, Index
 from sqlalchemy.orm import relationship
 from backend.database import Base
 
@@ -34,6 +34,10 @@ class AdmissionScore(Base):
             "school_id", "major_id", "province", "year", "batch", "subject_type",
             name="uq_admission_score"
         ),
+        Index("ix_admission_scores_school_id", "school_id"),
+        Index("ix_admission_scores_province", "province"),
+        Index("ix_admission_scores_year", "year"),
+        Index("ix_admission_scores_school_province_year", "school_id", "province", "year"),
     )
 
     def __repr__(self):

@@ -1,7 +1,7 @@
 """
 专业表 ORM 模型
 """
-from sqlalchemy import Column, Float, Integer, String, Text
+from sqlalchemy import Column, Float, Integer, String, Text, Index
 from sqlalchemy.orm import relationship
 
 from backend.database import Base
@@ -29,6 +29,11 @@ class Major(Base):
     # 关联
     admission_scores = relationship("AdmissionScore", back_populates="major")
     enrollment_plans = relationship("EnrollmentPlan", back_populates="major")
+
+    __table_args__ = (
+        Index("ix_majors_category", "category"),
+        Index("ix_majors_sub_category", "sub_category"),
+    )
 
     def __repr__(self):
         return f"<Major(id={self.id}, name='{self.name}', category='{self.category}')>"
