@@ -90,6 +90,8 @@ export default function SoulQuestionForm({ scenario, onComplete, onBack }: SoulQ
         <select
           value={value}
           onChange={(e) => setFormData(prev => ({ ...prev, [currentStepKey]: e.target.value }))}
+          aria-label={stepLabel}
+          aria-required="true"
           className="w-full px-4 py-3 border-2 border-ink dark:border-night-border bg-paper dark:bg-night
                      font-serif text-lg text-ink dark:text-paper
                      focus:border-gold focus:outline-none transition-colors"
@@ -104,11 +106,13 @@ export default function SoulQuestionForm({ scenario, onComplete, onBack }: SoulQ
 
     if (currentStepKey === 'subject') {
       return (
-        <div className="grid grid-cols-2 gap-3">
+        <div role="radiogroup" aria-label={stepLabel} className="grid grid-cols-2 gap-3">
           {subjects.map(s => (
             <button
               key={s}
               type="button"
+              role="radio"
+              aria-checked={value === s}
               onClick={() => setFormData(prev => ({ ...prev, [currentStepKey]: s }))}
               className={`px-4 py-3 border-2 text-base font-serif font-medium transition-all
                 ${value === s
@@ -125,11 +129,13 @@ export default function SoulQuestionForm({ scenario, onComplete, onBack }: SoulQ
 
     if (currentStepKey === 'familyBudget') {
       return (
-        <div className="space-y-3">
+        <div role="radiogroup" aria-label={stepLabel} className="space-y-3">
           {budgetOptions.map(b => (
             <button
               key={b}
               type="button"
+              role="radio"
+              aria-checked={value === b}
               onClick={() => setFormData(prev => ({ ...prev, [currentStepKey]: b }))}
               className={`w-full px-4 py-3 border-2 text-left text-base font-serif transition-all
                 ${value === b
@@ -146,11 +152,13 @@ export default function SoulQuestionForm({ scenario, onComplete, onBack }: SoulQ
 
     if (currentStepKey === 'education') {
       return (
-        <div className="grid grid-cols-2 gap-3">
+        <div role="radiogroup" aria-label={stepLabel} className="grid grid-cols-2 gap-3">
           {educationLevels.map(e => (
             <button
               key={e}
               type="button"
+              role="radio"
+              aria-checked={value === e}
               onClick={() => setFormData(prev => ({ ...prev, [currentStepKey]: e }))}
               className={`px-4 py-3 border-2 text-base font-serif font-medium transition-all
                 ${value === e
@@ -167,10 +175,14 @@ export default function SoulQuestionForm({ scenario, onComplete, onBack }: SoulQ
 
     return (
       <input
+        id={`step-${currentStepKey}`}
         type={STEP_TYPES[currentStepKey] === 'number' ? 'number' : 'text'}
         value={value}
         onChange={(e) => setFormData(prev => ({ ...prev, [currentStepKey]: e.target.value }))}
         placeholder={stepPlaceholder}
+        aria-label={stepLabel}
+        aria-required="true"
+        aria-describedby={`hint-${currentStepKey}`}
         className="w-full px-4 py-3 border-2 border-ink dark:border-night-border bg-paper dark:bg-night
                    font-serif text-lg text-ink dark:text-paper
                    focus:border-gold focus:outline-none transition-colors
@@ -181,7 +193,7 @@ export default function SoulQuestionForm({ scenario, onComplete, onBack }: SoulQ
   }
 
   return (
-    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-4">
+    <div role="form" aria-label={t('a11y.soulForm', { defaultValue: '信息收集表单' })} className="min-h-[calc(100vh-80px)] flex items-center justify-center p-4">
       <div className="w-full max-w-lg">
         {/* Form header */}
         <div className="border-2 border-ink dark:border-night-border bg-paper dark:bg-night-card mb-6">
@@ -200,13 +212,14 @@ export default function SoulQuestionForm({ scenario, onComplete, onBack }: SoulQ
         </div>
 
         {/* Progress bar */}
-        <div className="mb-6">
+        <div className="mb-6" role="progressbar" aria-valuenow={currentStep + 1} aria-valuemin={1} aria-valuemax={stepKeys.length} aria-label={t('a11y.formProgress', { defaultValue: `步骤 ${currentStep + 1}，共 ${stepKeys.length} 步` })}>
           <div className="flex justify-between">
             {stepKeys.map((key, i) => (
               <div
                 key={key}
                 className={`flex flex-col items-center gap-1 transition-colors
                   ${i < currentStep ? 'text-gold' : i === currentStep ? 'text-ink dark:text-paper' : 'text-ink-light/50 dark:text-night-muted/50'}`}
+                aria-current={i === currentStep ? 'step' : undefined}
               >
                 <div className={`w-full h-1 ${i <= currentStep ? 'bg-ink dark:bg-gold' : 'bg-rule dark:bg-night-border'}`} />
                 <span className="text-xs font-mono mt-1">{versionLabels[i]}</span>
@@ -228,11 +241,11 @@ export default function SoulQuestionForm({ scenario, onComplete, onBack }: SoulQ
         {/* Form card */}
         <div className="border-2 border-ink dark:border-night-border bg-paper dark:bg-night-card">
           <div className="px-5 sm:px-6 py-5">
-            <label className="block text-lg font-bold font-serif text-ink dark:text-paper mb-2">
+            <label htmlFor={`step-${currentStepKey}`} className="block text-lg font-bold font-serif text-ink dark:text-paper mb-2">
               {stepLabel}
             </label>
             <div className="rule-single mb-4" />
-            <p className="text-sm text-ink-light dark:text-night-muted font-serif mb-4 italic">
+            <p id={`hint-${currentStepKey}`} className="text-sm text-ink-light dark:text-night-muted font-serif mb-4 italic">
               {stepHint}
             </p>
 
@@ -251,6 +264,7 @@ export default function SoulQuestionForm({ scenario, onComplete, onBack }: SoulQ
           <div className="border-t-2 border-ink dark:border-night-border px-5 sm:px-6 py-4 flex gap-3">
             <button
               onClick={handleBack}
+              aria-label={currentStep === 0 ? t('form.back') : t('form.prevStep')}
               className="flex-1 px-4 py-3 border-2 border-ink dark:border-night-border text-ink dark:text-paper
                          font-serif font-bold hover:bg-ink hover:text-paper dark:hover:bg-paper dark:hover:text-ink transition-colors"
             >
@@ -259,6 +273,8 @@ export default function SoulQuestionForm({ scenario, onComplete, onBack }: SoulQ
             <button
               onClick={handleNext}
               disabled={!canProceed}
+              aria-label={isLast ? t('form.startConsult') : t('form.nextStep')}
+              aria-disabled={!canProceed}
               className={`flex-[2] px-4 py-3 font-serif font-bold text-base transition-all
                 ${canProceed
                   ? 'bg-ink dark:bg-gold text-paper dark:text-ink hover:bg-ink-light dark:hover:bg-gold/80 shadow-warm-lg'
@@ -276,6 +292,7 @@ export default function SoulQuestionForm({ scenario, onComplete, onBack }: SoulQ
             onClick={() => {
               onComplete({} as UserProfile)
             }}
+            aria-label={t('form.skipDirect')}
             className="text-sm text-ink-light dark:text-night-muted hover:text-ink dark:hover:text-paper
                        font-serif underline underline-offset-4 transition-colors"
           >

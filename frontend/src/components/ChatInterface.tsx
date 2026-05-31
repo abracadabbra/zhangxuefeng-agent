@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, type CSSProperties, type ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
-import { List, useListCallbackRef, useDynamicRowHeight } from 'react-window'
+import { List, useListCallbackRef, useDynamicRowHeight, type DynamicRowHeight } from 'react-window'
 import MessageBubble from './MessageBubble'
 import SourcePanel from './SourcePanel'
 import { MessageSkeleton } from './Skeleton'
@@ -11,14 +11,48 @@ interface ChatInterfaceProps {
   userProfile?: UserProfile | null
 }
 
-/** Row component for virtual list — receives messages via rowProps */
-function ChatRow({ index, style, messages }: {
+/** Row component for virtual list — self-measures height via observeRowElements */
+function ChatRow({ index, style, messages, dynamicRowHeight, t }: {
   index: number
   style: CSSProperties
   messages: Message[]
+  isLoading: boolean
+  dynamicRowHeight: DynamicRowHeight
+  t: (key: string, opts?: Record<string, unknown>) => string
 }): ReactElement {
+  const rowRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = rowRef.current
+    if (!el) return
+    return dynamicRowHeight.observeRowElements([el])
+  }, [dynamicRowHeight])
+
+  // Loading indicator row (appended as the last row when loading)
+  if (index === messages.length) {
+    return (
+      <div ref={rowRef} style={style}>
+        <div className="px-3 sm:px-6 py-4">
+          <div role="status" aria-label={t('chat.analyzing')} className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-ink dark:bg-gold flex items-center justify-center flex-shrink-0">
+              <span className="text-gold dark:text-ink font-bold text-sm font-serif">张</span>
+            </div>
+            <div className="flex items-center gap-2 text-ink-light dark:text-night-muted">
+              <div className="flex space-x-1" aria-hidden="true">
+                <div className="w-2 h-2 bg-ink-light dark:bg-night-muted rounded-full animate-bounce" />
+                <div className="w-2 h-2 bg-ink-light dark:bg-night-muted rounded-full animate-bounce [animation-delay:0.2s]" />
+                <div className="w-2 h-2 bg-ink-light dark:bg-night-muted rounded-full animate-bounce [animation-delay:0.4s]" />
+              </div>
+              <span className="text-sm font-serif">{t('chat.analyzing')}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div style={style}>
+    <div ref={rowRef} style={style}>
       <div className="px-3 sm:px-6 pt-3 pb-1">
         <MessageBubble message={messages[index]} />
       </div>
@@ -38,15 +72,18 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
   const [listApi, setListApi] = useListCallbackRef()
   const dynamicRowHeight = useDynamicRowHeight({ defaultRowHeight: 120, key: 'chat-messages' })
 
+  // Total rows = messages + optional loading indicator
+  const rowCount = messages.length + (isLoading ? 1 : 0)
+
   const scrollToBottom = useCallback(() => {
-    if (messages.length > 0 && listApi) {
-      listApi.scrollToRow({ index: messages.length - 1, align: 'end', behavior: 'smooth' })
+    if (rowCount > 0 && listApi) {
+      listApi.scrollToRow({ index: rowCount - 1, align: 'end', behavior: 'smooth' })
     }
-  }, [messages.length, listApi])
+  }, [rowCount, listApi])
 
   useEffect(() => {
     scrollToBottom()
-  }, [messages, scrollToBottom])
+  }, [messages, isLoading, scrollToBottom])
 
   useEffect(() => {
     if (!isLoading) {
@@ -314,33 +351,15 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
           {messages.length > 0 && (
             <List
               listRef={setListApi}
-              rowCount={messages.length}
+              rowCount={rowCount}
               rowHeight={dynamicRowHeight}
               rowComponent={ChatRow}
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              rowProps={{ messages } as any}
+              rowProps={{ messages, isLoading, dynamicRowHeight, t } as any}
               overscanCount={5}
               className="scrollbar-thin"
               style={{ height: '100%', width: '100%' }}
             />
-          )}
-
-          {isLoading && messages.length > 0 && (
-            <div className="px-3 sm:px-6 py-4">
-              <div role="status" aria-label={t('chat.analyzing')} className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-ink dark:bg-gold flex items-center justify-center flex-shrink-0">
-                  <span className="text-gold dark:text-ink font-bold text-sm font-serif">张</span>
-                </div>
-                <div className="flex items-center gap-2 text-ink-light dark:text-night-muted">
-                  <div className="flex space-x-1" aria-hidden="true">
-                    <div className="w-2 h-2 bg-ink-light dark:bg-night-muted rounded-full animate-bounce" />
-                    <div className="w-2 h-2 bg-ink-light dark:bg-night-muted rounded-full animate-bounce [animation-delay:0.2s]" />
-                    <div className="w-2 h-2 bg-ink-light dark:bg-night-muted rounded-full animate-bounce [animation-delay:0.4s]" />
-                  </div>
-                  <span className="text-sm font-serif">{t('chat.analyzing')}</span>
-                </div>
-              </div>
-            </div>
           )}
         </div>
 

@@ -121,7 +121,7 @@ async def client(test_db_engine, fake_redis, mock_agent):
     with (
         patch("backend.user_profile._get_redis", return_value=fake_redis),
         patch("backend.cache.get_redis", new_callable=AsyncMock, return_value=None),
-        patch("backend.main.get_agent", return_value=mock_agent),
+        patch("backend.routes.chat.get_agent", return_value=mock_agent),
     ):
         from backend.main import app
 
@@ -228,7 +228,7 @@ class TestChatNonStream:
         with (
             patch("backend.user_profile._get_redis", return_value=fake_redis),
             patch("backend.cache.get_redis", new_callable=AsyncMock, return_value=None),
-            patch("backend.main.get_agent", return_value=error_agent),
+            patch("backend.routes.chat.get_agent", return_value=error_agent),
         ):
             from backend.main import app
 
@@ -404,8 +404,8 @@ class TestRecommendEndpoint:
         with (
             patch("backend.user_profile._get_redis", return_value=fake_redis),
             patch("backend.cache.get_redis", new_callable=AsyncMock, return_value=None),
-            patch("backend.main.get_agent", return_value=mock_agent),
-            patch("backend.main.USE_LANGCHAIN", True),
+            patch("backend.routes.chat.get_agent", return_value=mock_agent),
+            patch("backend.routes.chat.USE_LANGCHAIN", True),
         ):
             # 给 mock_agent 添加 chat_structured 方法
             mock_result = MagicMock()

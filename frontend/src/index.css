@@ -14,6 +14,18 @@
   --rule: #e0ddd6;
 }
 
+/* 暗色模式变量 */
+.dark {
+  --ink: #e6edf3;
+  --ink-light: #8b949e;
+  --gold: #d4a843;
+  --gold-light: #2d2a1e;
+  --paper: #0d1117;
+  --paper-dark: #161b22;
+  --red: #f85149;
+  --rule: #30363d;
+}
+
 body {
   font-family: 'DM Sans', sans-serif;
   background-color: var(--paper);
@@ -27,6 +39,18 @@ body {
     linear-gradient(90deg, transparent 79px, rgba(26, 26, 46, 0.05) 79px, rgba(26, 26, 46, 0.05) 81px, transparent 81px),
     linear-gradient(rgba(26, 26, 46, 0.03) 1px, transparent 1px);
   background-size: 100% 28px;
+}
+
+/* 暗色模式纹理 - 更加微弱 */
+.dark .paper-texture {
+  background-image:
+    linear-gradient(90deg, transparent 79px, rgba(255, 255, 255, 0.02) 79px, rgba(255, 255, 255, 0.02) 81px, transparent 81px),
+    linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+}
+
+/* 移动端安全区域 */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /* 报纸分割线样式 */

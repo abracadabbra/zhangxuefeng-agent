@@ -28,6 +28,7 @@ from backend.routes.chat import router as chat_router
 from backend.routes.profile import router as profile_router
 from backend.routes.session import router as session_router
 from backend.routes.system import router as system_router
+from backend.docs import setup_docs
 from backend.security import SecurityMiddleware
 
 settings = get_settings()
@@ -57,6 +58,9 @@ app = FastAPI(
     version="0.2.0",
     lifespan=lifespan,
 )
+
+# ============== API 文档 ==============
+setup_docs(app)
 
 
 # ============== Middleware ==============
