@@ -13,6 +13,7 @@ from langgraph.prebuilt import create_react_agent
 from .llm_factory import create_llm
 from .tools_adapter import convert_tools
 from .prompt import SYSTEM_PROMPT
+from .structured_output import RecommendationResult, get_format_instructions
 from ..tools.registry import tool_registry
 from ..session_store import SessionStore
 
@@ -139,6 +140,59 @@ class LangChainAgent:
                 "reply": f"抱歉，处理过程中出现了错误：{type(e).__name__}",
                 "tool_calls": [],
             }
+
+    async def chat_structured(
+        self,
+        message: str,
+        session_id: str,
+        user_context: dict | None = None,
+    ) -> RecommendationResult:
+        """
+        结构化输出模式：返回 RecommendationResult 对象
+
+        使用 LLM 的 with_structured_output 能力，直接返回解析好的 Pydantic 对象。
+        """
+        chat_history = []
+        if self.session_store:
+            session = self.session_store.get_or_create(session_id)
+            for msg in session.get("history", []):
+                if msg["role"] == "user":
+                    chat_history.append(HumanMessage(content=msg["content"]))
+                elif msg["role"] == "assistant":
+                    chat_history.append(AIMessage(content=msg["content"]))
+
+        input_text = message
+        if user_context:
+            context_str = self._format_user_context(user_context)
+            if context_str:
+                input_text = f"{context_str}\n\n{message}"
+
+        system_content = f"{self.system_prompt}\n\n{get_format_instructions()}"
+        messages = [
+            SystemMessage(content=system_content),
+            *chat_history,
+            HumanMessage(content=input_text),
+        ]
+
+        structured_llm = self.llm.with_structured_output(RecommendationResult)
+
+        try:
+            result = await structured_llm.ainvoke(messages)
+
+            if self.session_store:
+                self.session_store.add_message(session_id, "user", message)
+                self.session_store.add_message(
+                    session_id, "assistant", result.summary,
+                )
+
+            return result
+
+        except Exception as e:
+            logger.error(f"Structured output failed: {e}")
+            return RecommendationResult(
+                recommendations=[],
+                summary=f"抱歉，结构化推荐生成失败：{type(e).__name__}",
+            )
 
     async def chat_stream(
         self,
