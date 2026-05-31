@@ -1,0 +1,39 @@
+{
+  "name": "张雪峰 AI 咨询",
+  "appid": "",
+  "description": "高考/考研/职业规划 AI 咨询顾问",
+  "versionName": "1.0.0",
+  "versionCode": "100",
+  "transformPx": false,
+  "mp-weixin": {
+    "appid": "",
+    "setting": {
+      "urlCheck": false,
+      "es6": true,
+      "enhance": true,
+      "postcss": true,
+      "minified": true
+    },
+    "usingComponents": true,
+    "permission": {
+      "scope.userLocation": {
+        "desc": "获取位置信息用于推荐当地院校"
+      }
+    }
+  },
+  "h5": {
+    "title": "张雪峰 AI 咨询",
+    "router": {
+      "mode": "hash"
+    },
+    "devServer": {
+      "port": 3001,
+      "proxy": {
+        "/api": {
+          "target": "http://localhost:8000",
+          "changeOrigin": true
+        }
+      }
+    }
+  }
+}
