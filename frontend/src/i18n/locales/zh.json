@@ -1,0 +1,242 @@
+{
+  "header": {
+    "title": "张雪峰 AI 咨询",
+    "subtitle": "Data-Driven Truth",
+    "backHome": "← 返回首页",
+    "switchToDark": "切换到暗色模式",
+    "switchToLight": "切换到亮色模式",
+    "nightMode": "夜间",
+    "dayMode": "日间"
+  },
+  "portal": {
+    "mainTitle": "选学校、选专业、选城市",
+    "mainSubtitle": "先看数据，再做决定",
+    "description": "不画饼、不灌鸡汤、不和稀泥。",
+    "descriptionLine2": "我是张雪峰 AI 咨询，用数据帮你做最务实的选择。",
+    "dateLabel": "第 2026 期 · 高考特刊",
+    "nationalEdition": "全国版",
+    "pageLabel": "— 第 1 版 —"
+  },
+  "scenarios": {
+    "gaokao": {
+      "title": "高考志愿填报",
+      "subtitle": "分数出来别慌，我帮你算明白",
+      "section": "A 版",
+      "description": "3700+ 院校、580+ 专业、85000+ 分数线"
+    },
+    "kaoyan": {
+      "title": "考研规划",
+      "subtitle": "选对学校和专业，比努力更重要",
+      "section": "B 版",
+      "description": "院校报录比、复试线、调剂信息全覆盖"
+    },
+    "career": {
+      "title": "职业规划",
+      "subtitle": "选专业之前，先看看就业真相",
+      "section": "C 版",
+      "description": "专业就业率、薪资水平、行业趋势分析"
+    },
+    "startConsult": "开始咨询"
+  },
+  "sessions": {
+    "title": "历史会话",
+    "messages": "{{count}} 条消息"
+  },
+  "dataBrief": {
+    "title": "数据快报",
+    "universities": "覆盖全国院校",
+    "majors": "本科专业",
+    "scores": "录取分数线"
+  },
+  "footer": {
+    "issue": "第 2026 期 · 高考特刊",
+    "motto": "数据驱动 · 说真话 · 不画饼",
+    "copyright": "© 张雪峰 AI 咨询"
+  },
+  "mobileNav": {
+    "home": "首页",
+    "chat": "对话",
+    "profile": "我的"
+  },
+  "chat": {
+    "title": "专栏对话",
+    "export": "导出",
+    "liveConsult": "实时咨询",
+    "welcomeTitle": "你好！我是张雪峰 AI 助手",
+    "welcomeDesc": "高考志愿填报、考研择校、职业规划，有什么问题尽管问我！",
+    "analyzing": "正在分析数据...",
+    "readerLetter": "读者来信",
+    "inputPlaceholder": "输入你的问题...",
+    "send": "发送",
+    "errorMessage": "抱歉，发生了错误，请重试。"
+  },
+  "sourcePanel": {
+    "title": "参考文献",
+    "count": "{{count}} 条",
+    "noData": "暂无数据来源",
+    "waiting": "等待结果...",
+    "notFound": "未找到数据",
+    "notImplemented": "待实现",
+    "queryError": "查询出错",
+    "querySuccess": "查询成功，点击查看",
+    "clickDetail": "点击查看详细",
+    "status": {
+      "success": "正常",
+      "notFound": "未找到",
+      "notImplemented": "待实现",
+      "error": "错误",
+      "pending": "等待中"
+    },
+    "toolNames": {
+      "search_admission": "搜索录取分数线",
+      "calculate_match": "分数匹配推荐",
+      "search_employment": "就业数据查询",
+      "compare_schools": "院校对比",
+      "search_policy": "政策查询"
+    },
+    "detail": {
+      "statusLabel": "状态：",
+      "statusNotImplemented": "状态：待实现",
+      "notImplementedDesc": "此功能尚未完成",
+      "statusNotFound": "状态：未找到",
+      "statusError": "状态：错误",
+      "queryLabel": "查询：",
+      "sourceLabel": "数据源：",
+      "resultTitle": "查询结果 · {{count}} 条",
+      "moreResults": "... 还有 {{count}} 条结果",
+      "fullData": "完整数据：",
+      "detailContent": "详细内容：",
+      "close": "关闭",
+      "dataTruncated": "数据过大已截断",
+      "resultTruncated": "已截断",
+      "noMatchData": "未找到匹配数据",
+      "queryFailed": "查询失败"
+    }
+  },
+  "messageBubble": {
+    "columnArticle": "专栏文章",
+    "readerLetter": "读者来信",
+    "dataSources": "数据来源：",
+    "fetched": "已获取"
+  },
+  "form": {
+    "stepOf": "第 {{current}} 步，共 {{total}} 步",
+    "back": "返回",
+    "prevStep": "上一步",
+    "nextStep": "下一步 →",
+    "startConsult": "开始咨询 →",
+    "skipDirect": "跳过，直接提问 →",
+    "pageLabel": "— 第 {{page}} 版 —",
+    "editorNote": "编者注：",
+    "gaokao": {
+      "steps": {
+        "score": {
+          "label": "高考分数",
+          "placeholder": "例如：580",
+          "hint": "填写你的高考总分，我会根据分数推荐合适院校",
+          "note": "请如实填写，分数越准确，推荐越精准"
+        },
+        "province": {
+          "label": "所在省份",
+          "placeholder": "例如：河南",
+          "selectPlaceholder": "选择省份",
+          "hint": "不同省份分数线差异很大，这个信息很关键",
+          "note": "请选择参加高考的省份，这将影响分数线参考"
+        },
+        "subject": {
+          "label": "科类",
+          "placeholder": "选择科类",
+          "hint": "选科决定了可报考的专业范围",
+          "note": "请选择你的高考科类或选科组合"
+        },
+        "familyBudget": {
+          "label": "家庭经济情况",
+          "placeholder": "选择情况",
+          "hint": "我会根据实际情况推荐性价比最高的方案",
+          "note": "此信息仅用于推荐，不会泄露"
+        }
+      }
+    },
+    "kaoyan": {
+      "steps": {
+        "currentSchool": {
+          "label": "本科学校",
+          "placeholder": "例如：河南大学",
+          "hint": "了解你的起点，才能规划路径",
+          "note": "本科学校层次会影响考研目标院校的选择"
+        },
+        "major": {
+          "label": "本科专业",
+          "placeholder": "例如：计算机科学",
+          "hint": "你的专业背景决定了考研方向",
+          "note": "本科专业决定了考研的可选方向"
+        },
+        "gpa": {
+          "label": "GPA / 绩点",
+          "placeholder": "例如：3.5",
+          "hint": "成绩是考研择校的重要参考",
+          "note": "GPA 是考研择校的重要参考指标"
+        },
+        "targetSchool": {
+          "label": "目标院校",
+          "placeholder": "例如：北京大学",
+          "hint": "有了目标才能倒推备考策略",
+          "note": "目标院校决定了备考策略和难度"
+        }
+      }
+    },
+    "career": {
+      "steps": {
+        "education": {
+          "label": "当前学历",
+          "placeholder": "例如：本科",
+          "hint": "你的学历起点决定了职业发展路径",
+          "note": "当前学历决定了职业发展的起点"
+        },
+        "major": {
+          "label": "专业方向",
+          "placeholder": "例如：金融学",
+          "hint": "你的专业背景决定了考研方向",
+          "note": "本科专业决定了考研的可选方向"
+        },
+        "interests": {
+          "label": "兴趣方向",
+          "placeholder": "例如：互联网、金融",
+          "hint": "兴趣是最好的老师，也是职业选择的指南针",
+          "note": "兴趣方向将影响专业和职业推荐"
+        },
+        "concerns": {
+          "label": "最关心的问题",
+          "placeholder": "例如：薪资、稳定性",
+          "hint": "说出你最纠结的问题，我来给你掰开了讲",
+          "note": "说出你的真实顾虑，我会给出务实建议"
+        }
+      }
+    },
+    "subjects": {
+      "science": "理科",
+      "arts": "文科",
+      "physics": "物理类",
+      "history": "历史类",
+      "comprehensive": "综合改革"
+    },
+    "budget": {
+      "low": "一般（公办优先）",
+      "medium": "中等（公私皆可）",
+      "high": "较好（中外合作可考虑）",
+      "unlimited": "不限"
+    },
+    "education": {
+      "highSchool": "高中",
+      "college": "大专",
+      "bachelor": "本科",
+      "master": "硕士",
+      "phd": "博士"
+    },
+    "versionLabels": ["第一版", "第二版", "第三版", "第四版"]
+  },
+  "language": {
+    "zh": "中文",
+    "en": "EN"
+  }
+}

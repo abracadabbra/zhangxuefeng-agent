@@ -1,0 +1,242 @@
+{
+  "header": {
+    "title": "Zhang Xuefeng AI Consulting",
+    "subtitle": "Data-Driven Truth",
+    "backHome": "← Home",
+    "switchToDark": "Switch to dark mode",
+    "switchToLight": "Switch to light mode",
+    "nightMode": "Dark",
+    "dayMode": "Light"
+  },
+  "portal": {
+    "mainTitle": "Choose School, Major & City",
+    "mainSubtitle": "Data First, Decide Later",
+    "description": "No empty promises. No sugar-coating. Just facts.",
+    "descriptionLine2": "I'm Zhang Xuefeng AI — helping you make the most practical choices with data.",
+    "dateLabel": "Issue 2026 · Gaokao Special",
+    "nationalEdition": "National",
+    "pageLabel": "— Page 1 —"
+  },
+  "scenarios": {
+    "gaokao": {
+      "title": "College Admissions",
+      "subtitle": "Don't panic after scores come out — I'll help you figure it out",
+      "section": "Section A",
+      "description": "3,700+ universities, 580+ majors, 85,000+ score lines"
+    },
+    "kaoyan": {
+      "title": "Grad School Planning",
+      "subtitle": "Choosing the right school matters more than working hard",
+      "section": "Section B",
+      "description": "Admission ratios, reexamination lines, transfer info all covered"
+    },
+    "career": {
+      "title": "Career Planning",
+      "subtitle": "Check the employment reality before choosing a major",
+      "section": "Section C",
+      "description": "Employment rates, salary levels, industry trend analysis"
+    },
+    "startConsult": "Start Consulting"
+  },
+  "sessions": {
+    "title": "Session History",
+    "messages": "{{count}} messages"
+  },
+  "dataBrief": {
+    "title": "Data Highlights",
+    "universities": "Universities Covered",
+    "majors": "Undergraduate Majors",
+    "scores": "Admission Score Lines"
+  },
+  "footer": {
+    "issue": "Issue 2026 · Gaokao Special",
+    "motto": "Data-Driven · Honest · No Sugar-Coating",
+    "copyright": "© Zhang Xuefeng AI Consulting"
+  },
+  "mobileNav": {
+    "home": "Home",
+    "chat": "Chat",
+    "profile": "Profile"
+  },
+  "chat": {
+    "title": "Column Chat",
+    "export": "Export",
+    "liveConsult": "Live",
+    "welcomeTitle": "Hi! I'm Zhang Xuefeng AI Assistant",
+    "welcomeDesc": "College admissions, grad school, career planning — ask me anything!",
+    "analyzing": "Analyzing data...",
+    "readerLetter": "Reader's Letter",
+    "inputPlaceholder": "Type your question...",
+    "send": "Send",
+    "errorMessage": "Sorry, an error occurred. Please try again."
+  },
+  "sourcePanel": {
+    "title": "References",
+    "count": "{{count}} items",
+    "noData": "No data sources yet",
+    "waiting": "Waiting for results...",
+    "notFound": "No data found",
+    "notImplemented": "Not implemented",
+    "queryError": "Query error",
+    "querySuccess": "Query successful, click to view",
+    "clickDetail": "Click for details",
+    "status": {
+      "success": "OK",
+      "notFound": "Not Found",
+      "notImplemented": "Pending",
+      "error": "Error",
+      "pending": "Waiting"
+    },
+    "toolNames": {
+      "search_admission": "Search Admission Scores",
+      "calculate_match": "Score Match Calculator",
+      "search_employment": "Employment Data Query",
+      "compare_schools": "School Comparison",
+      "search_policy": "Policy Search"
+    },
+    "detail": {
+      "statusLabel": "Status: ",
+      "statusNotImplemented": "Status: Not Implemented",
+      "notImplementedDesc": "This feature is not yet available",
+      "statusNotFound": "Status: Not Found",
+      "statusError": "Status: Error",
+      "queryLabel": "Query: ",
+      "sourceLabel": "Source: ",
+      "resultTitle": "Results · {{count}} items",
+      "moreResults": "... and {{count}} more results",
+      "fullData": "Full Data:",
+      "detailContent": "Details:",
+      "close": "Close",
+      "dataTruncated": "Data too large, truncated",
+      "resultTruncated": "Truncated",
+      "noMatchData": "No matching data found",
+      "queryFailed": "Query failed"
+    }
+  },
+  "messageBubble": {
+    "columnArticle": "Column Article",
+    "readerLetter": "Reader's Letter",
+    "dataSources": "Data Sources:",
+    "fetched": "Fetched"
+  },
+  "form": {
+    "stepOf": "Step {{current}} of {{total}}",
+    "back": "Back",
+    "prevStep": "Previous",
+    "nextStep": "Next →",
+    "startConsult": "Start Consulting →",
+    "skipDirect": "Skip, ask directly →",
+    "pageLabel": "— Page {{page}} —",
+    "editorNote": "Editor's Note: ",
+    "gaokao": {
+      "steps": {
+        "score": {
+          "label": "Gaokao Score",
+          "placeholder": "e.g. 580",
+          "hint": "Enter your total score — I'll recommend suitable universities based on it",
+          "note": "Please enter your actual score. The more accurate, the better the recommendations"
+        },
+        "province": {
+          "label": "Province",
+          "placeholder": "e.g. Henan",
+          "selectPlaceholder": "Select province",
+          "hint": "Score lines vary greatly by province — this info is critical",
+          "note": "Select the province where you took the Gaokao — this affects score line references"
+        },
+        "subject": {
+          "label": "Subject Track",
+          "placeholder": "Select track",
+          "hint": "Your subject track determines which majors you can apply for",
+          "note": "Please select your Gaokao subject track or combination"
+        },
+        "familyBudget": {
+          "label": "Family Financial Situation",
+          "placeholder": "Select situation",
+          "hint": "I'll recommend the best value options based on your situation",
+          "note": "This info is only used for recommendations and will not be shared"
+        }
+      }
+    },
+    "kaoyan": {
+      "steps": {
+        "currentSchool": {
+          "label": "Undergraduate School",
+          "placeholder": "e.g. Henan University",
+          "hint": "Knowing your starting point helps plan the path",
+          "note": "Your school tier affects target grad school choices"
+        },
+        "major": {
+          "label": "Undergraduate Major",
+          "placeholder": "e.g. Computer Science",
+          "hint": "Your academic background determines your grad school direction",
+          "note": "Your major determines available grad school options"
+        },
+        "gpa": {
+          "label": "GPA / Grade Point",
+          "placeholder": "e.g. 3.5",
+          "hint": "Grades are an important reference for grad school selection",
+          "note": "GPA is a key indicator for grad school selection"
+        },
+        "targetSchool": {
+          "label": "Target School",
+          "placeholder": "e.g. Peking University",
+          "hint": "Having a target helps reverse-engineer your prep strategy",
+          "note": "Your target school determines prep strategy and difficulty"
+        }
+      }
+    },
+    "career": {
+      "steps": {
+        "education": {
+          "label": "Current Education Level",
+          "placeholder": "e.g. Bachelor's",
+          "hint": "Your education level determines your career starting point",
+          "note": "Your current education determines your career development starting point"
+        },
+        "major": {
+          "label": "Major / Field",
+          "placeholder": "e.g. Finance",
+          "hint": "Your academic background determines your career direction",
+          "note": "Your major determines available career options"
+        },
+        "interests": {
+          "label": "Interest Areas",
+          "placeholder": "e.g. Tech, Finance",
+          "hint": "Interest is the best teacher and career compass",
+          "note": "Your interests will influence major and career recommendations"
+        },
+        "concerns": {
+          "label": "Top Concerns",
+          "placeholder": "e.g. Salary, Stability",
+          "hint": "Tell me what worries you most — I'll break it down for you",
+          "note": "Share your real concerns and I'll give practical advice"
+        }
+      }
+    },
+    "subjects": {
+      "science": "Science",
+      "arts": "Arts",
+      "physics": "Physics-based",
+      "history": "History-based",
+      "comprehensive": "Comprehensive Reform"
+    },
+    "budget": {
+      "low": "Modest (public schools preferred)",
+      "medium": "Moderate (public or private OK)",
+      "high": "Comfortable (joint programs OK)",
+      "unlimited": "No limit"
+    },
+    "education": {
+      "highSchool": "High School",
+      "college": "Associate Degree",
+      "bachelor": "Bachelor's",
+      "master": "Master's",
+      "phd": "PhD"
+    },
+    "versionLabels": ["Page 1", "Page 2", "Page 3", "Page 4"]
+  },
+  "language": {
+    "zh": "中文",
+    "en": "EN"
+  }
+}
