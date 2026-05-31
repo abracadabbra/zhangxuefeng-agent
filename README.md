@@ -2,7 +2,7 @@
 
 > 张雪峰的认知操作系统，可运行的高考/考研/职业规划顾问
 
-基于 OpenAI Function Calling 构建的智能教育咨询 Agent，模拟张雪峰的思维方式，为考生和家长提供个性化的升学规划建议。系统通过"灵魂追问"机制自动收集用户画像，结合院校数据库和政策库，给出精准的选校选专业建议。
+基于 OpenAI Function Calling + LangChain Agent 构建的智能教育咨询系统，模拟张雪峰的思维方式，为考生和家长提供个性化的升学规划建议。系统通过"灵魂追问"机制自动收集用户画像，结合院校数据库、政策库和 RAG 语义搜索，给出精准的选校选专业建议。
 
 ## 功能特性
 
@@ -13,6 +13,7 @@
 - **职业规划** — 应届生就业方向、行业选择
 - **灵魂追问** — 多轮对话自动收集用户画像（分数、省份、科类、家庭条件等），画像完整后才进入正式咨询
 - **AI 驱动** — 基于张雪峰心智模型（SKILL.md）+ 实时数据查询
+- **多步推理** — LangChain Agent 自动串联多个工具调用，完成复杂查询
 
 ### 工具系统（Function Calling）
 
@@ -25,16 +26,37 @@
 | `compare_schools` | 多院校综合对比 |
 | `search_policy` | 搜索招生政策（强基计划、提前批、专项计划等） |
 | `calculate_match` | 根据分数匹配院校推荐（冲/稳/保策略） |
-| `semantic_search` | 语义搜索学校和专业（基于向量相似度） |
+| `semantic_search` | 语义搜索学校和专业（基于 RAG 向量检索） |
 
-### 其他特性
+### AI 能力
+
+- **LangChain Agent** — 多步推理，自动串联工具调用
+- **RAG 语义搜索** — ChromaDB + bge-small-zh-v1.5 嵌入模型
+- **结构化输出** — PydanticOutputParser，稳定返回 JSON 推荐结果
+- **对话记忆** — 前 10 轮保留原文，超出自动摘要
+- **LLM 切换** — 一行配置切换 OpenAI / Anthropic
+
+### 前端体验
+
+- 报纸风格 UI（黑白色调、serif 字体）
+- 暗色模式 + 移动端适配
+- 多语言支持（中/英）
+- 推荐卡片 + 数据可视化 + 志愿模拟
+- 无障碍（ARIA 标签、键盘导航）
+- SEO 优化 + PWA 离线支持
+- 虚拟列表优化长对话
+
+### 运维能力
 
 - SSE 流式输出，实时展示思考和工具调用过程
-- 会话持久化（Redis），支持多轮上下文
+- 会话持久化（SQLite），支持多轮上下文
 - 对话记录导出（Markdown / PDF 报纸风格排版）
 - 用户反馈系统（评分 + 评论）
-- 速率限制 + 安全校验中间件
-- Sentry 错误监控集成
+- Redis 缓存 + 数据库索引优化
+- API 限流 + 安全校验中间件
+- 结构化日志（JSON 格式）
+- LangSmith 链路追踪（可选）
+- Docker + GitHub Actions CI/CD
 
 ## 界面预览
 
@@ -254,6 +276,15 @@ USE_LANGCHAIN=false                 # 设为 true 启用 LangChain Agent
 LLM_PROVIDER=openai                 # openai / anthropic
 LLM_MODEL=gpt-4o-mini
 ANTHROPIC_API_KEY=                  # 使用 Anthropic 模型时填写
+
+# ===== LangSmith（可选） =====
+LANGCHAIN_TRACING_V2=false          # 启用链路追踪
+LANGCHAIN_API_KEY=                  # LangSmith API Key
+LANGCHAIN_PROJECT=zhangxuefeng-agent
+
+# ===== 缓存和限流 =====
+CACHE_TTL=300                       # 缓存 TTL（秒）
+RATE_LIMIT=60                       # API 限流（次/分钟）
 ```
 
 ### 人设 Prompt（SKILL.md）
@@ -329,38 +360,72 @@ docker run -d \
 ```
 zhangxuefeng-agent/
 ├── backend/                    # FastAPI 后端
-│   ├── main.py                 # 应用入口 + 核心 API
+│   ├── main.py                 # 应用入口（精简版，~80 行）
+│   ├── dependencies.py         # 共享依赖（session_store, get_agent 等）
+│   ├── routes/                 # API 路由模块
+│   │   ├── chat.py             # 对话接口（/chat, /recommend）
+│   │   ├── session.py          # 会话管理（/sessions, /session/*）
+│   │   ├── profile.py          # 画像管理（/profile/*）
+│   │   └── system.py           # 系统接口（/, /health, /tools）
 │   ├── agent/                  # Agent 核心
 │   │   ├── core.py             # OpenAI Function Calling 主循环
-│   │   └── prompt.py           # 内置 System Prompt（SKILL.md 的 fallback）
+│   │   ├── langchain_agent.py  # LangChain Agent（多步推理）
+│   │   ├── llm_factory.py      # LLM 工厂（OpenAI/Anthropic 切换）
+│   │   ├── tools_adapter.py    # 工具适配层
+│   │   ├── structured_output.py # 结构化输出（Pydantic）
+│   │   ├── langsmith_config.py # LangSmith 配置
+│   │   └── prompt.py           # 内置 System Prompt
 │   ├── tools/                  # 工具系统
 │   │   ├── definitions.py      # 6 个工具的实现
-│   │   └── registry.py         # 装饰器注册表 + 分发
+│   │   └── registry.py         # 装饰器注册表 + 分发 + 缓存
 │   ├── models/                 # SQLAlchemy ORM 模型
 │   ├── schemas/                # Pydantic 请求/响应模型
 │   ├── crud/                   # 数据库 CRUD 操作
 │   ├── routers/                # 数据查询 API 路由
 │   ├── seeds/                  # 种子数据 + 导入脚本
-│   ├── search/                 # 语义搜索（ChromaDB 向量检索）
+│   ├── search/                 # RAG 语义搜索（ChromaDB 向量检索）
+│   ├── middleware/             # 速率限制等中间件
 │   ├── database.py             # 数据库连接配置
+│   ├── config.py               # 配置管理（pydantic-settings）
+│   ├── logging_config.py       # 结构化日志配置
 │   ├── soul_query.py           # 灵魂追问引擎
 │   ├── user_profile.py         # 用户画像模型 + Redis 持久化
-│   ├── session_store.py        # 会话存储
-│   ├── cache.py                # 应用缓存层
+│   ├── session_store.py        # 会话存储（SQLite 持久化）
+│   ├── cache.py                # Redis 缓存层
 │   ├── security.py             # 安全校验中间件
-│   ├── export.py               # PDF 导出
-│   └── middleware/             # 速率限制等中间件
+│   ├── export.py               # PDF 导出（报纸风格）
+│   └── docs.py                 # API 文档自动生成
 ├── frontend/                   # React + Vite + Tailwind CSS 前端
+│   ├── src/
+│   │   ├── App.tsx             # 主应用（暗色模式 + 多语言 + 懒加载）
+│   │   ├── components/         # 组件目录
+│   │   │   ├── ChatInterface.tsx      # 聊天界面（虚拟列表）
+│   │   │   ├── RecommendationCard.tsx # 推荐卡片
+│   │   │   ├── DataVisualization.tsx  # 数据可视化
+│   │   │   ├── AdmissionSimulator.tsx # 志愿模拟
+│   │   │   ├── SoulQuestionForm.tsx   # 灵魂追问表单
+│   │   │   ├── SourcePanel.tsx        # 数据来源面板
+│   │   │   ├── MessageBubble.tsx      # 消息气泡
+│   │   │   ├── Skeleton.tsx           # 骨架屏
+│   │   │   └── Loading.tsx            # 加载组件
+│   │   ├── contexts/           # 上下文
+│   │   │   └── ThemeContext.tsx # 暗色模式上下文
+│   │   ├── i18n/               # 国际化
+│   │   │   ├── index.ts        # i18n 配置
+│   │   │   └── locales/        # 翻译文件（zh.json, en.json）
+│   │   └── types/              # TypeScript 类型定义
+│   └── public/
+│       ├── manifest.json       # PWA 清单
+│       └── sw.js               # Service Worker
+├── e2e/                        # Playwright E2E 测试
 ├── alembic/                    # 数据库迁移脚本
-├── tests/                      # 测试套件
+├── tests/                      # 后端测试套件（61 个测试）
 ├── docs/                       # 文档和截图
-├── data/                       # SQLite 数据库文件
 ├── SKILL.md                    # 张雪峰 AI 技能定义（系统 Prompt）
 ├── pyproject.toml              # Python 依赖管理
 ├── Dockerfile
 ├── docker-compose.yml
-├── .env.example
-└── .gitignore
+└── .github/workflows/ci.yml   # GitHub Actions CI/CD
 ```
 
 ### 技术栈
@@ -369,14 +434,19 @@ zhangxuefeng-agent/
 |---|---|
 | 后端框架 | FastAPI + Uvicorn |
 | 前端框架 | React 18 + TypeScript + Vite 6 |
-| 样式 | Tailwind CSS 3.4（报纸风主题） |
-| LLM | OpenAI GPT-4o-mini / GPT-4o（支持代理） |
-| 工具框架 | OpenAI Function Calling（原生） |
-| 向量搜索 | ChromaDB + Sentence Transformers |
-| 会话存储 | Redis |
+| 样式 | Tailwind CSS 3.4（报纸风主题 + 暗色模式） |
+| LLM | OpenAI GPT-4o-mini / Anthropic Claude（一行切换） |
+| Agent 框架 | LangChain + langgraph（多步推理） |
+| 工具框架 | OpenAI Function Calling + LangChain Tool 适配 |
+| 向量搜索 | ChromaDB + bge-small-zh-v1.5（RAG 语义搜索） |
+| 会话存储 | SQLite（持久化）+ Redis（缓存） |
 | 数据库 | SQLite + SQLAlchemy + Alembic |
-| 测试 | pytest（后端）+ Vitest（前端） |
-| 监控 | Sentry + 自定义 MetricsCollector |
+| 配置管理 | pydantic-settings |
+| 日志 | 结构化 JSON 日志 |
+| 测试 | pytest（后端 61 个）+ Vitest（前端 71 个）+ Playwright（E2E 22 个） |
+| 监控 | Sentry + LangSmith（可选） |
+| 部署 | Docker + GitHub Actions CI/CD |
+| 前端优化 | 懒加载 + 虚拟列表 + 骨架屏 + PWA |
 
 ### 核心流程
 
@@ -385,16 +455,28 @@ zhangxuefeng-agent/
   ↓
 POST /chat 接收请求
   ↓
+安全校验（输入验证 + 限流）
+  ↓
 soul_query.py 检查画像是否完整
-  ├─ 不完整 → 返回追问问题（最多 3 轮）
+  ├─ 不完整 → 返回追问问题（最多 5 轮）
   └─ 完整 ↓
 注入画像为上下文
   ↓
-AgentCore.chat() — OpenAI Function Calling 主循环
-  ├─ LLM 返回文本 → 流式输出给用户
-  └─ LLM 调用工具 → 执行工具 → 结果回传 LLM → 继续生成
+┌─ 传统模式（AgentCore）─────────────────────┐
+│  OpenAI Function Calling 主循环              │
+│  ├─ LLM 返回文本 → 流式输出给用户            │
+│  └─ LLM 调用工具 → 执行工具 → 结果回传 LLM   │
+└─────────────────────────────────────────────┘
+┌─ LangChain 模式（LangChainAgent）──────────┐
+│  langgraph ReAct Agent 多步推理              │
+│  ├─ 自动串联多个工具调用                      │
+│  ├─ 对话记忆（前 10 轮保留，超出自动摘要）    │
+│  └─ 结构化输出（Pydantic JSON）              │
+└─────────────────────────────────────────────┘
   ↓
 SSE 流式响应返回前端
+  ↓
+会话持久化（SQLite）+ 缓存（Redis）
 ```
 
 ### 添加新工具
@@ -427,26 +509,41 @@ async def my_new_tool(param1: str) -> str:
 
 ```bash
 # ===== 后端 =====
-pip install -e ".[dev]"                          # 安装依赖
+pip install -e ".[dev,langchain]"                # 安装依赖（含 LangChain）
 uvicorn backend.main:app --reload --port 8000    # 启动开发服务器
 ruff check backend/                              # Lint
 ruff format backend/                             # 格式化
-pytest                                           # 运行测试
+pytest                                           # 运行后端测试（61 个）
+
+# ===== LangChain 模式 =====
+USE_LANGCHAIN=true uvicorn backend.main:app --reload  # 启用 LangChain Agent
+LLM_PROVIDER=anthropic ANTHROPIC_API_KEY=xxx uvicorn backend.main:app --reload  # 切换到 Anthropic
 
 # ===== 前端 =====
 cd frontend
 npm install                                      # 安装依赖
 npm run dev                                      # 启动开发服务器（端口 3000）
 npm run build                                    # 生产构建
-npm run test                                     # 运行测试
+npm run test                                     # 运行前端测试（71 个）
 npm run lint                                     # Lint
+
+# ===== E2E 测试 =====
+cd e2e
+npm install                                      # 安装 Playwright
+npm test                                         # 运行 E2E 测试（22 个）
 
 # ===== 数据库 =====
 alembic upgrade head                             # 执行迁移
 alembic revision --autogenerate -m "desc"        # 生成迁移脚本
 
-# ===== 语义搜索 =====
-python -m backend.seeds.embed_data               # 生成向量嵌入数据
+# ===== 种子数据 =====
+python -m backend.seeds.import_full_data         # 导入院校 + 专业 + 分数线数据
+python -m backend.seeds.embed_data               # 生成向量嵌入数据（RAG）
+
+# ===== Docker =====
+docker compose up -d                             # 启动所有服务
+docker compose logs -f api                       # 查看日志
+docker compose down                              # 停止服务
 ```
 
 ### 代码规范
