@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, type CSSProperties, type ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
-import { List, useListRef, useDynamicRowHeight } from 'react-window'
+import { List, useListCallbackRef, useDynamicRowHeight } from 'react-window'
 import MessageBubble from './MessageBubble'
 import SourcePanel from './SourcePanel'
 import { MessageSkeleton } from './Skeleton'
@@ -35,14 +35,14 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
   const [lastSources, setLastSources] = useState<ToolCall[]>([])
   const [showSources, setShowSources] = useState(false)
   const inputRef = useRef<HTMLTextAreaElement>(null)
-  const listRef = useListRef()
+  const [listApi, setListApi] = useListCallbackRef()
   const dynamicRowHeight = useDynamicRowHeight({ defaultRowHeight: 120, key: 'chat-messages' })
 
   const scrollToBottom = useCallback(() => {
-    if (messages.length > 0 && listRef.current) {
-      listRef.current.scrollToRow({ index: messages.length - 1, align: 'end', behavior: 'smooth' })
+    if (messages.length > 0 && listApi) {
+      listApi.scrollToRow({ index: messages.length - 1, align: 'end', behavior: 'smooth' })
     }
-  }, [messages.length, listRef])
+  }, [messages.length, listApi])
 
   useEffect(() => {
     scrollToBottom()
@@ -313,11 +313,12 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
 
           {messages.length > 0 && (
             <List
-              listRef={listRef}
+              listRef={setListApi}
               rowCount={messages.length}
               rowHeight={dynamicRowHeight}
               rowComponent={ChatRow}
-              rowProps={{ messages }}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              rowProps={{ messages } as any}
               overscanCount={5}
               className="scrollbar-thin"
               style={{ height: '100%', width: '100%' }}
