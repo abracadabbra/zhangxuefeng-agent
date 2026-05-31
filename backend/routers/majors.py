@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from backend.database import get_db
+from backend.cache import cache_get, cache_set
 from backend.crud.major import get_major, get_majors, get_major_by_name, get_hot_majors
 from backend.schemas.major import MajorOut, MajorQuery
 
@@ -12,33 +13,54 @@ router = APIRouter(prefix="/majors", tags=["专业"])
 
 
 @router.get("/{major_id}", response_model=MajorOut, summary="根据ID查询专业")
-def read_major(major_id: int, db: Session = Depends(get_db)):
+async def read_major(major_id: int, db: Session = Depends(get_db)):
+    cached = await cache_get("major", id=major_id)
+    if cached:
+        return cached
     major = get_major(db, major_id)
     if not major:
         raise HTTPException(status_code=404, detail="专业不存在")
-    return major
+    result = MajorOut.model_validate(major).model_dump()
+    await cache_set("major", result, id=major_id)
+    return result
 
 
 @router.get("/by-name/{name}", response_model=MajorOut, summary="根据名称查询专业")
-def read_major_by_name(name: str, db: Session = Depends(get_db)):
+async def read_major_by_name(name: str, db: Session = Depends(get_db)):
+    cached = await cache_get("major_name", name=name)
+    if cached:
+        return cached
     major = get_major_by_name(db, name)
     if not major:
         raise HTTPException(status_code=404, detail="专业不存在")
-    return major
+    result = MajorOut.model_validate(major).model_dump()
+    await cache_set("major_name", result, name=name)
+    return result
 
 
 @router.get("/hot/list", summary="获取热门专业")
-def list_hot_majors(limit: int = 20, db: Session = Depends(get_db)):
+async def list_hot_majors(limit: int = 20, db: Session = Depends(get_db)):
+    cached = await cache_get("major_hot", limit=limit)
+    if cached:
+        return cached
     items = get_hot_majors(db, limit)
-    return {"items": [MajorOut.model_validate(m) for m in items]}
+    result = {"items": [MajorOut.model_validate(m).model_dump() for m in items]}
+    await cache_set("major_hot", result, limit=limit)
+    return result
 
 
 @router.post("/search", summary="多条件查询专业列表")
-def search_majors(query: MajorQuery, db: Session = Depends(get_db)):
+async def search_majors(query: MajorQuery, db: Session = Depends(get_db)):
+    params = query.model_dump()
+    cached = await cache_get("major_search", **params)
+    if cached:
+        return cached
     items, total = get_majors(db, query)
-    return {
+    result = {
         "total": total,
         "page": query.page,
         "page_size": query.page_size,
-        "items": [MajorOut.model_validate(m) for m in items],
+        "items": [MajorOut.model_validate(m).model_dump() for m in items],
     }
+    await cache_set("major_search", result, **params)
+    return result

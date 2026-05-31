@@ -3,19 +3,19 @@
 
 提供对话 API、SSE 流式输出、Function Calling 支持、灵魂追问引擎
 """
-import os
+import logging
 from contextlib import asynccontextmanager
-from datetime import datetime
 
 from dotenv import load_dotenv
 
 load_dotenv(override=True)
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
+from backend.config import get_settings
 from backend.database import init_db
-from backend.dependencies import MODEL, USE_LANGCHAIN
+from backend.logging_config import request_filter, setup_logging
 from backend.middleware.rate_limit import RateLimitMiddleware
 from backend.routers import (
     majors_router,
@@ -30,21 +30,25 @@ from backend.routes.session import router as session_router
 from backend.routes.system import router as system_router
 from backend.security import SecurityMiddleware
 
+settings = get_settings()
+setup_logging(level=settings.log_level, fmt=settings.log_format)
+logger = logging.getLogger(__name__)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print(f"[{datetime.now()}] 张雪峰 Agent 启动 | Model: {MODEL}")
+    logger.info("张雪峰 Agent 启动 | model=%s", settings.effective_model)
 
     init_db()
-    print(f"[{datetime.now()}] 数据库初始化完成")
+    logger.info("数据库初始化完成")
 
-    if USE_LANGCHAIN:
+    if settings.use_langchain:
         from backend.agent.langsmith_config import setup_langsmith
 
         setup_langsmith()
 
     yield
-    print(f"[{datetime.now()}] 张雪峰 Agent 关闭")
+    logger.info("张雪峰 Agent 关闭")
 
 
 app = FastAPI(
@@ -54,13 +58,23 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+
 # ============== Middleware ==============
+@app.middleware("http")
+async def logging_middleware(request: Request, call_next):
+    """注入 request_id / user_id 到日志上下文。"""
+    request_filter.request_id = request.headers.get("X-Request-ID", "-")
+    request_filter.user_id = request.headers.get("X-User-ID", "-")
+    response = await call_next(request)
+    return response
+
+
 app.add_middleware(SecurityMiddleware)
 app.add_middleware(RateLimitMiddleware)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=os.getenv("CORS_ORIGINS", "*").split(","),
-    allow_credentials=os.getenv("CORS_ORIGINS", "*") != "*",
+    allow_origins=settings.cors_origins_list,
+    allow_credentials=settings.cors_origins != "*",
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -82,5 +96,4 @@ app.include_router(subject_rankings_router)
 if __name__ == "__main__":
     import uvicorn
 
-    port = int(os.getenv("PORT", "8000"))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host="0.0.0.0", port=settings.port)

@@ -3,24 +3,40 @@ LangChain Agent 核心模块
 
 支持多步推理、对话记忆、结构化输出
 """
+
 import logging
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 from langchain_core.language_models import BaseChatModel
-from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langgraph.prebuilt import create_react_agent
 
+from ..session_store import SessionStore
+from ..tools.registry import tool_registry
 from .llm_factory import create_llm
-from .tools_adapter import convert_tools
 from .prompt import SYSTEM_PROMPT
 from .structured_output import RecommendationResult, get_format_instructions
-from ..tools.registry import tool_registry
-from ..session_store import SessionStore
+from .tools_adapter import convert_tools
 
 logger = logging.getLogger(__name__)
 
-# 默认最大迭代次数
 MAX_ITERATIONS = 5
+
+# 记忆配置
+KEEP_RECENT_ROUNDS = 10  # 保留最近 N 轮原文（每轮 = 1 user + 1 assistant）
+MAX_TOKEN_LIMIT = 2000  # 超出此 token 数时触发摘要
+
+SUMMARY_PROMPT = (
+    "请将以下对话历史压缩为简洁的摘要，保留关键信息"
+    "（用户需求、已给出的建议、重要数据）。\n"
+    "只输出摘要内容，不要添加额外说明。\n\n"
+    "对话历史：\n{history}"
+)
+
+
+def _estimate_tokens(text: str) -> int:
+    """粗略估算中文文本 token 数（约 1.5 字/token）"""
+    return max(1, len(text) // 2)
 
 
 class LangChainAgent:
@@ -29,7 +45,7 @@ class LangChainAgent:
 
     支持：
     - 多步工具调用
-    - 对话历史管理
+    - 对话记忆（前10轮保留原文，超出自动摘要）
     - 流式输出
     """
 
@@ -39,10 +55,14 @@ class LangChainAgent:
         system_prompt: str | None = None,
         skill_path: str | None = None,
         session_store: SessionStore | None = None,
+        max_token_limit: int = MAX_TOKEN_LIMIT,
+        keep_recent_rounds: int = KEEP_RECENT_ROUNDS,
     ):
         self.llm = llm or create_llm()
         self.system_prompt = system_prompt or self._load_skill_prompt(skill_path)
         self.session_store = session_store
+        self.max_token_limit = max_token_limit
+        self.keep_recent_rounds = keep_recent_rounds
 
         # 转换工具
         self.tools = convert_tools(tool_registry)
@@ -56,11 +76,11 @@ class LangChainAgent:
     def _load_skill_prompt(self, skill_path: str | None = None) -> str:
         """加载 SKILL.md 作为 system prompt"""
         import os
+
         path = skill_path or os.getenv("SKILL_PATH", "SKILL.md")
         try:
             with open(path, encoding="utf-8") as f:
                 content = f.read()
-            # 剥离 YAML 前置元数据
             if content.startswith("---"):
                 _, _, body = content.partition("---")
                 _, _, body = body.partition("---")
@@ -69,6 +89,64 @@ class LangChainAgent:
         except FileNotFoundError:
             logger.warning(f"SKILL.md not found at {path}, using built-in prompt")
             return SYSTEM_PROMPT
+
+    def _load_chat_history(self, session_id: str) -> list[HumanMessage | AIMessage]:
+        """从 session_store 加载对话历史为 LangChain 消息列表"""
+        if not self.session_store:
+            return []
+        session = self.session_store.get_or_create(session_id)
+        history = []
+        for msg in session.get("history", []):
+            if msg["role"] == "user":
+                history.append(HumanMessage(content=msg["content"]))
+            elif msg["role"] == "assistant":
+                history.append(AIMessage(content=msg["content"]))
+        return history
+
+    async def _summarize_history(self, messages: list[HumanMessage | AIMessage]) -> str:
+        """调用 LLM 将消息列表压缩为摘要"""
+        history_text = "\n".join(
+            f"{'用户' if isinstance(m, HumanMessage) else '助手'}：{m.content}" for m in messages
+        )
+        prompt = SUMMARY_PROMPT.format(history=history_text)
+        try:
+            result = await self.llm.ainvoke([HumanMessage(content=prompt)])
+            summary = result.content.strip()
+            logger.info(f"Summarized {len(messages)} messages into {len(summary)} chars")
+            return summary
+        except Exception as e:
+            logger.error(f"Failed to summarize history: {e}")
+            return ""
+
+    async def _build_memory_messages(
+        self, session_id: str
+    ) -> list[HumanMessage | AIMessage | SystemMessage]:
+        """
+        构建带记忆的消息列表。
+
+        策略：前 keep_recent_rounds 轮保留原文，超出部分自动摘要。
+        摘要作为 SystemMessage 放在最前面。
+        """
+        history = self._load_chat_history(session_id)
+        if not history:
+            return []
+
+        keep_count = self.keep_recent_rounds * 2  # 每轮 2 条消息
+        if len(history) <= keep_count:
+            return history
+
+        older_messages = history[:-keep_count]
+        recent_messages = history[-keep_count:]
+
+        total_tokens = sum(_estimate_tokens(m.content) for m in older_messages)
+        if total_tokens <= self.max_token_limit:
+            return history
+
+        summary = await self._summarize_history(older_messages)
+        if not summary:
+            return recent_messages
+
+        return [SystemMessage(content=f"[历史对话摘要]\n{summary}")] + recent_messages
 
     async def chat(
         self,
@@ -87,24 +165,14 @@ class LangChainAgent:
         Returns:
             {"reply": str, "tool_calls": list}
         """
-        # 加载对话历史
-        chat_history = []
-        if self.session_store:
-            session = self.session_store.get_or_create(session_id)
-            for msg in session.get("history", []):
-                if msg["role"] == "user":
-                    chat_history.append(HumanMessage(content=msg["content"]))
-                elif msg["role"] == "assistant":
-                    chat_history.append(AIMessage(content=msg["content"]))
+        chat_history = await self._build_memory_messages(session_id)
 
-        # 构建输入
         input_text = message
         if user_context:
             context_str = self._format_user_context(user_context)
             if context_str:
                 input_text = f"{context_str}\n\n{message}"
 
-        # 构建消息列表
         messages = chat_history + [HumanMessage(content=input_text)]
 
         try:
@@ -119,10 +187,12 @@ class LangChainAgent:
                     if msg.type == "ai":
                         reply = msg.content or reply
                     elif msg.type == "tool":
-                        tool_calls.append({
-                            "name": msg.name,
-                            "result": msg.content[:500],
-                        })
+                        tool_calls.append(
+                            {
+                                "name": msg.name,
+                                "result": msg.content[:500],
+                            }
+                        )
 
             # 保存到会话历史
             if self.session_store:
@@ -152,14 +222,7 @@ class LangChainAgent:
 
         使用 LLM 的 with_structured_output 能力，直接返回解析好的 Pydantic 对象。
         """
-        chat_history = []
-        if self.session_store:
-            session = self.session_store.get_or_create(session_id)
-            for msg in session.get("history", []):
-                if msg["role"] == "user":
-                    chat_history.append(HumanMessage(content=msg["content"]))
-                elif msg["role"] == "assistant":
-                    chat_history.append(AIMessage(content=msg["content"]))
+        chat_history = await self._build_memory_messages(session_id)
 
         input_text = message
         if user_context:
@@ -182,7 +245,9 @@ class LangChainAgent:
             if self.session_store:
                 self.session_store.add_message(session_id, "user", message)
                 self.session_store.add_message(
-                    session_id, "assistant", result.summary,
+                    session_id,
+                    "assistant",
+                    result.summary,
                 )
 
             return result
@@ -209,24 +274,14 @@ class LangChainAgent:
         - {"type": "tool_result", "name": "...", "result": "..."}：工具结果
         - {"type": "done"}：完成
         """
-        # 加载对话历史
-        chat_history = []
-        if self.session_store:
-            session = self.session_store.get_or_create(session_id)
-            for msg in session.get("history", []):
-                if msg["role"] == "user":
-                    chat_history.append(HumanMessage(content=msg["content"]))
-                elif msg["role"] == "assistant":
-                    chat_history.append(AIMessage(content=msg["content"]))
+        chat_history = await self._build_memory_messages(session_id)
 
-        # 构建输入
         input_text = message
         if user_context:
             context_str = self._format_user_context(user_context)
             if context_str:
                 input_text = f"{context_str}\n\n{message}"
 
-        # 构建消息列表
         messages = chat_history + [HumanMessage(content=input_text)]
         full_reply = ""
 
@@ -278,9 +333,11 @@ class LangChainAgent:
         for step in result.get("intermediate_steps", []):
             if len(step) >= 2:
                 action, observation = step
-                tool_calls.append({
-                    "name": action.tool,
-                    "arguments": action.tool_input,
-                    "result": str(observation)[:500],  # 截断过长结果
-                })
+                tool_calls.append(
+                    {
+                        "name": action.tool,
+                        "arguments": action.tool_input,
+                        "result": str(observation)[:500],  # 截断过长结果
+                    }
+                )
         return tool_calls

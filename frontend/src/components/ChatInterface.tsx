@@ -1,12 +1,29 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback, type CSSProperties, type ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
+import { List, useListRef, useDynamicRowHeight } from 'react-window'
 import MessageBubble from './MessageBubble'
 import SourcePanel from './SourcePanel'
+import { MessageSkeleton } from './Skeleton'
 import type { Message, ToolCall, UserProfile } from '../types'
 
 interface ChatInterfaceProps {
   sessionId: string
   userProfile?: UserProfile | null
+}
+
+/** Row component for virtual list — receives messages via rowProps */
+function ChatRow({ index, style, messages }: {
+  index: number
+  style: CSSProperties
+  messages: Message[]
+}): ReactElement {
+  return (
+    <div style={style}>
+      <div className="px-3 sm:px-6 pt-3 pb-1">
+        <MessageBubble message={messages[index]} />
+      </div>
+    </div>
+  )
 }
 
 export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceProps) {
@@ -17,16 +34,19 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
   const [profileSent, setProfileSent] = useState(false)
   const [lastSources, setLastSources] = useState<ToolCall[]>([])
   const [showSources, setShowSources] = useState(false)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const listRef = useListRef()
+  const dynamicRowHeight = useDynamicRowHeight({ defaultRowHeight: 120, key: 'chat-messages' })
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
+  const scrollToBottom = useCallback(() => {
+    if (messages.length > 0 && listRef.current) {
+      listRef.current.scrollToRow({ index: messages.length - 1, align: 'end', behavior: 'smooth' })
+    }
+  }, [messages.length, listRef])
 
   useEffect(() => {
     scrollToBottom()
-  }, [messages])
+  }, [messages, scrollToBottom])
 
   useEffect(() => {
     if (!isLoading) {
@@ -232,7 +252,7 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
   }
 
   return (
-    <div className="flex flex-col lg:flex-row h-[calc(100vh-140px)] sm:h-[calc(100vh-100px)] gap-0 lg:gap-6">
+    <div role="region" aria-label={t('a11y.chatRegion', { defaultValue: '聊天区域' })} className="flex flex-col lg:flex-row h-[calc(100vh-140px)] sm:h-[calc(100vh-100px)] gap-0 lg:gap-6">
       {/* 聊天区域 */}
       <div className="flex-1 flex flex-col border-2 border-ink dark:border-night-border bg-paper dark:bg-night-card min-h-0">
         {/* 消息头部 */}
@@ -243,6 +263,7 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
               {messages.length > 0 && (
                 <button
                   onClick={() => window.open(`/api/session/${sessionId}/export`, '_blank')}
+                  aria-label={t('chat.export')}
                   className="text-xs font-mono text-ink-light dark:text-night-muted hover:text-ink dark:hover:text-paper
                              border border-ink/30 dark:border-night-border hover:border-ink dark:hover:border-gold
                              px-2 py-1 transition-colors"
@@ -254,6 +275,8 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
               {lastSources.length > 0 && (
                 <button
                   onClick={() => setShowSources(prev => !prev)}
+                  aria-label={t('sourcePanel.title') + ` (${lastSources.length})`}
+                  aria-expanded={showSources}
                   className="lg:hidden text-xs font-mono text-ink-light dark:text-night-muted hover:text-ink dark:hover:text-paper
                              border border-ink/30 dark:border-night-border px-2 py-1 transition-colors"
                 >
@@ -266,9 +289,9 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 sm:space-y-6 overscroll-contain">
-          {messages.length === 0 && (
-            <div className="text-center py-10 sm:py-16">
+        <div role="log" aria-label={t('a11y.messageLog', { defaultValue: '消息记录' })} aria-live="polite" aria-relevant="additions" className="flex-1 min-h-0 overscroll-contain">
+          {messages.length === 0 && !isLoading && (
+            <div className="text-center py-10 sm:py-16 px-3 sm:px-6">
               <div className="quote-mark mb-4">"</div>
               <p className="text-lg sm:text-xl font-serif text-ink dark:text-paper mb-2">
                 {t('chat.welcomeTitle')}
@@ -280,40 +303,60 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
             </div>
           )}
 
-          {messages.map(message => (
-            <MessageBubble key={message.id} message={message} />
-          ))}
-
-          {isLoading && (
-            <div className="flex items-center gap-3 py-4">
-              <div className="w-8 h-8 bg-ink dark:bg-gold flex items-center justify-center flex-shrink-0">
-                <span className="text-gold dark:text-ink font-bold text-sm font-serif">张</span>
-              </div>
-              <div className="flex items-center gap-2 text-ink-light dark:text-night-muted">
-                <div className="flex space-x-1">
-                  <div className="w-2 h-2 bg-ink-light dark:bg-night-muted rounded-full animate-bounce" />
-                  <div className="w-2 h-2 bg-ink-light dark:bg-night-muted rounded-full animate-bounce [animation-delay:0.2s]" />
-                  <div className="w-2 h-2 bg-ink-light dark:bg-night-muted rounded-full animate-bounce [animation-delay:0.4s]" />
-                </div>
-                <span className="text-sm font-serif">{t('chat.analyzing')}</span>
-              </div>
+          {isLoading && messages.length === 0 && (
+            <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
+              <MessageSkeleton />
+              <MessageSkeleton isUser />
+              <MessageSkeleton />
             </div>
           )}
 
-          <div ref={messagesEndRef} />
+          {messages.length > 0 && (
+            <List
+              listRef={listRef}
+              rowCount={messages.length}
+              rowHeight={dynamicRowHeight}
+              rowComponent={ChatRow}
+              rowProps={{ messages }}
+              overscanCount={5}
+              className="scrollbar-thin"
+              style={{ height: '100%', width: '100%' }}
+            />
+          )}
+
+          {isLoading && messages.length > 0 && (
+            <div className="px-3 sm:px-6 py-4">
+              <div role="status" aria-label={t('chat.analyzing')} className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-ink dark:bg-gold flex items-center justify-center flex-shrink-0">
+                  <span className="text-gold dark:text-ink font-bold text-sm font-serif">张</span>
+                </div>
+                <div className="flex items-center gap-2 text-ink-light dark:text-night-muted">
+                  <div className="flex space-x-1" aria-hidden="true">
+                    <div className="w-2 h-2 bg-ink-light dark:bg-night-muted rounded-full animate-bounce" />
+                    <div className="w-2 h-2 bg-ink-light dark:bg-night-muted rounded-full animate-bounce [animation-delay:0.2s]" />
+                    <div className="w-2 h-2 bg-ink-light dark:bg-night-muted rounded-full animate-bounce [animation-delay:0.4s]" />
+                  </div>
+                  <span className="text-sm font-serif">{t('chat.analyzing')}</span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Input Area - 读者来信投稿区 */}
-        <form onSubmit={handleSubmit} className="border-t-2 border-ink dark:border-night-border p-3 sm:p-4 bg-paper-dark/30 dark:bg-night/30 flex-shrink-0">
+        <form onSubmit={handleSubmit} aria-label={t('a11y.chatForm', { defaultValue: '发送消息' })} className="border-t-2 border-ink dark:border-night-border p-3 sm:p-4 bg-paper-dark/30 dark:bg-night/30 flex-shrink-0">
           <div className="flex items-end gap-2 sm:gap-3">
             <div className="flex-1 min-w-0">
-              <div className="text-xs text-ink-light dark:text-night-muted font-mono mb-1 sm:mb-2">{t('chat.readerLetter')}</div>
+              <label htmlFor="chat-input" className="text-xs text-ink-light dark:text-night-muted font-mono mb-1 sm:mb-2">{t('chat.readerLetter')}</label>
               <textarea
+                id="chat-input"
                 ref={inputRef}
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder={t('chat.inputPlaceholder')}
+                aria-label={t('chat.inputPlaceholder')}
+                aria-busy={isLoading}
                 className="w-full resize-none border-2 border-ink dark:border-night-border bg-paper dark:bg-night
                            px-3 sm:px-4 py-2 sm:py-3 font-serif text-ink dark:text-paper
                            placeholder:text-ink-light/50 dark:placeholder:text-night-muted/50
@@ -325,6 +368,7 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
             <button
               type="submit"
               disabled={!input.trim() || isLoading}
+              aria-label={t('chat.send')}
               className="px-4 sm:px-6 py-2 sm:py-3 bg-ink dark:bg-gold text-paper dark:text-ink
                          font-serif font-bold hover:bg-ink-light dark:hover:bg-gold/80
                          disabled:opacity-50 disabled:cursor-not-allowed transition-colors self-end
@@ -348,6 +392,10 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
           <div
             className="lg:hidden absolute inset-0 bg-black/30"
             onClick={() => setShowSources(false)}
+            onKeyDown={(e) => { if (e.key === 'Escape') setShowSources(false) }}
+            role="button"
+            aria-label={t('a11y.closePanel', { defaultValue: '关闭面板' })}
+            tabIndex={0}
           />
         )}
         <div className={`
