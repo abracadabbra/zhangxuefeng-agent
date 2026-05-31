@@ -34,14 +34,14 @@ function ChatRow({ index, style, messages, dynamicRowHeight, t }: {
       <div ref={rowRef} style={style}>
         <div className="px-3 sm:px-6 py-4">
           <div role="status" aria-label={t('chat.analyzing')} className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-ink dark:bg-gold flex items-center justify-center flex-shrink-0">
-              <span className="text-gold dark:text-ink font-bold text-sm font-serif">张</span>
+            <div className="w-8 h-8 bg-ink flex items-center justify-center flex-shrink-0">
+              <span className="text-gold font-bold text-sm font-serif">张</span>
             </div>
-            <div className="flex items-center gap-2 text-ink-light dark:text-night-muted">
+            <div className="flex items-center gap-2 text-ink-light">
               <div className="flex space-x-1" aria-hidden="true">
-                <div className="w-2 h-2 bg-ink-light dark:bg-night-muted rounded-full animate-bounce" />
-                <div className="w-2 h-2 bg-ink-light dark:bg-night-muted rounded-full animate-bounce [animation-delay:0.2s]" />
-                <div className="w-2 h-2 bg-ink-light dark:bg-night-muted rounded-full animate-bounce [animation-delay:0.4s]" />
+                <div className="w-2 h-2 bg-ink-light rounded-full animate-bounce" />
+                <div className="w-2 h-2 bg-ink-light rounded-full animate-bounce [animation-delay:0.2s]" />
+                <div className="w-2 h-2 bg-ink-light rounded-full animate-bounce [animation-delay:0.4s]" />
               </div>
               <span className="text-sm font-serif">{t('chat.analyzing')}</span>
             </div>
@@ -291,18 +291,18 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
   return (
     <div role="region" aria-label={t('a11y.chatRegion', { defaultValue: '聊天区域' })} className="flex flex-col lg:flex-row h-[calc(100vh-140px)] sm:h-[calc(100vh-100px)] gap-0 lg:gap-6">
       {/* 聊天区域 */}
-      <div className="flex-1 flex flex-col border-2 border-ink dark:border-night-border bg-paper dark:bg-night-card min-h-0">
+      <div className="flex-1 flex flex-col border-2 border-ink bg-paper min-h-0">
         {/* 消息头部 */}
-        <div className="border-b-2 border-ink dark:border-night-border px-4 sm:px-6 py-3 bg-paper-dark/50 dark:bg-night/50 flex-shrink-0">
+        <div className="border-b-2 border-ink px-4 sm:px-6 py-3 bg-paper-dark/50/50 flex-shrink-0">
           <div className="flex items-center justify-between">
-            <h2 className="font-serif font-bold text-ink dark:text-paper text-base sm:text-lg">{t('chat.title')}</h2>
+            <h2 className="font-serif font-bold text-ink text-base sm:text-lg">{t('chat.title')}</h2>
             <div className="flex items-center gap-2 sm:gap-3">
               {messages.length > 0 && (
                 <button
                   onClick={() => window.open(`/api/session/${sessionId}/export`, '_blank')}
                   aria-label={t('chat.export')}
-                  className="text-xs font-mono text-ink-light dark:text-night-muted hover:text-ink dark:hover:text-paper
-                             border border-ink/30 dark:border-night-border hover:border-ink dark:hover:border-gold
+                  className="text-xs font-mono text-ink-light hover:text-ink
+                             border border-ink/30 hover:border-ink
                              px-2 py-1 transition-colors"
                 >
                   {t('chat.export')}
@@ -314,13 +314,13 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
                   onClick={() => setShowSources(prev => !prev)}
                   aria-label={t('sourcePanel.title') + ` (${lastSources.length})`}
                   aria-expanded={showSources}
-                  className="lg:hidden text-xs font-mono text-ink-light dark:text-night-muted hover:text-ink dark:hover:text-paper
-                             border border-ink/30 dark:border-night-border px-2 py-1 transition-colors"
+                  className="lg:hidden text-xs font-mono text-ink-light hover:text-ink
+                             border border-ink/30 px-2 py-1 transition-colors"
                 >
                   {t('sourcePanel.title')} ({lastSources.length})
                 </button>
               )}
-              <span className="text-xs font-mono text-ink-light dark:text-night-muted hidden sm:inline">{t('chat.liveConsult')}</span>
+              <span className="text-xs font-mono text-ink-light hidden sm:inline">{t('chat.liveConsult')}</span>
             </div>
           </div>
         </div>
@@ -330,10 +330,10 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
           {messages.length === 0 && !isLoading && (
             <div className="text-center py-10 sm:py-16 px-3 sm:px-6">
               <div className="quote-mark mb-4">"</div>
-              <p className="text-lg sm:text-xl font-serif text-ink dark:text-paper mb-2">
+              <p className="text-lg sm:text-xl font-serif text-ink mb-2">
                 {t('chat.welcomeTitle')}
               </p>
-              <p className="text-sm text-ink-light dark:text-night-muted font-serif">
+              <p className="text-sm text-ink-light font-serif">
                 {t('chat.welcomeDesc')}
               </p>
               <div className="rule-single mt-8 max-w-xs mx-auto" />
@@ -364,10 +364,10 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
         </div>
 
         {/* Input Area - 读者来信投稿区 */}
-        <form onSubmit={handleSubmit} aria-label={t('a11y.chatForm', { defaultValue: '发送消息' })} className="border-t-2 border-ink dark:border-night-border p-3 sm:p-4 bg-paper-dark/30 dark:bg-night/30 flex-shrink-0">
+        <form onSubmit={handleSubmit} aria-label={t('a11y.chatForm', { defaultValue: '发送消息' })} className="border-t-2 border-ink p-3 sm:p-4 bg-paper-dark/30/30 flex-shrink-0">
           <div className="flex items-end gap-2 sm:gap-3">
             <div className="flex-1 min-w-0">
-              <label htmlFor="chat-input" className="text-xs text-ink-light dark:text-night-muted font-mono mb-1 sm:mb-2">{t('chat.readerLetter')}</label>
+              <label htmlFor="chat-input" className="text-xs text-ink-light font-mono mb-1 sm:mb-2">{t('chat.readerLetter')}</label>
               <textarea
                 id="chat-input"
                 ref={inputRef}
@@ -377,9 +377,9 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
                 placeholder={t('chat.inputPlaceholder')}
                 aria-label={t('chat.inputPlaceholder')}
                 aria-busy={isLoading}
-                className="w-full resize-none border-2 border-ink dark:border-night-border bg-paper dark:bg-night
-                           px-3 sm:px-4 py-2 sm:py-3 font-serif text-ink dark:text-paper
-                           placeholder:text-ink-light/50 dark:placeholder:text-night-muted/50
+                className="w-full resize-none border-2 border-ink bg-paper
+                           px-3 sm:px-4 py-2 sm:py-3 font-serif text-ink
+                           placeholder:text-ink-light/50
                            focus:outline-none focus:border-gold transition-colors"
                 rows={2}
                 disabled={isLoading}
@@ -389,8 +389,8 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
               type="submit"
               disabled={!input.trim() || isLoading}
               aria-label={t('chat.send')}
-              className="px-4 sm:px-6 py-2 sm:py-3 bg-ink dark:bg-gold text-paper dark:text-ink
-                         font-serif font-bold hover:bg-ink-light dark:hover:bg-gold/80
+              className="px-4 sm:px-6 py-2 sm:py-3 bg-ink text-paper
+                         font-serif font-bold hover:bg-ink-light
                          disabled:opacity-50 disabled:cursor-not-allowed transition-colors self-end
                          text-sm sm:text-base flex-shrink-0"
             >
@@ -405,7 +405,7 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
         ${showSources ? 'block' : 'hidden'} lg:block
         lg:w-[320px] xl:w-[380px] flex-shrink-0
         fixed lg:static inset-0 z-40 lg:z-auto
-        bg-paper dark:bg-night lg:bg-transparent
+        bg-paper lg:bg-transparent
       `}>
         {/* 移动端遮罩 */}
         {showSources && (
