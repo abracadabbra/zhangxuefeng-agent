@@ -9,7 +9,7 @@ from pathlib import Path
 from contextlib import closing
 
 from backend.database import Base, SessionLocal, engine
-from backend.models import AdmissionScore, School
+from backend.models import AdmissionScore, Major, School
 
 
 def load_json(filename: str) -> list[dict]:
@@ -80,6 +80,36 @@ def import_scores(db, scores_data: list[dict], school_map: dict[str, int]):
     return count, skipped
 
 
+def import_majors(db, majors_data: list[dict]) -> dict[str, int]:
+    """导入专业数据，返回 {专业名: id} 映射"""
+    name_to_id = {}
+    seen = set()
+    for item in majors_data:
+        name = item["name"]
+        if name in seen:
+            continue
+        seen.add(name)
+        major = Major(
+            name=name,
+            category=item.get("category", ""),
+            sub_category=item.get("sub_category", ""),
+            description=item.get("description", ""),
+            job_directions=item.get("job_directions", ""),
+            employment_rate=item.get("employment_rate"),
+            avg_salary=item.get("avg_salary"),
+            median_salary=item.get("median_salary"),
+            salary_range=item.get("salary_range"),
+            postgraduate_rate=item.get("postgraduate_rate"),
+            overseas_rate=item.get("overseas_rate"),
+            is_hot=item.get("is_hot", False),
+        )
+        db.add(major)
+        db.flush()
+        name_to_id[major.name] = major.id
+    db.commit()
+    return name_to_id
+
+
 def run_import():
     """执行导入"""
     print("正在创建表结构...")
@@ -89,6 +119,7 @@ def run_import():
         # 清空现有数据（按外键依赖顺序）
         print("清空现有数据...")
         db.query(AdmissionScore).delete()
+        db.query(Major).delete()
         db.query(School).delete()
         db.commit()
 
@@ -97,6 +128,12 @@ def run_import():
         print(f"导入学校数据: {len(schools_data)} 所...")
         school_map = import_schools(db, schools_data)
         print(f"  完成: {len(school_map)} 所学校已入库")
+
+        # 导入专业
+        majors_data = load_json("seed_majors_full.json")
+        print(f"导入专业数据: {len(majors_data)} 个...")
+        major_map = import_majors(db, majors_data)
+        print(f"  完成: {len(major_map)} 个专业已入库")
 
         # 导入分数线
         scores_data = load_json("seed_scores_full.json")
