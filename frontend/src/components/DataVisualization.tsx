@@ -29,16 +29,26 @@ interface DataVisualizationProps {
 
 /* ---------- Constants ---------- */
 
-const COLORS = {
-  ink: '#1a1a2e',
-  inkLight: '#4a4a6a',
-  gold: '#c9a84c',
-  goldLight: '#f0e6c8',
-  paper: '#faf8f4',
-  paperDark: '#f0ede6',
-  red: '#c23c2e',
-  rule: '#e0ddd6',
+// 使用 CSS 变量，支持暗色模式
+function getCSSVar(name: string): string {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
 }
+
+function getColors() {
+  return {
+    ink: getCSSVar('--ink') || '#1a1a2e',
+    inkLight: getCSSVar('--ink-light') || '#4a4a6a',
+    gold: getCSSVar('--gold') || '#c9a84c',
+    goldLight: getCSSVar('--gold-light') || '#f0e6c8',
+    paper: getCSSVar('--paper') || '#faf8f4',
+    paperDark: getCSSVar('--paper-dark') || '#f0ede6',
+    red: getCSSVar('--red') || '#c23c2e',
+    rule: getCSSVar('--rule') || '#e0ddd6',
+  }
+}
+
+// 组件内部使用的颜色引用
+const COLORS = getColors()
 
 const PIE_COLORS = [COLORS.gold, COLORS.red, COLORS.ink, COLORS.inkLight]
 

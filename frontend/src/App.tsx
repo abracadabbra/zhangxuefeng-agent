@@ -97,7 +97,7 @@ function App() {
   }
 
   const handleResumeSession = (sid: string) => {
-    setSessionId(sid)
+    setSessionId(sid as ReturnType<typeof crypto.randomUUID>)
     setView('chat')
   }
 

@@ -8,23 +8,23 @@ export default {
   theme: {
     extend: {
       colors: {
-        // 报纸风格色彩系统
+        // 报纸风格色彩系统 — 使用 CSS 变量支持暗色模式
         ink: {
-          DEFAULT: '#1a1a2e',
-          light: '#4a4a6a',
+          DEFAULT: 'var(--ink)',
+          light: 'var(--ink-light)',
         },
         gold: {
-          DEFAULT: '#c9a84c',
-          light: '#f0e6c8',
+          DEFAULT: 'var(--gold)',
+          light: 'var(--gold-light)',
         },
         paper: {
-          DEFAULT: '#faf8f4',
-          dark: '#f0ede6',
+          DEFAULT: 'var(--paper)',
+          dark: 'var(--paper-dark)',
         },
         red: {
-          DEFAULT: '#c23c2e',
+          DEFAULT: 'var(--red)',
         },
-        rule: '#e0ddd6',
+        rule: 'var(--rule)',
         // 暗色模式专用色
         'night': {
           DEFAULT: '#0d1117',
@@ -57,6 +57,7 @@ export default {
         'warm-xl': '0 8px 32px rgba(26, 26, 46, 0.16)',
         'night': '0 2px 8px rgba(0, 0, 0, 0.3)',
         'night-lg': '0 4px 16px rgba(0, 0, 0, 0.4)',
+        'card': '0 2px 8px var(--shadow-color, rgba(26, 26, 46, 0.08))',
       },
     },
   },

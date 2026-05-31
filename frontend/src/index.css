@@ -12,6 +12,7 @@
   --paper-dark: #f0ede6;
   --red: #c23c2e;
   --rule: #e0ddd6;
+  --shadow-color: rgba(26, 26, 46, 0.08);
 }
 
 /* 暗色模式变量 */
@@ -24,6 +25,21 @@
   --paper-dark: #161b22;
   --red: #f85149;
   --rule: #30363d;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+/* 暗色模式下 body 背景 */
+.dark body {
+  background-color: #0d1117;
+  color: #e6edf3;
+}
+
+/* 暗色模式下 paper-texture 背景 */
+.dark .paper-texture {
+  background-color: #0d1117;
+  background-image:
+    linear-gradient(90deg, transparent 79px, rgba(255, 255, 255, 0.02) 79px, rgba(255, 255, 255, 0.02) 81px, transparent 81px),
+    linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px);
 }
 
 body {
