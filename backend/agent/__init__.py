@@ -6,4 +6,9 @@ Agent 核心 — OpenAI API 对接 + Function Calling 调度
 from .core import AgentCore
 from .prompt import SYSTEM_PROMPT
 
-__all__ = ["AgentCore", "SYSTEM_PROMPT"]
+# 延迟导入 LangChain Agent，避免强制依赖
+try:
+    from .langchain_agent import LangChainAgent
+    __all__ = ["AgentCore", "SYSTEM_PROMPT", "LangChainAgent"]
+except ImportError:
+    __all__ = ["AgentCore", "SYSTEM_PROMPT"]

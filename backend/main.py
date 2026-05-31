@@ -34,6 +34,7 @@ from backend.session_store import SessionStore
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
 MODEL = os.getenv("OPENAI_MODEL") or os.getenv("MODEL", "gpt-4o-mini")
+USE_LANGCHAIN = os.getenv("USE_LANGCHAIN", "false").lower() == "true"
 
 # ============== Pydantic Models ==============
 class ChatRequest(BaseModel):
@@ -60,20 +61,27 @@ class SessionInfo(BaseModel):
 session_store = SessionStore()
 
 # ============== Agent Instance ==============
-agent: AgentCore = None
+agent = None  # AgentCore 或 LangChainAgent
 
 # 灵魂追问引擎实例
 soul_engine = SoulQueryEngine()
 
 
-def get_agent() -> AgentCore:
+def get_agent():
+    """获取 Agent 实例（根据 USE_LANGCHAIN 切换）"""
     global agent
     if agent is None:
-        agent = AgentCore(
-            api_key=OPENAI_API_KEY,
-            base_url=OPENAI_BASE_URL,
-            model=MODEL,
-        )
+        if USE_LANGCHAIN:
+            from backend.agent.langchain_agent import LangChainAgent
+            agent = LangChainAgent(session_store=session_store)
+            logger.info("Using LangChain Agent")
+        else:
+            agent = AgentCore(
+                api_key=OPENAI_API_KEY,
+                base_url=OPENAI_BASE_URL,
+                model=MODEL,
+            )
+            logger.info("Using AgentCore")
     return agent
 
 
@@ -276,7 +284,7 @@ async def chat(req: ChatRequest):
     session_store.update_context(session_id, session["user_context"])
 
     # 检查 API Key
-    if not OPENAI_API_KEY:
+    if not OPENAI_API_KEY and not USE_LANGCHAIN:
         error_reply = "抱歉，AI 服务暂时不可用（API Key 未配置）。请联系管理员配置 OPENAI_API_KEY 环境变量。"
         session_store.add_message(session_id, "user", req.message)
         session_store.add_message(session_id, "assistant", error_reply)
@@ -288,11 +296,33 @@ async def chat(req: ChatRequest):
             usage=None,
         )
 
+    agent_instance = get_agent()
+
+    # LangChain Agent 模式
+    if USE_LANGCHAIN:
+        if req.stream:
+            return EventSourceResponse(
+                _stream_response_langchain(agent_instance, session_id, req.message, session["user_context"]),
+                media_type="text/event-stream",
+            )
+
+        result = await agent_instance.chat(
+            message=req.message,
+            session_id=session_id,
+            user_context=session["user_context"],
+        )
+        return ChatResponse(
+            session_id=session_id,
+            reply=result["reply"],
+            model="langchain-agent",
+            tool_calls=result.get("tool_calls", []),
+            usage=None,
+        )
+
+    # 传统 AgentCore 模式
     # 构建历史消息
     messages = list(session["history"])
     messages.append({"role": "user", "content": req.message})
-
-    agent_instance = get_agent()
 
     # 流式输出
     if req.stream:
@@ -379,6 +409,51 @@ async def _stream_response(
     # 持久化历史
     session_store.add_message(session_id, "user", user_message)
     session_store.add_message(session_id, "assistant", full_reply)
+
+
+async def _stream_response_langchain(
+    agent_instance,
+    session_id: str,
+    user_message: str,
+    user_context: dict,
+):
+    """LangChain Agent 的 SSE 流式响应生成器"""
+    try:
+        async for event in agent_instance.chat_stream(
+            message=user_message,
+            session_id=session_id,
+            user_context=user_context,
+        ):
+            if event["type"] == "text":
+                yield {
+                    "event": "message",
+                    "data": json.dumps({"type": "text", "content": event["content"]}, ensure_ascii=False),
+                }
+            elif event["type"] == "tool_call":
+                yield {
+                    "event": "message",
+                    "data": json.dumps({"type": "tool_call", "name": event["name"], "arguments": event["arguments"]}, ensure_ascii=False),
+                }
+            elif event["type"] == "tool_result":
+                yield {
+                    "event": "message",
+                    "data": json.dumps({"type": "tool_result", "name": event["name"], "result": event["result"]}, ensure_ascii=False),
+                }
+            elif event["type"] == "done":
+                yield {
+                    "event": "message",
+                    "data": json.dumps({"type": "done", "usage": None}, ensure_ascii=False),
+                }
+    except Exception as e:
+        logger.error(f"LangChain 流式调用失败: {type(e).__name__}: {e}", exc_info=True)
+        yield {
+            "event": "message",
+            "data": json.dumps({"type": "text", "content": f"\n\nAI 服务暂时不可用：{type(e).__name__}: {str(e)[:200]}"}, ensure_ascii=False),
+        }
+        yield {
+            "event": "message",
+            "data": json.dumps({"type": "done", "usage": None}, ensure_ascii=False),
+        }
 
 
 # ============== 画像管理 API ==============

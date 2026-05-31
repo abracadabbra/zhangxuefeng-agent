@@ -27,6 +27,12 @@ dev = [
     "ruff>=0.6.0",
     "mypy>=1.11.0",
 ]
+langchain = [
+    "langchain>=0.2",
+    "langchain-openai>=0.1",
+    "langchain-anthropic>=0.1",
+    "langchain-chroma>=0.1",
+]
 
 [tool.setuptools.packages.find]
 include = ["backend*"]
