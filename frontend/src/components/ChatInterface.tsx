@@ -9,6 +9,7 @@ import type { Message, ToolCall, UserProfile } from '../types'
 interface ChatInterfaceProps {
   sessionId: string
   userProfile?: UserProfile | null
+  scenario?: 'gaokao' | 'kaoyan' | 'career'
 }
 
 /** Row component for virtual list — self-measures height via observeRowElements */
@@ -60,7 +61,7 @@ function ChatRow({ index, style, messages, dynamicRowHeight, t }: {
   )
 }
 
-export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceProps) {
+export default function ChatInterface({ sessionId, userProfile, scenario }: ChatInterfaceProps) {
   const { t } = useTranslation()
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
@@ -115,6 +116,111 @@ export default function ChatInterface({ sessionId, userProfile }: ChatInterfaceP
       })
       .catch(() => {})
   }, [sessionId])
+
+  // 加载用户画像（恢复会话时也需要）
+  useEffect(() => {
+    if (userProfile) return // 已有表单传来的画像，不需要再获取
+    fetch(`/api/profile/${sessionId}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.profile) {
+          const p = data.profile
+          if (p.score || p.province || p.subject || p.family_background) {
+            setMessages(prev => {
+              const ctx = {
+                分数: p.score,
+                省份: p.province,
+                科类: p.subject,
+                家庭条件: p.family_background,
+              }
+              const hasInfo = Object.values(ctx).some(v => v != null)
+              if (!hasInfo || prev.length > 0) return prev
+              return [...prev, {
+                id: crypto.randomUUID(),
+                role: 'assistant',
+                content: `我记住你的信息了：${[p.score ? `${p.score}分` : '', p.province ? p.province : '', p.subject ? p.subject : '', p.family_background ? p.family_background : ''].filter(Boolean).join('，')}。有什么需要咨询的？`,
+                timestamp: new Date(),
+              }]
+            })
+          }
+        }
+      })
+      .catch(() => {})
+  }, [sessionId, userProfile])
+
+  // 进入聊天时：自动发送 profile 信息（优先用 props，其次从 API 获取）
+  useEffect(() => {
+    console.log('[DEBUG] auto-send effect:', { profileSent, messagesLength: messages.length, userProfile, sessionId })
+    if (profileSent || messages.length > 0) return
+
+    const sendInitMessage = (profile: UserProfile | null) => {
+      console.log('[DEBUG] sendInitMessage:', profile)
+      const ctx = profile ? {
+        分数: profile.score,
+        省份: profile.province,
+        科类: profile.subject,
+        家庭条件: profile.familyCondition,
+      } : null
+      console.log('[DEBUG] ctx:', ctx)
+
+      if (!ctx || !Object.values(ctx).some(v => v != null)) {
+        console.log('[DEBUG] ctx is empty, skip')
+        return
+      }
+
+      const scenarioLabel = scenario === 'kaoyan' ? '考研' : scenario === 'career' ? '职业规划' : '高考志愿填报'
+      const initMessage = `我(${profile!.score ? `${profile!.score}分，` : ''}${profile!.province}，${profile!.subject}，${profile!.familyCondition})来咨询${scenarioLabel}。请直接根据这些信息回答我的问题。`
+
+      const userMessage: Message = {
+        id: crypto.randomUUID(),
+        role: 'user',
+        content: initMessage,
+        timestamp: new Date(),
+      }
+      setMessages([userMessage])
+      setIsLoading(true)
+      setProfileSent(true)
+
+      fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: sessionId,
+          message: initMessage,
+          user_context: ctx,
+          stream: false,
+        }),
+      })
+        .then(r => r.json())
+        .then(data => {
+          setIsLoading(false)
+          if (data.reply) {
+            setMessages(prev => [...prev, {
+              id: crypto.randomUUID(),
+              role: 'assistant',
+              content: data.reply,
+              timestamp: new Date(),
+            }])
+          }
+        })
+        .catch(() => {
+          setIsLoading(false)
+        })
+    }
+
+    if (userProfile) {
+      sendInitMessage(userProfile)
+    } else {
+      fetch(`/api/profile/${sessionId}`)
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (data?.profile) {
+            sendInitMessage(data.profile as UserProfile)
+          }
+        })
+        .catch(() => {})
+    }
+  }, [userProfile, profileSent, messages.length, sessionId])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

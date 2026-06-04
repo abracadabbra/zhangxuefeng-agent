@@ -242,16 +242,13 @@ async def chat(req: ChatRequest):
     session = session_store.get_or_create(session_id, user_context=safe_context)
     query_state: QueryState = session["query_state"]
 
-    if safe_context:
-        session["user_context"].update(safe_context)
-        session_store.update_context(session_id, session["user_context"])
-
     # 加载用户画像
     try:
         profile = await load_profile(session_id)
     except Exception:
         profile = UserProfile()
 
+    # 合并 user_context 到 profile（供灵魂追问使用）
     if session["user_context"]:
         for key, val in session["user_context"].items():
             if val is None:

@@ -200,7 +200,7 @@ function App() {
         {view === 'chat' && (
           <Suspense fallback={<Loading fullScreen />}>
             <div className="max-w-7xl mx-auto p-2 sm:p-4 h-[calc(100vh-80px)] sm:h-[calc(100vh-80px)]">
-              <ChatInterface sessionId={sessionId} userProfile={userProfile} />
+              <ChatInterface sessionId={sessionId} userProfile={userProfile} scenario={scenario} />
             </div>
           </Suspense>
         )}
