@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import { ThemeContext, type Theme } from './ThemeContext'
+import { ThemeContext, type Theme } from './theme-context'
 
 function getInitialTheme(): Theme {
   if (typeof window === 'undefined') return 'light'
