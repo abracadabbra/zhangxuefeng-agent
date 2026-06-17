@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { API_BASE } from '../config';
 
 interface FeedbackStats {
   total_count: number;
@@ -18,7 +19,7 @@ export const FeedbackDashboard: React.FC = () => {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch('/api/v1/feedback/stats');
+      const response = await fetch(`${API_BASE}/api/v1/feedback/stats');
       if (response.ok) {
         const data = await response.json();
         setStats(data);

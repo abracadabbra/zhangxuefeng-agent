@@ -1,7 +1,9 @@
 import { useState, useEffect, Suspense, lazy } from 'react'
 import { useTranslation } from 'react-i18next'
 import Loading from './components/Loading'
-import { useTheme } from './contexts/ThemeContext'
+import { useTheme } from './contexts/useTheme'
+import { updateUserProfile } from './api/profile'
+import { API_BASE } from './config'
 import type { UserProfile } from './types'
 
 /* ── Lazy-loaded components (code-split) ──────────────────── */
@@ -76,23 +78,7 @@ function App() {
 
   const handleFormComplete = (profile: UserProfile) => {
     setUserProfile(profile)
-    const fields: Record<string, string> = {}
-    if (profile.score != null) fields['score'] = String(profile.score)
-    if (profile.province) fields['province'] = profile.province
-    if (profile.subject) fields['subject'] = profile.subject
-    if (profile.familyCondition) fields['family_background'] = profile.familyCondition
-    if (profile.budget) fields['target_city'] = profile.budget
-
-    Promise.all(
-      Object.entries(fields).map(([field, value]) =>
-        fetch(`/api/profile/${sessionId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ field, value }),
-        })
-      )
-    ).catch(() => {})
-
+    updateUserProfile(sessionId, profile).catch(() => {})
     setView('chat')
   }
 
@@ -320,7 +306,7 @@ function PortalHome({ onSelect, onResume, scenarios }: {
   const [sessions, setSessions] = useState<SessionSummary[]>([])
 
   useEffect(() => {
-    fetch('/api/sessions?limit=10')
+    fetch(`${API_BASE}/api/sessions?limit=10`)
       .then(r => r.json())
       .then(data => setSessions(data))
       .catch(() => {})

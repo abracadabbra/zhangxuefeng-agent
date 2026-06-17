@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_BASE } from '../config';
 
 interface FeedbackRatingProps {
   sessionId: string;
@@ -22,7 +23,7 @@ export const FeedbackRating: React.FC<FeedbackRatingProps> = ({
 
     setLoading(true);
     try {
-      const response = await fetch('/api/v1/feedback', {
+      const response = await fetch(`${API_BASE}/api/v1/feedback`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
