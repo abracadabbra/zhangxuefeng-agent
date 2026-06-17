@@ -3,8 +3,9 @@ LangSmith 配置模块
 
 支持链路追踪、成本监控、质量评估
 """
-import os
+
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +45,5 @@ def setup_langsmith():
 
 def get_trace_url(run_id: str) -> str:
     """获取追踪链接"""
-    project = os.getenv("LANGCHAIN_PROJECT", "zhangxuefeng-agent")
     endpoint = os.getenv("LANGCHAIN_ENDPOINT", "https://api.smith.langchain.com")
     return f"{endpoint}/runs/{run_id}"

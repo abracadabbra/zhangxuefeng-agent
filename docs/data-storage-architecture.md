@@ -97,9 +97,10 @@ JSON 文件，位于 `backend/seeds/` 目录，按数据类型和区域拆分：
 
 | 命令 | 说明 |
 |------|------|
-| `python -m seeds.import_data` | 基础导入，只导入基础文件 |
-| `python -m seeds.import_extended` | 扩展导入，合并所有文件，支持增量更新（get_or_create） |
-| `python -m seeds.data_quality` | 数据质量检查，检查必填字段、唯一性、范围等 |
+| `python -m backend.seeds.import_cli --dataset basic --dry-run` | 基础数据预检，不写入数据库 |
+| `python -m backend.seeds.import_cli --dataset extended --duplicate-policy update --report-path data/import-report.json` | 扩展数据增量导入，重复数据更新并输出导入报告 |
+| `python -m backend.seeds.import_cli --dataset full --duplicate-policy skip` | 全量院校/专业/分数线导入，重复数据跳过 |
+| `python -m backend.seeds.data_quality` | 数据质量检查，检查必填字段、唯一性、范围等 |
 
 ---
 

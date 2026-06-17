@@ -1,4 +1,5 @@
 """会话持久化存储测试"""
+
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -17,10 +18,12 @@ def store(tmp_path, monkeypatch):
 
     # 导入模型以注册到 Base.metadata
     from backend.models import chat  # noqa: F401
+
     Base.metadata.create_all(bind=engine)
 
     # 替换 session_store 模块中引用的 SessionLocal
     import backend.session_store as store_module
+
     monkeypatch.setattr(store_module, "SessionLocal", TestSession)
 
     return SessionStore()
@@ -72,6 +75,60 @@ class TestUpdateQueryState:
         restored_qs = session["query_state"]
         assert restored_qs.round_count == 2
         assert restored_qs.asked_fields == ["score", "province"]
+
+
+class TestRecommendationReport:
+    def test_save_recommendation_report_is_hidden_from_chat_history(self, store):
+        store.add_message("test-035", "user", "推荐计算机学校")
+        store.save_recommendation_report(
+            "test-035",
+            recommendations=[
+                {
+                    "school_name": "北京邮电大学",
+                    "strategy": "稳",
+                    "reason": "计算机强",
+                    "risk_points": ["热门专业波动大"],
+                    "alternatives": ["南京邮电大学"],
+                }
+            ],
+            summary="建议稳妥填报。",
+            gradient_summary={"冲": [], "稳": ["北京邮电大学"], "保": []},
+        )
+
+        session = store.get_or_create("test-035")
+
+        assert session["message_count"] == 1
+        assert session["history"] == [{"role": "user", "content": "推荐计算机学校"}]
+        assert session["recommendations"][0]["school_name"] == "北京邮电大学"
+        assert session["summary"] == "建议稳妥填报。"
+        assert session["gradient_summary"]["稳"] == ["北京邮电大学"]
+
+
+class TestRecommendationFavorites:
+    def test_save_recommendation_favorites_is_hidden_from_chat_history(self, store):
+        store.add_message("test-036", "user", "推荐计算机学校")
+        store.save_recommendation_favorites(
+            "test-036",
+            ["school:北京邮电大学", "school:北京邮电大学", "major:计算机科学与技术"],
+        )
+
+        session = store.get_or_create("test-036")
+
+        assert session["message_count"] == 1
+        assert session["history"] == [{"role": "user", "content": "推荐计算机学校"}]
+        assert store.get_recommendation_favorites("test-036") == [
+            "school:北京邮电大学",
+            "major:计算机科学与技术",
+        ]
+
+    def test_update_recommendation_favorites_overwrites_existing_value(self, store):
+        store.save_recommendation_favorites("test-037", ["school:清华大学"])
+        store.save_recommendation_favorites("test-037", ["major:人工智能"])
+
+        assert store.get_recommendation_favorites("test-037") == ["major:人工智能"]
+
+    def test_get_recommendation_favorites_returns_empty_for_missing_session(self, store):
+        assert store.get_recommendation_favorites("missing") == []
 
 
 class TestDelete:

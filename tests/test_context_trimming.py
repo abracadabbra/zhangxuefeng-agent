@@ -1,6 +1,6 @@
 """上下文裁剪测试"""
-import pytest
-from backend.agent.core import _trim_messages, MAX_HISTORY_ROUNDS
+
+from backend.agent.core import MAX_HISTORY_ROUNDS, _trim_messages
 
 
 def _make_messages(n_rounds: int) -> list[dict]:

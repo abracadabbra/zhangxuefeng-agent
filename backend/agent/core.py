@@ -7,18 +7,21 @@ Agent 核心引擎 — OpenAI API 对接 + Function Calling 调度
 3. 多轮工具调用循环（最多 3 轮）
 4. 流式输出支持
 """
-import json
-import os
-import logging
+
 import asyncio
-from typing import AsyncGenerator
+import json
+import logging
+import os
+from collections.abc import AsyncGenerator
+from typing import Any, cast
 
-from openai import AsyncOpenAI
-from openai.types.chat import ChatCompletion, ChatCompletionChunk
+from openai import NOT_GIVEN, AsyncOpenAI, AsyncStream
+from openai.types.chat import ChatCompletion, ChatCompletionChunk, ChatCompletionMessageParam
 
-from .prompt import SYSTEM_PROMPT
-from ..tools.registry import tool_registry
+from ..security import mask_sensitive
 from ..tools.definitions import TOOLS
+from ..tools.registry import tool_registry
+from .prompt import SYSTEM_PROMPT
 
 logger = logging.getLogger(__name__)
 
@@ -42,8 +45,14 @@ async def _retry_api_call(coro_factory, max_retries: int = MAX_RETRIES):
         except Exception as e:
             status = getattr(e, "status_code", None) or getattr(e, "code", None)
             if status in RETRYABLE_STATUS_CODES and attempt < max_retries:
-                delay = 2 ** attempt
-                logger.warning(f"API call failed (status={status}), retrying in {delay}s... (attempt {attempt + 1}/{max_retries})")
+                delay = 2**attempt
+                logger.warning(
+                    "API call failed (status=%s), retrying in %ss... (attempt %s/%s)",
+                    status,
+                    delay,
+                    attempt + 1,
+                    max_retries,
+                )
                 await asyncio.sleep(delay)
                 last_exc = e
             else:
@@ -51,7 +60,9 @@ async def _retry_api_call(coro_factory, max_retries: int = MAX_RETRIES):
     raise last_exc
 
 
-def _trim_messages(messages: list[dict], max_rounds: int = MAX_HISTORY_ROUNDS) -> list[dict]:
+def _trim_messages(
+    messages: list[ChatCompletionMessageParam], max_rounds: int = MAX_HISTORY_ROUNDS
+) -> list[ChatCompletionMessageParam]:
     """
     裁剪消息历史，保留 system prompt + 最近 N 轮对话。
 
@@ -62,11 +73,16 @@ def _trim_messages(messages: list[dict], max_rounds: int = MAX_HISTORY_ROUNDS) -
         return messages
 
     system = messages[0]
-    recent = messages[-(max_rounds * 2):]
+    recent = messages[-(max_rounds * 2) :]
     trimmed_count = len(messages) - 1 - len(recent)
     if trimmed_count > 0:
-        logger.info(f"Context trimmed: dropped {trimmed_count} old messages, keeping {len(recent)} recent")
+        logger.info(
+            "Context trimmed: dropped %s old messages, keeping %s recent",
+            trimmed_count,
+            len(recent),
+        )
     return [system] + recent
+
 
 _SKILL_CACHE: str | None = None
 
@@ -92,6 +108,11 @@ def load_skill_prompt(skill_path: str | None = None) -> str:
         _SKILL_CACHE = SYSTEM_PROMPT
 
     return _SKILL_CACHE
+
+
+def _format_tool_arguments_for_log(arguments: dict[str, Any]) -> str:
+    raw = json.dumps(arguments, ensure_ascii=False, default=str, sort_keys=True)
+    return mask_sensitive(raw)
 
 
 class AgentCore:
@@ -150,17 +171,21 @@ class AgentCore:
         返回：{"reply": str, "tool_calls": list, "usage": dict}
         """
         system_prompt = self._build_system_prompt(user_context)
-        full_messages = _trim_messages([{"role": "system", "content": system_prompt}] + messages)
+        full_messages = _trim_messages(
+            [cast(ChatCompletionMessageParam, {"role": "system", "content": system_prompt})]
+            + cast(list[ChatCompletionMessageParam], messages)
+        )
 
-        all_tool_calls = []
+        all_tool_calls: list[dict[str, Any]] = []
 
-        for round_idx in range(MAX_TOOL_ROUNDS):
+        for _round_idx in range(MAX_TOOL_ROUNDS):
+            create_completion = cast(Any, self.client.chat.completions.create)
             response: ChatCompletion = await _retry_api_call(
-                lambda: self.client.chat.completions.create(
+                lambda create_completion=create_completion: create_completion(
                     model=self.model,
                     messages=full_messages,
-                    tools=TOOLS if TOOLS else None,
-                    tool_choice="auto" if TOOLS else None,
+                    tools=cast(Any, TOOLS) if TOOLS else NOT_GIVEN,
+                    tool_choice="auto" if TOOLS else NOT_GIVEN,
                     temperature=temperature,
                     max_tokens=max_tokens,
                 )
@@ -174,38 +199,58 @@ class AgentCore:
                 return {
                     "reply": message.content or "",
                     "tool_calls": all_tool_calls,
-                    "usage": {
-                        "prompt_tokens": response.usage.prompt_tokens,
-                        "completion_tokens": response.usage.completion_tokens,
-                        "total_tokens": response.usage.total_tokens,
-                    } if response.usage else None,
+                    "usage": (
+                        {
+                            "prompt_tokens": response.usage.prompt_tokens,
+                            "completion_tokens": response.usage.completion_tokens,
+                            "total_tokens": response.usage.total_tokens,
+                        }
+                        if response.usage
+                        else None
+                    ),
                 }
 
             # 有工具调用，执行并继续
-            full_messages.append(message.model_dump())
+            full_messages.append(cast(ChatCompletionMessageParam, message.model_dump()))
 
             for tool_call in message.tool_calls:
+                if tool_call.type != "function":
+                    logger.warning("Skipping unsupported tool call type: %s", tool_call.type)
+                    continue
+
                 func_name = tool_call.function.name
                 try:
                     func_args = json.loads(tool_call.function.arguments)
                 except json.JSONDecodeError:
                     func_args = {}
 
-                logger.info(f"Tool call: {func_name}({func_args})")
+                logger.info("Tool call: %s", func_name)
+                logger.debug(
+                    "Tool arguments for %s: %s",
+                    func_name,
+                    _format_tool_arguments_for_log(func_args),
+                )
                 result = await tool_registry.dispatch(func_name, func_args)
 
-                all_tool_calls.append({
-                    "id": tool_call.id,
-                    "name": func_name,
-                    "arguments": func_args,
-                    "result": result,
-                })
+                all_tool_calls.append(
+                    {
+                        "id": tool_call.id,
+                        "name": func_name,
+                        "arguments": func_args,
+                        "result": result,
+                    }
+                )
 
-                full_messages.append({
-                    "role": "tool",
-                    "tool_call_id": tool_call.id,
-                    "content": result,
-                })
+                full_messages.append(
+                    cast(
+                        ChatCompletionMessageParam,
+                        {
+                            "role": "tool",
+                            "tool_call_id": tool_call.id,
+                            "content": result,
+                        },
+                    )
+                )
 
         # 超过最大轮次，返回当前回复
         logger.warning(f"Tool call loop exceeded {MAX_TOOL_ROUNDS} rounds")
@@ -232,29 +277,43 @@ class AgentCore:
         - {"type": "done", "usage": {...}}：完成
         """
         system_prompt = self._build_system_prompt(user_context)
-        full_messages = _trim_messages([{"role": "system", "content": system_prompt}] + messages)
+        full_messages = _trim_messages(
+            [cast(ChatCompletionMessageParam, {"role": "system", "content": system_prompt})]
+            + cast(list[ChatCompletionMessageParam], messages)
+        )
 
         for round_idx in range(MAX_TOOL_ROUNDS):
-            logger.info(f"API Call Round {round_idx + 1}, messages: {len(full_messages)}")
+            logger.debug(f"API Call Round {round_idx + 1}, messages: {len(full_messages)}")
             for i, msg in enumerate(full_messages):
-                logger.info(f"  msg[{i}]: role={msg.get('role')}")
-                if msg.get('role') == 'system':
-                    logger.info(f"    content_len={len(msg.get('content', ''))}")
-                elif msg.get('role') == 'assistant' and 'tool_calls' in msg:
-                    logger.info(f"    tool_calls_count={len(msg.get('tool_calls', []))}")
-                elif msg.get('role') == 'tool':
-                    logger.info(f"    tool_call_id={msg.get('tool_call_id')}, content_len={len(str(msg.get('content', '')))}")
+                logger.debug(f"  msg[{i}]: role={msg.get('role')}")
+                if msg.get("role") == "system":
+                    logger.debug(f"    content_len={len(str(msg.get('content', '')))}")
+                elif msg.get("role") == "assistant" and "tool_calls" in msg:
+                    logger.debug(
+                        "    tool_calls_count=%s",
+                        len(cast(Any, msg.get("tool_calls", []))),
+                    )
+                elif msg.get("role") == "tool":
+                    logger.debug(
+                        "    tool_call_id=%s, content_len=%s",
+                        msg.get("tool_call_id"),
+                        len(str(msg.get("content", ""))),
+                    )
 
-            stream = await _retry_api_call(
-                lambda: self.client.chat.completions.create(
-                    model=self.model,
-                    messages=full_messages,
-                    tools=TOOLS if TOOLS else None,
-                    tool_choice="auto" if TOOLS else None,
-                    temperature=temperature,
-                    max_tokens=max_tokens,
-                    stream=True,
-                )
+            create_completion = cast(Any, self.client.chat.completions.create)
+            stream = cast(
+                AsyncStream[ChatCompletionChunk],
+                await _retry_api_call(
+                    lambda create_completion=create_completion: create_completion(
+                        model=self.model,
+                        messages=full_messages,
+                        tools=cast(Any, TOOLS) if TOOLS else NOT_GIVEN,
+                        tool_choice="auto" if TOOLS else NOT_GIVEN,
+                        temperature=temperature,
+                        max_tokens=max_tokens,
+                        stream=True,
+                    )
+                ),
             )
 
             collected_content = ""
@@ -263,7 +322,6 @@ class AgentCore:
 
             async for chunk in stream:
                 delta = chunk.choices[0].delta if chunk.choices else None
-                finish_reason = chunk.choices[0].finish_reason if chunk.choices else None
 
                 # 文本内容
                 if delta and delta.content:
@@ -275,18 +333,22 @@ class AgentCore:
                     for tc_delta in delta.tool_calls:
                         idx = tc_delta.index
                         while len(collected_tool_calls) <= idx:
-                            collected_tool_calls.append({
-                                "id": "",
-                                "name": "",
-                                "arguments": "",
-                            })
+                            collected_tool_calls.append(
+                                {
+                                    "id": "",
+                                    "name": "",
+                                    "arguments": "",
+                                }
+                            )
                         if tc_delta.id:
                             collected_tool_calls[idx]["id"] = tc_delta.id
                         if tc_delta.function:
                             if tc_delta.function.name:
                                 collected_tool_calls[idx]["name"] = tc_delta.function.name
                             if tc_delta.function.arguments:
-                                collected_tool_calls[idx]["arguments"] += tc_delta.function.arguments
+                                collected_tool_calls[idx]["arguments"] += (
+                                    tc_delta.function.arguments
+                                )
 
                 # 使用统计
                 if chunk.usage:
@@ -302,8 +364,13 @@ class AgentCore:
                 return
 
             # 执行工具调用
-            assistant_msg = {"role": "assistant", "content": collected_content or None, "tool_calls": []}
-            tool_messages = []
+            assistant_tool_calls: list[dict[str, Any]] = []
+            assistant_msg: dict[str, Any] = {
+                "role": "assistant",
+                "content": collected_content or None,
+                "tool_calls": assistant_tool_calls,
+            }
+            tool_messages: list[ChatCompletionMessageParam] = []
 
             for tc in collected_tool_calls:
                 func_name = tc["name"]
@@ -321,38 +388,70 @@ class AgentCore:
                 result = await tool_registry.dispatch(func_name, func_args)
                 yield {"type": "tool_result", "name": func_name, "result": result}
 
-                assistant_msg["tool_calls"].append({
-                    "id": tc["id"],
-                    "type": "function",
-                    "function": {"name": func_name, "arguments": tc["arguments"] or "{}"},
-                })
+                assistant_tool_calls.append(
+                    {
+                        "id": tc["id"],
+                        "type": "function",
+                        "function": {"name": func_name, "arguments": tc["arguments"] or "{}"},
+                    }
+                )
 
-                tool_messages.append({
-                    "role": "tool",
-                    "tool_call_id": tc["id"],
-                    "content": result,
-                })
+                tool_messages.append(
+                    cast(
+                        ChatCompletionMessageParam,
+                        {
+                            "role": "tool",
+                            "tool_call_id": tc["id"],
+                            "content": result,
+                        },
+                    )
+                )
 
             # 先添加 assistant 消息，再添加 tool 消息
-            full_messages.append(assistant_msg)
+            full_messages.append(cast(ChatCompletionMessageParam, assistant_msg))
             full_messages.extend(tool_messages)
 
             # 调试：打印发送给 API 的消息结构
-            logger.info(f"Round {round_idx + 1}: Sending {len(full_messages)} messages to API")
+            logger.debug(f"Round {round_idx + 1}: Sending {len(full_messages)} messages to API")
             for i, msg in enumerate(full_messages[-5:]):
                 msg_idx = len(full_messages) - 5 + i
-                logger.info(f"  Message {msg_idx}: role={msg.get('role')}, has_tool_calls={'tool_calls' in msg}, has_tool_call_id={'tool_call_id' in msg}")
-                if msg.get('role') == 'tool':
-                    logger.info(f"    tool_call_id={msg.get('tool_call_id')}, content_len={len(str(msg.get('content', '')))}")
+                logger.debug(
+                    "  Message %s: role=%s, has_tool_calls=%s, has_tool_call_id=%s",
+                    msg_idx,
+                    msg.get("role"),
+                    "tool_calls" in msg,
+                    "tool_call_id" in msg,
+                )
+                if msg.get("role") == "tool":
+                    logger.debug(
+                        "    tool_call_id=%s, content_len=%s",
+                        msg.get("tool_call_id"),
+                        len(str(msg.get("content", ""))),
+                    )
 
         # 超过最大轮次，强制生成最终回复（不带工具）
         logger.warning(f"Tool call loop exceeded {MAX_TOOL_ROUNDS} rounds, forcing final response")
-        final_response = await self.client.chat.completions.create(
-            model=self.model,
-            messages=full_messages + [{"role": "system", "content": "你已经收集了足够的数据，请基于已有信息直接回复用户，不要再调用任何工具。"}],
-            temperature=temperature,
-            max_tokens=max_tokens,
-            stream=True,
+        create_completion = cast(Any, self.client.chat.completions.create)
+        final_response = cast(
+            AsyncStream[ChatCompletionChunk],
+            await create_completion(
+                model=self.model,
+                messages=full_messages
+                + [
+                    cast(
+                        ChatCompletionMessageParam,
+                        {
+                            "role": "system",
+                            "content": (
+                                "你已经收集了足够的数据，请基于已有信息直接回复用户，不要再调用任何工具。"
+                            ),
+                        },
+                    )
+                ],
+                temperature=temperature,
+                max_tokens=max_tokens,
+                stream=True,
+            ),
         )
         async for chunk in final_response:
             delta = chunk.choices[0].delta if chunk.choices else None

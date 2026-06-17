@@ -6,16 +6,18 @@ LangChain Agent 核心模块
 
 import logging
 from collections.abc import AsyncGenerator
+from typing import Any
 
+from langchain.agents import create_agent
 from langchain_core.language_models import BaseChatModel
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
-from langgraph.prebuilt import create_react_agent
+from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage
+from pydantic import BaseModel
 
 from ..session_store import SessionStore
 from ..tools.registry import tool_registry
 from .llm_factory import create_llm
 from .prompt import SYSTEM_PROMPT
-from .structured_output import RecommendationResult, get_format_instructions
+from .structured_output import RecommendationResult, get_recommendation_instructions
 from .tools_adapter import convert_tools
 
 logger = logging.getLogger(__name__)
@@ -37,6 +39,23 @@ SUMMARY_PROMPT = (
 def _estimate_tokens(text: str) -> int:
     """粗略估算中文文本 token 数（约 1.5 字/token）"""
     return max(1, len(text) // 2)
+
+
+def _message_text(content: object) -> str:
+    """Normalize LangChain message content into plain text for storage/counting."""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts: list[str] = []
+        for item in content:
+            if isinstance(item, str):
+                parts.append(item)
+            elif isinstance(item, dict):
+                text = item.get("text") or item.get("content")
+                if isinstance(text, str):
+                    parts.append(text)
+        return "".join(parts)
+    return ""
 
 
 class LangChainAgent:
@@ -67,8 +86,8 @@ class LangChainAgent:
         # 转换工具
         self.tools = convert_tools(tool_registry)
 
-        # 创建 ReAct Agent (langgraph)
-        self.agent = create_react_agent(
+        # 创建 LangChain Agent
+        self.agent: Any = create_agent(
             model=self.llm,
             tools=self.tools,
         )
@@ -95,7 +114,7 @@ class LangChainAgent:
         if not self.session_store:
             return []
         session = self.session_store.get_or_create(session_id)
-        history = []
+        history: list[HumanMessage | AIMessage] = []
         for msg in session.get("history", []):
             if msg["role"] == "user":
                 history.append(HumanMessage(content=msg["content"]))
@@ -106,21 +125,20 @@ class LangChainAgent:
     async def _summarize_history(self, messages: list[HumanMessage | AIMessage]) -> str:
         """调用 LLM 将消息列表压缩为摘要"""
         history_text = "\n".join(
-            f"{'用户' if isinstance(m, HumanMessage) else '助手'}：{m.content}" for m in messages
+            f"{'用户' if isinstance(m, HumanMessage) else '助手'}：{_message_text(m.content)}"
+            for m in messages
         )
         prompt = SUMMARY_PROMPT.format(history=history_text)
         try:
             result = await self.llm.ainvoke([HumanMessage(content=prompt)])
-            summary = result.content.strip()
+            summary = _message_text(result.content).strip()
             logger.info(f"Summarized {len(messages)} messages into {len(summary)} chars")
             return summary
         except Exception as e:
             logger.error(f"Failed to summarize history: {e}")
             return ""
 
-    async def _build_memory_messages(
-        self, session_id: str
-    ) -> list[HumanMessage | AIMessage | SystemMessage]:
+    async def _build_memory_messages(self, session_id: str) -> list[BaseMessage]:
         """
         构建带记忆的消息列表。
 
@@ -133,20 +151,20 @@ class LangChainAgent:
 
         keep_count = self.keep_recent_rounds * 2  # 每轮 2 条消息
         if len(history) <= keep_count:
-            return history
+            return list(history)
 
         older_messages = history[:-keep_count]
         recent_messages = history[-keep_count:]
 
-        total_tokens = sum(_estimate_tokens(m.content) for m in older_messages)
+        total_tokens = sum(_estimate_tokens(_message_text(m.content)) for m in older_messages)
         if total_tokens <= self.max_token_limit:
-            return history
+            return list(history)
 
         summary = await self._summarize_history(older_messages)
         if not summary:
-            return recent_messages
+            return list(recent_messages)
 
-        return [SystemMessage(content=f"[历史对话摘要]\n{summary}")] + recent_messages
+        return [SystemMessage(content=f"[历史对话摘要]\n{summary}"), *recent_messages]
 
     async def chat(
         self,
@@ -185,12 +203,12 @@ class LangChainAgent:
             for msg in result.get("messages", []):
                 if hasattr(msg, "type"):
                     if msg.type == "ai":
-                        reply = msg.content or reply
+                        reply = _message_text(msg.content) or reply
                     elif msg.type == "tool":
                         tool_calls.append(
                             {
                                 "name": msg.name,
-                                "result": msg.content[:500],
+                                "result": _message_text(msg.content)[:500],
                             }
                         )
 
@@ -230,7 +248,7 @@ class LangChainAgent:
             if context_str:
                 input_text = f"{context_str}\n\n{message}"
 
-        system_content = f"{self.system_prompt}\n\n{get_format_instructions()}"
+        system_content = f"{self.system_prompt}\n\n{get_recommendation_instructions()}"
         messages = [
             SystemMessage(content=system_content),
             *chat_history,
@@ -240,7 +258,13 @@ class LangChainAgent:
         structured_llm = self.llm.with_structured_output(RecommendationResult)
 
         try:
-            result = await structured_llm.ainvoke(messages)
+            raw_result = await structured_llm.ainvoke(messages)
+            if isinstance(raw_result, RecommendationResult):
+                result = raw_result
+            else:
+                if isinstance(raw_result, BaseModel):
+                    raw_result = raw_result.model_dump()
+                result = RecommendationResult.model_validate(raw_result)
 
             if self.session_store:
                 self.session_store.add_message(session_id, "user", message)
@@ -293,8 +317,10 @@ class LangChainAgent:
                     for msg in event["messages"]:
                         if hasattr(msg, "type"):
                             if msg.type == "ai" and msg.content:
-                                full_reply += msg.content
-                                yield {"type": "text", "content": msg.content}
+                                content = _message_text(msg.content)
+                                if content:
+                                    full_reply += content
+                                    yield {"type": "text", "content": content}
 
             # 保存到会话历史
             if self.session_store:
@@ -311,16 +337,25 @@ class LangChainAgent:
     def _format_user_context(self, user_context: dict) -> str:
         """格式化用户上下文"""
         parts = []
-        if score := user_context.get("分数"):
-            parts.append(f"- 考生分数：{score}分")
-        if province := user_context.get("省份"):
-            parts.append(f"- 所在省份：{province}")
-        if category := user_context.get("科类"):
-            parts.append(f"- 文理科：{category}")
-        if family := user_context.get("家庭条件"):
-            parts.append(f"- 家庭条件：{family}")
-        if budget := user_context.get("预算"):
-            parts.append(f"- 预算范围：{budget}")
+        context_fields = [
+            ("分数", "考生分数", "分"),
+            ("省份", "所在省份", ""),
+            ("科类", "文理/选科", ""),
+            ("家庭条件", "家庭条件", ""),
+            ("目标城市", "目标城市", ""),
+            ("风险偏好", "风险偏好", ""),
+            ("职业方向", "职业方向", ""),
+            ("省份批次", "省份批次", ""),
+            ("选科限制", "选科限制", ""),
+            ("位次", "省内位次", ""),
+            ("家庭预算", "家庭预算", ""),
+            ("地域偏好", "地域偏好", ""),
+            ("城市层级", "城市层级偏好", ""),
+            ("职业偏好权重", "职业偏好权重", ""),
+        ]
+        for key, label, suffix in context_fields:
+            if value := user_context.get(key):
+                parts.append(f"- {label}：{value}{suffix}")
 
         if parts:
             return "## 当前用户背景\n" + "\n".join(parts)

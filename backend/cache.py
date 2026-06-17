@@ -4,11 +4,12 @@ Redis 缓存层
 缓存热门查询结果，TTL 5 分钟，支持缓存失效。
 Redis 不可用时自动降级为无缓存模式。
 """
-import json
+
 import hashlib
+import json
 import logging
 import os
-from typing import Any, Optional
+from typing import Any
 
 import redis.asyncio as redis
 
@@ -17,10 +18,10 @@ logger = logging.getLogger(__name__)
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 CACHE_TTL = int(os.getenv("CACHE_TTL", "300"))  # 5 分钟
 
-_pool: Optional[redis.Redis] = None
+_pool: redis.Redis | None = None
 
 
-async def get_redis() -> Optional[redis.Redis]:
+async def get_redis() -> redis.Redis | None:
     """获取 Redis 连接（惰性初始化，连接失败返回 None）"""
     global _pool
     if _pool is not None:
@@ -43,7 +44,7 @@ def _make_key(prefix: str, **params) -> str:
     return f"cache:{prefix}:{digest}"
 
 
-async def cache_get(prefix: str, **params) -> Optional[Any]:
+async def cache_get(prefix: str, **params) -> Any | None:
     """读取缓存，未命中返回 None"""
     r = await get_redis()
     if r is None:
@@ -88,7 +89,6 @@ async def cache_invalidate_pattern(pattern: str) -> int:
     if r is None:
         return 0
     try:
-        cursor = None
         deleted = 0
         async for key in r.scan_iter(match=f"cache:{pattern}:*", count=100):
             await r.delete(key)

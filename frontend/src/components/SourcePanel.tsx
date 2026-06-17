@@ -104,9 +104,100 @@ interface SourceCardProps {
   getToolDisplayName: (name: string) => string
 }
 
+type Confidence = 'high' | 'medium' | 'low'
+
+interface SourceMetadata {
+  confidence?: Confidence
+  sourceType?: string
+  source?: string
+}
+
+interface StructuredResults {
+  items: Record<string, unknown>[]
+}
+
+function isConfidence(value: unknown): value is Confidence {
+  return value === 'high' || value === 'medium' || value === 'low'
+}
+
+function confidenceLabel(confidence: Confidence) {
+  const labels = {
+    high: '高可信',
+    medium: '中可信',
+    low: '低可信',
+  }
+  return labels[confidence]
+}
+
+function confidenceClass(confidence: Confidence) {
+  const classes = {
+    high: 'border-green-600 text-green-600',
+    medium: 'border-gold text-ink',
+    low: 'border-orange-500 text-orange-500',
+  }
+  return classes[confidence]
+}
+
+function sourceTypeLabel(sourceType: string) {
+  const labels: Record<string, string> = {
+    vector_index: '向量索引',
+    database: '结构化库',
+    policy: '政策库',
+  }
+  return labels[sourceType] || sourceType
+}
+
+function extractSourceMetadata(data: unknown): SourceMetadata {
+  if (!data || typeof data !== 'object') return {}
+  const record = data as Record<string, unknown>
+  const results = record.results
+  const firstResult = Array.isArray(results) && results[0] && typeof results[0] === 'object'
+    ? results[0] as Record<string, unknown>
+    : {}
+  const confidence = isConfidence(firstResult.confidence)
+    ? firstResult.confidence
+    : isConfidence(record.confidence)
+      ? record.confidence
+      : undefined
+  const sourceType = typeof firstResult.source_type === 'string'
+    ? firstResult.source_type
+    : typeof record.source_type === 'string'
+      ? record.source_type
+      : undefined
+  const source = typeof firstResult.source === 'string'
+    ? firstResult.source
+    : typeof record.source === 'string'
+      ? record.source
+      : undefined
+
+  return { confidence, sourceType, source }
+}
+
+function extractStructuredResults(data: Record<string, unknown>): StructuredResults | null {
+  const resultKeys = ['results', 'scores', 'schools', 'matched_schools']
+  for (const key of resultKeys) {
+    const value = data[key]
+    if (Array.isArray(value)) {
+      return {
+        items: value.filter(
+          (item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object',
+        ),
+      }
+    }
+  }
+  return null
+}
+
+function formatDetailValue(value: unknown): string {
+  if (value === null || value === undefined) return ''
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') return String(value)
+  return JSON.stringify(value)
+}
+
 function SourceCard({ source, index, onClick, getToolDisplayName }: SourceCardProps) {
   const { t } = useTranslation()
   let status: 'success' | 'not_found' | 'not_implemented' | 'error' | 'pending' = 'pending'
+  let metadata: SourceMetadata = {}
   if (source.result) {
     try {
       const data = JSON.parse(source.result)
@@ -114,6 +205,7 @@ function SourceCard({ source, index, onClick, getToolDisplayName }: SourceCardPr
       else if (data.status === 'not_implemented') status = 'not_implemented'
       else if (data.status === 'error') status = 'error'
       else status = 'success'
+      metadata = extractSourceMetadata(data)
     } catch {
       status = 'success'
     }
@@ -151,6 +243,7 @@ function SourceCard({ source, index, onClick, getToolDisplayName }: SourceCardPr
             <FreshnessBadge status={status} />
           </div>
           <p className="text-xs text-ink-light font-serif mt-1 truncate">{preview}</p>
+          <SourceMetadataBadges metadata={metadata} className="mt-2 flex flex-wrap gap-1.5" />
         </div>
       </div>
     </button>
@@ -218,6 +311,8 @@ function SourceDetail({ result }: { result?: string }) {
 
   try {
     const data = JSON.parse(result)
+    const metadata = extractSourceMetadata(data)
+    const structuredResults = extractStructuredResults(data)
 
     if (data.status === 'not_implemented') {
       return (
@@ -248,40 +343,42 @@ function SourceDetail({ result }: { result?: string }) {
     }
 
     // 结构化数据表格显示
-    if (data.results && Array.isArray(data.results)) {
+    if (structuredResults) {
       return (
         <div className="space-y-4">
+          <SourceMetadataBadges metadata={metadata} includeSource className="flex flex-wrap gap-1.5" />
           {data.query && (
             <div className="flex gap-2 text-sm">
               <span className="font-mono text-ink-light">{t('sourcePanel.detail.queryLabel')}</span>
-              <span className="font-serif text-ink">{String(data.query)}</span>
+              <span className="font-serif text-ink">{formatDetailValue(data.query)}</span>
             </div>
           )}
           {data.source && (
             <div className="flex gap-2 text-sm">
               <span className="font-mono text-ink-light">{t('sourcePanel.detail.sourceLabel')}</span>
-              <span className="font-serif text-ink">{String(data.source)}</span>
+              <span className="font-serif text-ink">{formatDetailValue(data.source)}</span>
             </div>
           )}
           <div className="border border-ink">
             <div className="bg-ink text-paper px-3 py-2 font-mono text-xs font-bold">
-              {t('sourcePanel.detail.resultTitle', { count: data.results.length })}
+              {t('sourcePanel.detail.resultTitle', { count: structuredResults.items.length })}
             </div>
             <div className="divide-y divide-rule">
-              {data.results.slice(0, 10).map((item: Record<string, unknown>, idx: number) => (
+              {structuredResults.items.slice(0, 10).map((item: Record<string, unknown>, idx: number) => (
                 <div key={idx} className="px-3 py-2 text-sm">
+                  <SourceResultBadges item={item} />
                   {Object.entries(item).map(([key, value]) => (
                     <div key={key} className="flex gap-2 py-0.5">
                       <span className="font-mono text-ink-light text-xs min-w-[80px]">{key}:</span>
-                      <span className="font-serif text-ink text-xs">{String(value)}</span>
+                      <span className="font-serif text-ink text-xs">{formatDetailValue(value)}</span>
                     </div>
                   ))}
                 </div>
               ))}
             </div>
-            {data.results.length > 10 && (
+            {structuredResults.items.length > 10 && (
               <div className="px-3 py-2 text-xs text-ink-light font-mono border-t border-rule">
-                {t('sourcePanel.detail.moreResults', { count: data.results.length - 10 })}
+                {t('sourcePanel.detail.moreResults', { count: structuredResults.items.length - 10 })}
               </div>
             )}
           </div>
@@ -314,4 +411,41 @@ function SourceDetail({ result }: { result?: string }) {
       </div>
     )
   }
+}
+
+function SourceResultBadges({ item }: { item: Record<string, unknown> }) {
+  const metadata = extractSourceMetadata({ results: [item] })
+  return <SourceMetadataBadges metadata={metadata} includeSource className="mb-2 flex flex-wrap gap-1.5" />
+}
+
+function SourceMetadataBadges({
+  metadata,
+  includeSource = false,
+  className,
+}: {
+  metadata: SourceMetadata
+  includeSource?: boolean
+  className: string
+}) {
+  if (!metadata.confidence && !metadata.sourceType && (!includeSource || !metadata.source)) return null
+
+  return (
+    <div className={className}>
+      {metadata.confidence && (
+        <span className={`inline-flex border px-1.5 py-0.5 text-[10px] font-mono font-bold ${confidenceClass(metadata.confidence)}`}>
+          {confidenceLabel(metadata.confidence)}
+        </span>
+      )}
+      {metadata.sourceType && (
+        <span className="inline-flex border border-ink/30 px-1.5 py-0.5 text-[10px] font-mono text-ink-light">
+          {sourceTypeLabel(metadata.sourceType)}
+        </span>
+      )}
+      {includeSource && metadata.source && (
+        <span className="inline-flex max-w-full border border-ink/30 px-1.5 py-0.5 text-[10px] font-mono text-ink-light">
+          {metadata.source}
+        </span>
+      )}
+    </div>
+  )
 }

@@ -8,7 +8,7 @@ import { ThemeProvider } from '../../contexts/ThemeContext'
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, opts?: Record<string, unknown>) => {
-      const overrides: Record<string, string> = {
+      const overrides: Record<string, string | string[]> = {
         'header.title': '张雪峰AI',
         'header.subtitle': 'ZHANG XUEFENG AI',
         'header.backHome': '返回首页',
@@ -79,7 +79,6 @@ vi.mock('react-i18next', () => ({
         'a11y.formProgress': `步骤 ${opts?.current ?? 1}，共 ${opts?.total ?? 4} 步`,
         'a11y.scenarioCards': '咨询场景选择',
         'a11y.closePanel': '关闭面板',
-        'a11y.scenarioCards': '咨询场景选择',
       }
       if (overrides[key]) return overrides[key]
       if (opts?.defaultValue) return opts.defaultValue as string

@@ -9,18 +9,45 @@
 使用方法:
     cd backend && python -m seeds.generate_scores
 """
+
 import json
 import random
 from pathlib import Path
+from typing import cast
 
 # 全国 31 个省份
 ALL_PROVINCES = [
-    "北京", "天津", "上海", "重庆",
-    "河北", "山西", "辽宁", "吉林", "黑龙江",
-    "江苏", "浙江", "安徽", "福建", "江西", "山东",
-    "河南", "湖北", "湖南", "广东", "海南",
-    "四川", "贵州", "云南", "陕西", "甘肃",
-    "青海", "内蒙古", "广西", "西藏", "宁夏", "新疆",
+    "北京",
+    "天津",
+    "上海",
+    "重庆",
+    "河北",
+    "山西",
+    "辽宁",
+    "吉林",
+    "黑龙江",
+    "江苏",
+    "浙江",
+    "安徽",
+    "福建",
+    "江西",
+    "山东",
+    "河南",
+    "湖北",
+    "湖南",
+    "广东",
+    "海南",
+    "四川",
+    "贵州",
+    "云南",
+    "陕西",
+    "甘肃",
+    "青海",
+    "内蒙古",
+    "广西",
+    "西藏",
+    "宁夏",
+    "新疆",
 ]
 
 # 新高考改革省份（2021年起不分文理，按物理/历史分科）
@@ -33,7 +60,11 @@ NEW_GAOKAO_V2 = ["北京", "天津", "山东", "海南"]  # 综合
 NEW_GAOKAO_V3 = ["河北", "辽宁", "江苏", "福建", "湖北", "湖南", "广东", "重庆"]  # 物理/历史
 NEW_GAOKAO_V4 = ["甘肃", "黑龙江", "吉林", "安徽", "江西", "贵州", "广西"]  # 物理/历史 (2024起)
 # 传统文理分科省份（2025年仍适用）
-TRADITIONAL = [p for p in ALL_PROVINCES if p not in NEW_GAOKAO_V1 + NEW_GAOKAO_V2 + NEW_GAOKAO_V3 + NEW_GAOKAO_V4]
+TRADITIONAL = [
+    p
+    for p in ALL_PROVINCES
+    if p not in NEW_GAOKAO_V1 + NEW_GAOKAO_V2 + NEW_GAOKAO_V3 + NEW_GAOKAO_V4
+]
 
 
 def get_subject_types(province: str, year: int) -> list[str]:
@@ -115,12 +146,36 @@ SCHOOLS = [
 # 省份分数调整系数（相对于河南的难度差异）
 # 正值表示该省分数线更高（竞争更激烈），负值表示更低
 PROVINCE_OFFSET = {
-    "河南": 0, "山东": 2, "河北": 3, "广东": 5, "江苏": 8,
-    "浙江": 10, "湖北": 3, "湖南": 2, "四川": -2, "安徽": 3,
-    "福建": -3, "江西": 0, "辽宁": -5, "吉林": -8, "黑龙江": -10,
-    "陕西": -5, "山西": -3, "重庆": -2, "甘肃": -12, "贵州": -15,
-    "云南": -15, "广西": -12, "内蒙古": -18, "宁夏": -20, "新疆": -18,
-    "青海": -25, "西藏": -40, "海南": -8, "天津": 12, "北京": 15,
+    "河南": 0,
+    "山东": 2,
+    "河北": 3,
+    "广东": 5,
+    "江苏": 8,
+    "浙江": 10,
+    "湖北": 3,
+    "湖南": 2,
+    "四川": -2,
+    "安徽": 3,
+    "福建": -3,
+    "江西": 0,
+    "辽宁": -5,
+    "吉林": -8,
+    "黑龙江": -10,
+    "陕西": -5,
+    "山西": -3,
+    "重庆": -2,
+    "甘肃": -12,
+    "贵州": -15,
+    "云南": -15,
+    "广西": -12,
+    "内蒙古": -18,
+    "宁夏": -20,
+    "新疆": -18,
+    "青海": -25,
+    "西藏": -40,
+    "海南": -8,
+    "天津": 12,
+    "北京": 15,
     "上海": 12,
 }
 
@@ -135,7 +190,7 @@ YEAR_OFFSET = {
 
 # 文科比理工科分数线通常低 10-30 分
 LITERATURE_OFFSET = {
-    1: -5,   # 顶尖学校差距小
+    1: -5,  # 顶尖学校差距小
     2: -15,
     3: -20,
     4: -25,
@@ -170,12 +225,14 @@ def generate_scores() -> list[dict]:
 
                 for subject_type in subject_types:
                     # 普通类
-                    base = school["base_score"]
+                    tier = cast(int, school["tier"])
+                    base = cast(int, school["base_score"])
+                    base_rank = cast(int, school["base_rank"])
                     offset = PROVINCE_OFFSET.get(province, 0)
                     year_adj = YEAR_OFFSET.get(year, 0)
 
                     is_literature = subject_type in ("文史", "历史类")
-                    lit_adj = LITERATURE_OFFSET[school["tier"]] if is_literature else 0
+                    lit_adj = LITERATURE_OFFSET[tier] if is_literature else 0
 
                     # 添加随机波动
                     noise = random.randint(-3, 3)
@@ -183,7 +240,13 @@ def generate_scores() -> list[dict]:
                     min_score = max(200, base + offset + year_adj + lit_adj + noise)
                     avg_score = min_score + random.randint(5, 15)
                     max_score = avg_score + random.randint(5, 15)
-                    min_rank = max(1, int(school["base_rank"] * (1 + (PROVINCE_OFFSET.get(province, 0) + year_adj) / 100) + random.randint(-100, 100)))
+                    min_rank = max(
+                        1,
+                        int(
+                            base_rank * (1 + (PROVINCE_OFFSET.get(province, 0) + year_adj) / 100)
+                            + random.randint(-100, 100)
+                        ),
+                    )
 
                     # 综合改革省份满分 750，但上海 660，海南有标准分
                     if province == "上海":
@@ -196,57 +259,63 @@ def generate_scores() -> list[dict]:
                         avg_score = int(avg_score * 900 / 750)
                         max_score = int(max_score * 900 / 750)
 
-                    batch = "本科一批" if school["tier"] <= 3 else "本科二批"
-                    if school["tier"] == 1 and province in ("北京", "上海"):
+                    batch = "本科一批" if tier <= 3 else "本科二批"
+                    if tier == 1 and province in ("北京", "上海"):
                         batch = "提前批"
 
-                    records.append({
-                        "school_name": school["name"],
-                        "province": province,
-                        "year": year,
-                        "batch": batch,
-                        "subject_type": subject_type,
-                        "min_score": min_score,
-                        "avg_score": round(avg_score, 1),
-                        "max_score": max_score,
-                        "min_rank": min_rank,
-                    })
+                    records.append(
+                        {
+                            "school_name": school["name"],
+                            "province": province,
+                            "year": year,
+                            "batch": batch,
+                            "subject_type": subject_type,
+                            "min_score": min_score,
+                            "avg_score": round(avg_score, 1),
+                            "max_score": max_score,
+                            "min_rank": min_rank,
+                        }
+                    )
 
                     # 艺术类（仅部分年份有数据）
                     if year >= 2022:
-                        art_offset = ART_OFFSET[school["tier"]]
+                        art_offset = ART_OFFSET[tier]
                         art_noise = random.randint(-10, 10)
                         art_base = max(200, min_score + art_offset + art_noise)
 
-                        records.append({
-                            "school_name": school["name"],
-                            "province": province,
-                            "year": year,
-                            "batch": "提前批",
-                            "subject_type": f"艺术类（{subject_type}）",
-                            "min_score": art_base,
-                            "avg_score": art_base + random.randint(10, 30),
-                            "max_score": art_base + random.randint(30, 60),
-                            "min_rank": None,
-                        })
+                        records.append(
+                            {
+                                "school_name": school["name"],
+                                "province": province,
+                                "year": year,
+                                "batch": "提前批",
+                                "subject_type": f"艺术类（{subject_type}）",
+                                "min_score": art_base,
+                                "avg_score": art_base + random.randint(10, 30),
+                                "max_score": art_base + random.randint(30, 60),
+                                "min_rank": None,
+                            }
+                        )
 
                     # 体育类（仅部分年份有数据）
                     if year >= 2022:
-                        sport_offset = SPORT_OFFSET[school["tier"]]
+                        sport_offset = SPORT_OFFSET[tier]
                         sport_noise = random.randint(-8, 8)
                         sport_base = max(200, min_score + sport_offset + sport_noise)
 
-                        records.append({
-                            "school_name": school["name"],
-                            "province": province,
-                            "year": year,
-                            "batch": "提前批",
-                            "subject_type": f"体育类（{subject_type}）",
-                            "min_score": sport_base,
-                            "avg_score": sport_base + random.randint(8, 20),
-                            "max_score": sport_base + random.randint(20, 50),
-                            "min_rank": None,
-                        })
+                        records.append(
+                            {
+                                "school_name": school["name"],
+                                "province": province,
+                                "year": year,
+                                "batch": "提前批",
+                                "subject_type": f"体育类（{subject_type}）",
+                                "min_score": sport_base,
+                                "avg_score": sport_base + random.randint(8, 20),
+                                "max_score": sport_base + random.randint(20, 50),
+                                "min_rank": None,
+                            }
+                        )
 
     return records
 

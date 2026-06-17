@@ -27,6 +27,7 @@ dev = [
     "pytest-asyncio>=0.24.0",
     "ruff>=0.6.0",
     "mypy>=1.11.0",
+    "xlrd>=2.0.1",
 ]
 langchain = [
     "langchain>=0.2",
@@ -47,3 +48,4 @@ select = ["E", "F", "I", "UP", "B"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"

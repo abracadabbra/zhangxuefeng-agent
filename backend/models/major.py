@@ -1,7 +1,8 @@
 """
 专业表 ORM 模型
 """
-from sqlalchemy import Column, Float, Integer, String, Text, Index
+
+from sqlalchemy import Column, Float, Index, Integer, String, Text
 from sqlalchemy.orm import relationship
 
 from backend.database import Base

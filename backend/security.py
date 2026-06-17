@@ -3,7 +3,6 @@
 """
 
 import html
-import json
 import logging
 import re
 import uuid
@@ -26,7 +25,28 @@ UUID_PATTERN = re.compile(
 
 _SENSITIVE_PATTERNS = [
     (re.compile(r"(sk-[a-zA-Z0-9]{8})[a-zA-Z0-9]+"), r"\1****"),
-    (re.compile(r"(password|passwd|secret|token|api[_-]?key)\s*[:=]\s*\S+", re.IGNORECASE), r"\1=****"),
+    (
+        re.compile(r"\b(Bearer\s+)[A-Za-z0-9._~+/=-]+", re.IGNORECASE),
+        r"\1****",
+    ),
+    (
+        re.compile(
+            r'(["\']?(?:password|passwd|secret|token|api[_-]?key)["\']?\s*:\s*)'
+            r'(["\']?)[^,}"\'\s]+(["\']?)',
+            re.IGNORECASE,
+        ),
+        r"\1\2****\3",
+    ),
+    (
+        re.compile(r"(password|passwd|secret|token|api[_-]?key)\s*[:=]\s*[^&\s]+", re.IGNORECASE),
+        r"\1=****",
+    ),
+    (
+        re.compile(r"((?:password|passwd|secret|token|api[_-]?key)=)[^&\s]+", re.IGNORECASE),
+        r"\1****",
+    ),
+    (re.compile(r"(\b1[3-9]\d)\d{4}(\d{4}\b)"), r"\1****\2"),
+    (re.compile(r"([\w.+-]+)@([\w.-]+\.[A-Za-z]{2,})"), r"****@\2"),
 ]
 
 # ============== 输入验证 ==============
@@ -61,9 +81,34 @@ def validate_user_context(context: dict[str, Any] | None) -> dict[str, Any] | No
         return None
 
     allowed_keys = {
-        "分数", "省份", "科类", "家庭条件", "目标城市",
-        "风险偏好", "职业方向", "score", "province", "subject",
-        "family_background", "target_city", "risk_tolerance", "career_goal",
+        "分数",
+        "省份",
+        "科类",
+        "家庭条件",
+        "目标城市",
+        "风险偏好",
+        "职业方向",
+        "省份批次",
+        "选科限制",
+        "位次",
+        "家庭预算",
+        "地域偏好",
+        "城市层级",
+        "职业偏好权重",
+        "score",
+        "province",
+        "subject",
+        "family_background",
+        "target_city",
+        "risk_tolerance",
+        "career_goal",
+        "admission_batch",
+        "subject_requirements",
+        "rank",
+        "family_budget",
+        "region_preference",
+        "city_tier",
+        "career_preference_weight",
     }
 
     cleaned: dict[str, Any] = {}
@@ -101,12 +146,36 @@ def mask_sensitive(text: str) -> str:
 # ============== 异常安全处理 ==============
 
 
+def classify_error(error: Exception) -> str:
+    """将异常归类，便于日志聚合和告警分流。"""
+    type_name = type(error).__name__
+    if isinstance(error, HTTPException):
+        if error.status_code == 429:
+            return "rate_limited"
+        if 400 <= error.status_code < 500:
+            return "client_error"
+        return "server_error"
+    if type_name in {"AuthenticationError", "PermissionDeniedError"}:
+        return "auth_error"
+    if type_name in {"TimeoutError", "APITimeoutError"}:
+        return "timeout"
+    if type_name in {"ConnectionError", "APIConnectionError"}:
+        return "upstream_connection"
+    if type_name in {"RateLimitError"}:
+        return "upstream_rate_limited"
+    return "unknown"
+
+
 def safe_error_message(error: Exception) -> str:
     """返回不泄露内部信息的错误消息"""
     error_map = {
         "ConnectionError": "AI 服务连接失败，请稍后重试",
+        "APIConnectionError": "AI 服务连接失败，请稍后重试",
         "TimeoutError": "请求超时，请稍后重试",
+        "APITimeoutError": "请求超时，请稍后重试",
         "AuthenticationError": "AI 服务认证失败，请联系管理员",
+        "PermissionDeniedError": "AI 服务认证失败，请联系管理员",
+        "RateLimitError": "AI 服务繁忙，请稍后重试",
     }
     type_name = type(error).__name__
     return error_map.get(type_name, "服务暂时不可用，请稍后重试")
@@ -124,19 +193,27 @@ class SecurityMiddleware(BaseHTTPMiddleware):
         client_ip = request.headers.get("X-Forwarded-For", "").split(",")[0].strip()
         if not client_ip:
             client_ip = request.client.host if request.client else "unknown"
+        safe_query = mask_sensitive(str(request.url.query))
 
         logger.info(
-            "request %s %s from %s ua=%s",
+            "request %s %s query=%s from %s ua=%s",
             request.method,
             request.url.path,
+            safe_query or "-",
             client_ip,
             mask_sensitive(request.headers.get("User-Agent", "")),
         )
 
         try:
             response = await call_next(request)
-        except Exception:
-            logger.exception("unhandled error on %s %s", request.method, request.url.path)
+        except Exception as exc:
+            logger.exception(
+                "unhandled error category=%s method=%s path=%s query=%s",
+                classify_error(exc),
+                request.method,
+                request.url.path,
+                safe_query or "-",
+            )
             raise
 
         # 安全响应头

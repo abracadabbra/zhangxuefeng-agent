@@ -9,9 +9,7 @@ from backend.models.subject_ranking import SubjectRanking
 from backend.schemas.subject_ranking import SubjectRankingQuery
 
 
-def get_subject_rankings(
-    db: Session, query: SubjectRankingQuery
-) -> tuple[list[dict], int]:
+def get_subject_rankings(db: Session, query: SubjectRankingQuery) -> tuple[list[dict], int]:
     """
     多条件查询学科排名
 
@@ -47,16 +45,18 @@ def get_subject_rankings(
 
     results = []
     for row in rows:
-        results.append({
-            "id": row.id,
-            "school_id": row.school_id,
-            "school_name": row.school.name if row.school else None,
-            "major_category": row.major_category,
-            "ranking_source": row.ranking_source,
-            "ranking_year": row.ranking_year,
-            "ranking_position": row.ranking_position,
-            "grade": row.grade,
-        })
+        results.append(
+            {
+                "id": row.id,
+                "school_id": row.school_id,
+                "school_name": row.school.name if row.school else None,
+                "major_category": row.major_category,
+                "ranking_source": row.ranking_source,
+                "ranking_year": row.ranking_year,
+                "ranking_position": row.ranking_position,
+                "grade": row.grade,
+            }
+        )
 
     return results, total
 

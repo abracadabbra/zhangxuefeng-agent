@@ -6,7 +6,9 @@
 2. 生成张雪峰风格的追问话术
 3. 最多 3 轮追问，避免烦人
 """
+
 from dataclasses import dataclass, field
+
 from backend.user_profile import UserProfile
 
 # 最大追问轮次
@@ -63,6 +65,7 @@ SKIP_DEFAULTS: dict[str, str] = {
 @dataclass
 class QueryState:
     """追问状态跟踪"""
+
     round_count: int = 0
     asked_fields: list[str] = field(default_factory=list)
     skipped_fields: list[str] = field(default_factory=list)
@@ -104,7 +107,11 @@ class SoulQueryEngine:
         optional_fields = ["target_city", "risk_tolerance", "career_goal"]
         for field_name in optional_fields:
             value = getattr(profile, field_name, None)
-            if value is None and field_name not in state.asked_fields and field_name not in state.skipped_fields:
+            if (
+                value is None
+                and field_name not in state.asked_fields
+                and field_name not in state.skipped_fields
+            ):
                 question = self._pick_optional_question(field_name)
                 state.asked_fields.append(field_name)
                 state.round_count += 1

@@ -2,15 +2,18 @@ import { defineConfig, devices } from '@playwright/test'
 
 export default defineConfig({
   testDir: './tests',
+  outputDir: './test-results',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: 'html',
+  reporter: [['html', { outputFolder: 'playwright-report', open: 'never' }]],
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: 'http://127.0.0.1:3000',
     locale: 'zh-CN',
+    screenshot: 'only-on-failure',
     trace: 'on-first-retry',
+    video: 'on-first-retry',
   },
   projects: [
     {
@@ -19,8 +22,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'cd ../frontend && npm run dev',
-    url: 'http://localhost:3000',
+    command: 'npm --prefix ../frontend run dev -- --host 127.0.0.1 --port 3000 --strictPort',
+    url: 'http://127.0.0.1:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 30_000,
   },

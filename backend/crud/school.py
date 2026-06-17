@@ -1,20 +1,19 @@
 """
 院校 CRUD 操作
 """
-from typing import Optional
+
 from sqlalchemy.orm import Session
-from sqlalchemy import or_
 
 from backend.models.school import School
 from backend.schemas.school import SchoolQuery
 
 
-def get_school(db: Session, school_id: int) -> Optional[School]:
+def get_school(db: Session, school_id: int) -> School | None:
     """根据 ID 获取院校"""
     return db.query(School).filter(School.id == school_id).first()
 
 
-def get_school_by_name(db: Session, name: str) -> Optional[School]:
+def get_school_by_name(db: Session, name: str) -> School | None:
     """根据名称精确匹配院校"""
     return db.query(School).filter(School.name == name).first()
 

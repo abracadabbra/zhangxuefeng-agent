@@ -3,7 +3,11 @@
 
 提供对话 API、SSE 流式输出、Function Calling 支持、灵魂追问引擎
 """
+# ruff: noqa: E402
+
 import logging
+import time
+import uuid
 from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
@@ -15,6 +19,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from backend.config import get_settings
 from backend.database import init_db
+from backend.docs import setup_docs
 from backend.logging_config import request_filter, setup_logging
 from backend.middleware.rate_limit import RateLimitMiddleware
 from backend.routers import (
@@ -28,7 +33,6 @@ from backend.routes.chat import router as chat_router
 from backend.routes.profile import router as profile_router
 from backend.routes.session import router as session_router
 from backend.routes.system import router as system_router
-from backend.docs import setup_docs
 from backend.security import SecurityMiddleware
 
 settings = get_settings()
@@ -66,11 +70,31 @@ setup_docs(app)
 # ============== Middleware ==============
 @app.middleware("http")
 async def logging_middleware(request: Request, call_next):
-    """注入 request_id / user_id 到日志上下文。"""
-    request_filter.request_id = request.headers.get("X-Request-ID", "-")
-    request_filter.user_id = request.headers.get("X-User-ID", "-")
-    response = await call_next(request)
-    return response
+    """注入 request_id / user_id 到日志上下文，并回传请求追踪头。"""
+    request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
+    context_tokens = request_filter.set_context(
+        request_id,
+        request.headers.get("X-User-ID", "-"),
+    )
+    start = time.perf_counter()
+    try:
+        try:
+            response = await call_next(request)
+        finally:
+            duration_ms = (time.perf_counter() - start) * 1000
+
+        response.headers["X-Request-ID"] = request_id
+        response.headers["X-Process-Time-Ms"] = f"{duration_ms:.2f}"
+        logger.info(
+            "request completed method=%s path=%s status=%s duration_ms=%.2f",
+            request.method,
+            request.url.path,
+            response.status_code,
+            duration_ms,
+        )
+        return response
+    finally:
+        request_filter.reset_context(context_tokens)
 
 
 app.add_middleware(SecurityMiddleware)

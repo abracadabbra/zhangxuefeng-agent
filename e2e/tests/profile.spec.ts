@@ -1,10 +1,7 @@
-import { test, expect } from '@playwright/test'
+import { expect, test } from './fixtures'
 
 test.describe('Profile Form (Soul Question)', () => {
   test.beforeEach(async ({ page }) => {
-    await page.route('**/api/sessions*', (route) =>
-      route.fulfill({ status: 200, contentType: 'application/json', body: '[]' }),
-    )
     await page.goto('/')
 
     // Click gaokao scenario to enter the form
@@ -36,20 +33,6 @@ test.describe('Profile Form (Soul Question)', () => {
   })
 
   test('completes full gaokao profile flow', async ({ page }) => {
-    await page.route('**/api/profile/**', (route) =>
-      route.fulfill({ status: 200, contentType: 'application/json', body: '{}' }),
-    )
-    await page.route('**/api/session/**', (route) => {
-      if (route.request().method() === 'GET') {
-        return route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: '{"messages":[]}',
-        })
-      }
-      return route.fulfill({ status: 200, contentType: 'application/json', body: '{}' })
-    })
-
     // Step 1: Score
     await page.locator('input[type="number"]').fill('620')
     await page.getByRole('button', { name: '下一步 →' }).click()
@@ -96,17 +79,6 @@ test.describe('Profile Form (Soul Question)', () => {
   })
 
   test('skip button jumps directly to chat', async ({ page }) => {
-    await page.route('**/api/session/**', (route) => {
-      if (route.request().method() === 'GET') {
-        return route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: '{"messages":[]}',
-        })
-      }
-      return route.fulfill({ status: 200, contentType: 'application/json', body: '{}' })
-    })
-
     // Skip button text: "跳过，直接提问 →"
     await page.getByText('跳过，直接提问').click()
 

@@ -1,19 +1,23 @@
 """
 专业查询 API 路由
 """
+
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from backend.database import get_db
 from backend.cache import cache_get, cache_set
-from backend.crud.major import get_major, get_majors, get_major_by_name, get_hot_majors
+from backend.crud.major import get_hot_majors, get_major, get_major_by_name, get_majors
+from backend.database import get_db
 from backend.schemas.major import MajorOut, MajorQuery
 
 router = APIRouter(prefix="/majors", tags=["专业"])
+DbSession = Annotated[Session, Depends(get_db)]
 
 
 @router.get("/{major_id}", response_model=MajorOut, summary="根据ID查询专业")
-async def read_major(major_id: int, db: Session = Depends(get_db)):
+async def read_major(major_id: int, db: DbSession):
     cached = await cache_get("major", id=major_id)
     if cached:
         return cached
@@ -26,7 +30,7 @@ async def read_major(major_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/by-name/{name}", response_model=MajorOut, summary="根据名称查询专业")
-async def read_major_by_name(name: str, db: Session = Depends(get_db)):
+async def read_major_by_name(name: str, db: DbSession):
     cached = await cache_get("major_name", name=name)
     if cached:
         return cached
@@ -39,7 +43,7 @@ async def read_major_by_name(name: str, db: Session = Depends(get_db)):
 
 
 @router.get("/hot/list", summary="获取热门专业")
-async def list_hot_majors(limit: int = 20, db: Session = Depends(get_db)):
+async def list_hot_majors(db: DbSession, limit: int = 20):
     cached = await cache_get("major_hot", limit=limit)
     if cached:
         return cached
@@ -50,7 +54,7 @@ async def list_hot_majors(limit: int = 20, db: Session = Depends(get_db)):
 
 
 @router.post("/search", summary="多条件查询专业列表")
-async def search_majors(query: MajorQuery, db: Session = Depends(get_db)):
+async def search_majors(query: MajorQuery, db: DbSession):
     params = query.model_dump()
     cached = await cache_get("major_search", **params)
     if cached:

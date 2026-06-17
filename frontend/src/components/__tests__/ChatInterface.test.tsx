@@ -29,6 +29,7 @@ vi.mock('../SourcePanel', () => ({
 describe('ChatInterface', () => {
   beforeEach(() => {
     vi.restoreAllMocks()
+    window.localStorage.clear()
     // Default mock for session history fetch
     vi.spyOn(globalThis, 'fetch').mockResolvedValue({
       ok: false,
@@ -53,6 +54,52 @@ describe('ChatInterface', () => {
     expect(screen.getByRole('button', { name: /chat\.send/i })).toBeInTheDocument()
   })
 
+  it('shows question progress for missing profile fields', () => {
+    render(<ChatInterface sessionId="test-session" />)
+
+    expect(screen.getByLabelText('追问进度')).toBeInTheDocument()
+    expect(screen.getByText('必要信息 0/4')).toBeInTheDocument()
+    expect(screen.getByText('0%')).toBeInTheDocument()
+    expect(screen.getByText('还差：分数、省份、科类/选科、家庭条件')).toBeInTheDocument()
+  })
+
+  it('shows completed question progress for complete profile', () => {
+    render(
+      <ChatInterface
+        sessionId="test-session"
+        userProfile={{
+          score: 650,
+          province: '北京',
+          subject: '物理 化学 生物',
+          familyCondition: '工薪阶层',
+        }}
+      />,
+    )
+
+    expect(screen.getByText('必要信息 4/4')).toBeInTheDocument()
+    expect(screen.getByText('100%')).toBeInTheDocument()
+    expect(screen.getByText(/必要信息已齐，可以生成更完整的推荐/)).toBeInTheDocument()
+  })
+
+  it('includes enhanced profile fields in optional progress hints', () => {
+    render(
+      <ChatInterface
+        sessionId="test-session"
+        userProfile={{
+          score: 650,
+          province: '北京',
+          subject: '物理 化学 生物',
+          familyCondition: '工薪阶层',
+          targetCity: '北京',
+          riskTolerance: '稳健',
+          careerGoal: '计算机',
+        }}
+      />,
+    )
+
+    expect(screen.getByText(/可补充：省份批次、选科限制/)).toBeInTheDocument()
+  })
+
   it('loads session history on mount', async () => {
     const mockHistory = {
       messages: [
@@ -75,6 +122,33 @@ describe('ChatInterface', () => {
       expect(screen.getByText('你好')).toBeInTheDocument()
       expect(screen.getByText('你好！有什么可以帮你的？')).toBeInTheDocument()
     })
+  })
+
+  it('opens Markdown and PDF report exports from the chat header', async () => {
+    const user = userEvent.setup()
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null)
+    const mockHistory = {
+      messages: [
+        { role: 'user', content: '你好' },
+        { role: 'assistant', content: '你好！有什么可以帮你的？' },
+      ],
+    }
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockHistory),
+    } as Response)
+
+    render(<ChatInterface sessionId="test-session" />)
+
+    await waitFor(() => {
+      expect(screen.getByText('你好！有什么可以帮你的？')).toBeInTheDocument()
+    })
+
+    await user.click(screen.getByRole('button', { name: 'chat.exportMarkdown' }))
+    await user.click(screen.getByRole('button', { name: 'chat.exportPdf' }))
+
+    expect(openSpy).toHaveBeenCalledWith('/api/session/test-session/export', '_blank')
+    expect(openSpy).toHaveBeenCalledWith('/api/session/test-session/export/pdf', '_blank')
   })
 
   it('sends a message and displays it', async () => {
@@ -124,8 +198,10 @@ describe('ChatInterface', () => {
     const sendButton = screen.getByRole('button', { name: /chat\.send/i })
     await user.click(sendButton)
 
-    // Only the initial fetch for session history should have been called
-    expect(globalThis.fetch).toHaveBeenCalledTimes(1)
+    expect((globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls).not.toContainEqual([
+      '/api/chat',
+      expect.anything(),
+    ])
     expect(globalThis.fetch).toHaveBeenCalledWith('/api/session/test-session')
   })
 
@@ -220,7 +296,7 @@ describe('ChatInterface', () => {
       },
     })
 
-    vi.spyOn(globalThis, 'fetch').mockImplementation((url, init) => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
       if (typeof url === 'string' && url.includes('/api/session')) {
         return Promise.resolve({ ok: false, json: () => Promise.resolve(null) } as Response)
       }
@@ -251,6 +327,111 @@ describe('ChatInterface', () => {
         科类: '理科',
         家庭条件: undefined,
       })
+    })
+  })
+
+  it('persists favorite recommendations by session', async () => {
+    const user = userEvent.setup()
+    const recommendResponse = {
+      summary: '建议按冲稳保组合填报。',
+      recommendations: [
+        {
+          school_name: '清华大学',
+          reason: '学校实力强，方向匹配。',
+          admission_probability: 0.75,
+          match_score: 9,
+          strategy: '稳',
+          risk_points: ['热门专业竞争激烈'],
+          alternatives: ['北京邮电大学'],
+        },
+      ],
+      gradient_summary: { 稳: ['清华大学'] },
+    }
+
+    vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
+      if (typeof url === 'string' && url.includes('/api/recommend')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(recommendResponse),
+        } as Response)
+      }
+      return Promise.resolve({
+        ok: false,
+        json: () => Promise.resolve(null),
+      } as Response)
+    })
+
+    render(<ChatInterface sessionId="favorite-session" />)
+
+    await user.click(screen.getByRole('button', { name: '生成志愿推荐' }))
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: '收藏 清华大学' })).toBeInTheDocument()
+      expect(screen.getByText('已收藏 0 / 1 项')).toBeInTheDocument()
+      expect(screen.getByTitle('清华大学')).toBeInTheDocument()
+    })
+
+    await user.click(screen.getByRole('button', { name: '收藏 清华大学' }))
+
+    await waitFor(() => {
+      expect(screen.getByText('已收藏 1 / 1 项')).toBeInTheDocument()
+      expect(window.localStorage.getItem('recommendation-favorites:favorite-session')).toBe(
+        JSON.stringify(['school:清华大学']),
+      )
+      expect(globalThis.fetch).toHaveBeenCalledWith(
+        '/api/session/favorite-session/favorites',
+        expect.objectContaining({
+          method: 'PUT',
+          body: JSON.stringify({ favorite_keys: ['school:清华大学'] }),
+        }),
+      )
+    })
+  })
+
+  it('loads favorite recommendations from the session API', async () => {
+    const user = userEvent.setup()
+    const recommendResponse = {
+      summary: '建议按冲稳保组合填报。',
+      recommendations: [
+        {
+          school_name: '清华大学',
+          reason: '学校实力强，方向匹配。',
+          admission_probability: 0.75,
+          match_score: 9,
+          strategy: '稳',
+          risk_points: ['热门专业竞争激烈'],
+          alternatives: ['北京邮电大学'],
+        },
+      ],
+      gradient_summary: { 稳: ['清华大学'] },
+    }
+
+    vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
+      if (typeof url === 'string' && url.includes('/api/session/favorite-session/favorites')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ favorite_keys: ['school:清华大学'] }),
+        } as Response)
+      }
+      if (typeof url === 'string' && url.includes('/api/recommend')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(recommendResponse),
+        } as Response)
+      }
+      return Promise.resolve({
+        ok: false,
+        json: () => Promise.resolve(null),
+      } as Response)
+    })
+
+    render(<ChatInterface sessionId="favorite-session" />)
+
+    await user.click(screen.getByRole('button', { name: '生成志愿推荐' }))
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: '取消收藏 清华大学' })).toBeInTheDocument()
+      expect(screen.getByText('已收藏 1 / 1 项')).toBeInTheDocument()
     })
   })
 })

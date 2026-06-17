@@ -10,6 +10,7 @@
 - EMBEDDING_BASE_URL: OpenAI 嵌入专用 API 端点（仅 openai 模式）
 - OPENAI_BASE_URL: 通用 OpenAI API 端点（仅 openai 模式，回退选项）
 """
+
 import logging
 import os
 from functools import lru_cache
@@ -29,8 +30,7 @@ OPENAI_EMBEDDING_DIMENSION = 1536
 
 # 当前使用的维度
 EMBEDDING_DIMENSION = (
-    LOCAL_EMBEDDING_DIMENSION if EMBEDDING_PROVIDER == "local"
-    else OPENAI_EMBEDDING_DIMENSION
+    LOCAL_EMBEDDING_DIMENSION if EMBEDDING_PROVIDER == "local" else OPENAI_EMBEDDING_DIMENSION
 )
 
 
@@ -38,6 +38,7 @@ EMBEDDING_DIMENSION = (
 def _get_local_model():
     """获取本地 SentenceTransformer 模型（单例）"""
     from sentence_transformers import SentenceTransformer
+
     logger.info(f"加载本地嵌入模型: {LOCAL_EMBEDDING_MODEL}")
     model = SentenceTransformer(LOCAL_EMBEDDING_MODEL)
     logger.info("本地嵌入模型加载完成")
@@ -51,9 +52,7 @@ def _get_openai_client():
 
     api_key = os.getenv("OPENAI_API_KEY") or os.getenv("LLM_API_KEY")
     base_url = (
-        os.getenv("EMBEDDING_BASE_URL")
-        or os.getenv("OPENAI_BASE_URL")
-        or os.getenv("LLM_BASE_URL")
+        os.getenv("EMBEDDING_BASE_URL") or os.getenv("OPENAI_BASE_URL") or os.getenv("LLM_BASE_URL")
     )
     if not api_key:
         raise ValueError("OPENAI_API_KEY 或 LLM_API_KEY 环境变量未设置")
@@ -110,15 +109,13 @@ async def generate_embeddings_batch(
         model = _get_local_model()
         loop = asyncio.get_event_loop()
         # 本地模型一次性批量编码，效率更高
-        embeddings = await loop.run_in_executor(
-            None, lambda: model.encode(cleaned_texts).tolist()
-        )
+        embeddings = await loop.run_in_executor(None, lambda: model.encode(cleaned_texts).tolist())
         return embeddings
     else:
         client = _get_openai_client()
         all_embeddings = []
         for i in range(0, len(cleaned_texts), batch_size):
-            batch = cleaned_texts[i:i + batch_size]
+            batch = cleaned_texts[i : i + batch_size]
             valid_indices = [j for j, t in enumerate(batch) if t]
             valid_texts = [batch[j] for j in valid_indices]
 

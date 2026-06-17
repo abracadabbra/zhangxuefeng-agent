@@ -3,9 +3,11 @@
 
 将现有 ToolRegistry 转换为 LangChain Tool 格式
 """
+
 import asyncio
 import inspect
 import logging
+
 from langchain_core.tools import Tool
 
 from ..tools.registry import tool_registry
@@ -36,12 +38,15 @@ def convert_tools(registry=None) -> list[Tool]:
                     if loop.is_running():
                         # 如果事件循环已在运行，使用 asyncio.ensure_future
                         import concurrent.futures
+
                         with concurrent.futures.ThreadPoolExecutor() as pool:
                             future = pool.submit(asyncio.run, fn(*args, **kwargs))
                             return future.result()
                     else:
                         return asyncio.run(fn(*args, **kwargs))
+
                 return sync_wrapper
+
             func = make_sync(tool_def.fn)
         else:
             func = tool_def.fn

@@ -3,6 +3,7 @@ ChromaDB 向量存储管理
 
 提供 ChromaDB 客户端初始化和 Collection 管理
 """
+
 import logging
 import os
 from functools import lru_cache
@@ -14,8 +15,7 @@ logger = logging.getLogger(__name__)
 
 # ChromaDB 持久化路径，默认放在 backend 目录下
 CHROMA_PERSIST_DIR = os.getenv(
-    "CHROMA_PERSIST_DIR",
-    os.path.join(os.path.dirname(os.path.dirname(__file__)), "chroma_data")
+    "CHROMA_PERSIST_DIR", os.path.join(os.path.dirname(os.path.dirname(__file__)), "chroma_data")
 )
 
 # Collection 名称
@@ -36,15 +36,12 @@ def get_vector_store() -> chromadb.ClientAPI:
         settings=Settings(
             anonymized_telemetry=False,
             allow_reset=True,
-        )
+        ),
     )
     return client
 
 
-def get_or_create_collection(
-    name: str,
-    metadata: dict | None = None
-) -> chromadb.Collection:
+def get_or_create_collection(name: str, metadata: dict | None = None) -> chromadb.Collection:
     """
     获取或创建 Collection
 
@@ -57,8 +54,7 @@ def get_or_create_collection(
     """
     client = get_vector_store()
     collection = client.get_or_create_collection(
-        name=name,
-        metadata=metadata or {"hnsw:space": "cosine"}
+        name=name, metadata=metadata or {"hnsw:space": "cosine"}
     )
     logger.info(f"Collection '{name}' 已就绪，当前文档数: {collection.count()}")
     return collection

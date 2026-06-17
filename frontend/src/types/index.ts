@@ -18,7 +18,16 @@ export interface UserProfile {
   province?: string
   subject?: string
   familyCondition?: string
+  targetCity?: string
+  riskTolerance?: string
+  careerGoal?: string
+  admissionBatch?: string
+  subjectRequirements?: string
+  rank?: number
   budget?: string
+  regionPreference?: string
+  cityTier?: string
+  careerPreferenceWeight?: number
   notes?: string
 }
 

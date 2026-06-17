@@ -61,6 +61,8 @@
   "chat": {
     "title": "专栏对话",
     "export": "导出",
+    "exportMarkdown": "导出 Markdown 报告",
+    "exportPdf": "导出 PDF 报告",
     "liveConsult": "实时咨询",
     "welcomeTitle": "你好！我是张雪峰 AI 助手",
     "welcomeDesc": "高考志愿填报、考研择校、职业规划，有什么问题尽管问我！",

@@ -1,8 +1,10 @@
 """
 院校表 ORM 模型
 """
-from sqlalchemy import Column, Integer, String, Float, Index
+
+from sqlalchemy import Column, Index, Integer, String
 from sqlalchemy.orm import relationship
+
 from backend.database import Base
 
 

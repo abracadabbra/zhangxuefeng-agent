@@ -1,6 +1,7 @@
 """
 会话相关端点：/sessions、/session/*
 """
+
 import logging
 
 from fastapi import APIRouter, HTTPException
@@ -22,6 +23,10 @@ class SessionInfo(BaseModel):
     messages: list[dict] = Field(default_factory=list, description="完整消息历史")
 
 
+class RecommendationFavorites(BaseModel):
+    favorite_keys: list[str] = Field(default_factory=list, description="收藏的推荐 key 列表")
+
+
 @router.get("/sessions")
 async def list_sessions(limit: int = 20):
     """列出最近的会话"""
@@ -41,6 +46,28 @@ async def get_session(session_id: str):
     )
 
 
+@router.get("/session/{session_id}/favorites", response_model=RecommendationFavorites)
+async def get_recommendation_favorites(session_id: str):
+    """读取当前会话收藏的推荐项。"""
+    validate_session_id(session_id)
+    return RecommendationFavorites(
+        favorite_keys=session_store.get_recommendation_favorites(session_id)
+    )
+
+
+@router.put("/session/{session_id}/favorites", response_model=RecommendationFavorites)
+async def update_recommendation_favorites(
+    session_id: str,
+    payload: RecommendationFavorites,
+):
+    """覆盖保存当前会话收藏的推荐项。"""
+    validate_session_id(session_id)
+    session_store.save_recommendation_favorites(session_id, payload.favorite_keys)
+    return RecommendationFavorites(
+        favorite_keys=session_store.get_recommendation_favorites(session_id)
+    )
+
+
 @router.delete("/session/{session_id}")
 async def delete_session(session_id: str):
     validate_session_id(session_id)
@@ -50,32 +77,28 @@ async def delete_session(session_id: str):
 
 @router.get("/session/{session_id}/export")
 async def export_session(session_id: str):
-    """导出对话记录为 Markdown"""
+    """导出志愿建议报告为 Markdown"""
     validate_session_id(session_id)
     if not session_store.exists(session_id):
         raise HTTPException(status_code=404, detail="会话不存在")
 
     s = session_store.get_or_create(session_id)
-    lines = [
-        "# 张雪峰 AI 咨询记录",
-        "",
-        f"**会话 ID**: `{session_id}`",
-        f"**时间**: {s['created_at']}",
-        "",
-        "---",
-        "",
-    ]
+    session_data = {
+        "session_id": session_id,
+        "created_at": s["created_at"],
+        "message_count": s["message_count"],
+        "user_context": s.get("user_context", {}),
+        "history": s["history"],
+        "recommendations": s.get("recommendations", []),
+        "summary": s.get("summary", ""),
+        "gradient_summary": s.get("gradient_summary", {}),
+        "favorite_keys": session_store.get_recommendation_favorites(session_id),
+    }
 
-    role_map = {"user": "用户", "assistant": "张雪峰 AI"}
-    for msg in s["history"]:
-        role = role_map.get(msg["role"], msg["role"])
-        content = msg.get("content", "")
-        if content:
-            lines.append(f"**{role}**: {content}")
-            lines.append("")
+    from backend.export import generate_chat_markdown
 
     return PlainTextResponse(
-        content="\n".join(lines),
+        content=generate_chat_markdown(session_data),
         media_type="text/markdown; charset=utf-8",
         headers={"Content-Disposition": f"attachment; filename=chat-{session_id[:8]}.md"},
     )
@@ -95,6 +118,10 @@ async def export_session_pdf(session_id: str):
         "message_count": s["message_count"],
         "user_context": s.get("user_context", {}),
         "history": s["history"],
+        "recommendations": s.get("recommendations", []),
+        "summary": s.get("summary", ""),
+        "gradient_summary": s.get("gradient_summary", {}),
+        "favorite_keys": session_store.get_recommendation_favorites(session_id),
     }
 
     from backend.export import generate_chat_pdf

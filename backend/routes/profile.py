@@ -7,7 +7,13 @@ from pydantic import BaseModel, Field
 
 from backend.dependencies import session_store, soul_engine
 from backend.security import validate_session_id
-from backend.user_profile import UserProfile, load_profile, update_profile
+from backend.user_profile import (
+    apply_profile_context,
+    apply_profile_field,
+    empty_profile,
+    load_profile,
+    update_profile,
+)
 
 router = APIRouter()
 
@@ -40,7 +46,7 @@ async def get_profile(session_id: str):
     except Exception:
         session = session_store.get_or_create(session_id)
         ctx = session.get("user_context", {})
-        profile = UserProfile(**ctx) if ctx else UserProfile()
+        profile = apply_profile_context(empty_profile(), ctx) if ctx else empty_profile()
 
     return ProfileResponse(
         session_id=session_id,
@@ -57,9 +63,8 @@ async def update_profile_endpoint(session_id: str, req: ProfileUpdateRequest):
     try:
         profile = await update_profile(session_id, req.field, req.value)
     except Exception:
-        profile = UserProfile()
-        if req.field in UserProfile.model_fields:
-            setattr(profile, req.field, req.value)
+        profile = empty_profile()
+        profile = apply_profile_field(profile, req.field, req.value)
 
     return ProfileResponse(
         session_id=session_id,
@@ -78,7 +83,7 @@ async def get_next_question(session_id: str):
     except Exception:
         session = session_store.get_or_create(session_id)
         ctx = session.get("user_context", {})
-        profile = UserProfile(**ctx) if ctx else UserProfile()
+        profile = apply_profile_context(empty_profile(), ctx) if ctx else empty_profile()
 
     session = session_store.get_or_create(session_id)
     query_state = session["query_state"]

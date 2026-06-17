@@ -1,20 +1,19 @@
 """
 专业 CRUD 操作
 """
-from typing import Optional
+
 from sqlalchemy.orm import Session
-from sqlalchemy import or_
 
 from backend.models.major import Major
 from backend.schemas.major import MajorQuery
 
 
-def get_major(db: Session, major_id: int) -> Optional[Major]:
+def get_major(db: Session, major_id: int) -> Major | None:
     """根据 ID 获取专业"""
     return db.query(Major).filter(Major.id == major_id).first()
 
 
-def get_major_by_name(db: Session, name: str) -> Optional[Major]:
+def get_major_by_name(db: Session, name: str) -> Major | None:
     """根据名称精确匹配专业"""
     return db.query(Major).filter(Major.name == name).first()
 
@@ -43,7 +42,9 @@ def get_majors(db: Session, query: MajorQuery) -> tuple[list[Major], int]:
 
     total = q.count()
     offset = (query.page - 1) * query.page_size
-    items = q.order_by(Major.avg_salary.desc().nullslast()).offset(offset).limit(query.page_size).all()
+    items = (
+        q.order_by(Major.avg_salary.desc().nullslast()).offset(offset).limit(query.page_size).all()
+    )
 
     return items, total
 

@@ -3,28 +3,30 @@
 
 将学校和专业数据批量嵌入到 ChromaDB 向量数据库
 """
+
 import asyncio
 import logging
-import sys
 import os
+import sys
+from typing import Any, cast
 
 # 添加项目根目录到 Python 路径
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 from sqlalchemy.orm import Session
+
 from backend.database import SessionLocal
-from backend.models.school import School
 from backend.models.major import Major
-from backend.search.vector_store import get_school_collection, get_major_collection
+from backend.models.school import School
 from backend.search.embeddings import (
-    generate_embeddings_batch,
-    build_school_text,
     build_major_text,
+    build_school_text,
+    generate_embeddings_batch,
 )
+from backend.search.vector_store import get_major_collection, get_school_collection
 
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -54,7 +56,7 @@ async def embed_schools(db: Session, batch_size: int = 50):
 
     # 分批处理
     for i in range(0, len(schools), batch_size):
-        batch = schools[i:i + batch_size]
+        batch = schools[i : i + batch_size]
 
         # 构建文本和元数据
         texts = []
@@ -88,17 +90,19 @@ async def embed_schools(db: Session, batch_size: int = 50):
             text = build_school_text(school_data)
             texts.append(text)
             ids.append(school_id)
-            metadatas.append({
-                "name": school.name,
-                "province": school.province,
-                "city": school.city,
-                "level": school.level,
-                "school_type": school.school_type,
-                "ranking": school.ranking,
-                "is_985": school.is_985 or 0,
-                "is_211": school.is_211 or 0,
-                "is_double_first_class": school.is_double_first_class or 0,
-            })
+            metadatas.append(
+                {
+                    "name": school.name,
+                    "province": school.province,
+                    "city": school.city,
+                    "level": school.level,
+                    "school_type": school.school_type,
+                    "ranking": school.ranking,
+                    "is_985": school.is_985 or 0,
+                    "is_211": school.is_211 or 0,
+                    "is_double_first_class": school.is_double_first_class or 0,
+                }
+            )
 
         if not texts:
             continue
@@ -110,9 +114,9 @@ async def embed_schools(db: Session, batch_size: int = 50):
         # 添加到 Collection
         collection.add(
             ids=ids,
-            embeddings=embeddings,
+            embeddings=cast(Any, embeddings),
             documents=texts,
-            metadatas=metadatas,
+            metadatas=cast(Any, metadatas),
         )
 
         logger.info(f"已嵌入 {min(i + batch_size, len(schools))}/{len(schools)} 所学校")
@@ -140,7 +144,7 @@ async def embed_majors(db: Session, batch_size: int = 50):
 
     # 分批处理
     for i in range(0, len(majors), batch_size):
-        batch = majors[i:i + batch_size]
+        batch = majors[i : i + batch_size]
 
         # 构建文本和元数据
         texts = []
@@ -170,14 +174,16 @@ async def embed_majors(db: Session, batch_size: int = 50):
             text = build_major_text(major_data)
             texts.append(text)
             ids.append(major_id)
-            metadatas.append({
-                "name": major.name,
-                "category": major.category,
-                "sub_category": major.sub_category,
-                "employment_rate": major.employment_rate,
-                "avg_salary": major.avg_salary,
-                "is_hot": major.is_hot or 0,
-            })
+            metadatas.append(
+                {
+                    "name": major.name,
+                    "category": major.category,
+                    "sub_category": major.sub_category,
+                    "employment_rate": major.employment_rate,
+                    "avg_salary": major.avg_salary,
+                    "is_hot": major.is_hot or 0,
+                }
+            )
 
         if not texts:
             continue
@@ -189,9 +195,9 @@ async def embed_majors(db: Session, batch_size: int = 50):
         # 添加到 Collection
         collection.add(
             ids=ids,
-            embeddings=embeddings,
+            embeddings=cast(Any, embeddings),
             documents=texts,
-            metadatas=metadatas,
+            metadatas=cast(Any, metadatas),
         )
 
         logger.info(f"已嵌入 {min(i + batch_size, len(majors))}/{len(majors)} 个专业")

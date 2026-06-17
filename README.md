@@ -83,7 +83,7 @@ cd zhangxuefeng-agent
 python -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
 
-# 3. 安装依赖
+# 3. 安装依赖（后端依赖以 pyproject.toml 为准）
 pip install -e ".[dev]"
 
 # 4. 配置环境变量
@@ -97,7 +97,8 @@ redis-server
 alembic upgrade head
 
 # 7. 导入种子数据（可选）
-python -m backend.seeds.seed_all
+python -m backend.seeds.import_cli --dataset basic --dry-run
+python -m backend.seeds.import_cli --dataset basic --report-path data/import-report.json
 
 # 8. 启动后端
 uvicorn backend.main:app --reload --port 8000
@@ -121,6 +122,9 @@ cp .env.example .env
 # 2. 启动所有服务
 docker compose up -d
 
+# 开发热重载模式
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+
 # 3. 查看日志
 docker compose logs -f api
 
@@ -132,6 +136,7 @@ Docker Compose 会自动启动：
 - `api` — FastAPI 后端（端口 8000）
 - `redis` — Redis 7（端口 6379）
 - SQLite 数据通过 Docker Volume 持久化
+- 默认 `docker-compose.yml` 使用生产式启动；热重载请叠加 `docker-compose.dev.yml`
 
 ## API 文档
 
@@ -419,7 +424,7 @@ zhangxuefeng-agent/
 │       └── sw.js               # Service Worker
 ├── e2e/                        # Playwright E2E 测试
 ├── alembic/                    # 数据库迁移脚本
-├── tests/                      # 后端测试套件（61 个测试）
+├── tests/                      # 后端测试套件（103 个测试，1 个跳过）
 ├── docs/                       # 文档和截图
 ├── SKILL.md                    # 张雪峰 AI 技能定义（系统 Prompt）
 ├── pyproject.toml              # Python 依赖管理
@@ -443,7 +448,7 @@ zhangxuefeng-agent/
 | 数据库 | SQLite + SQLAlchemy + Alembic |
 | 配置管理 | pydantic-settings |
 | 日志 | 结构化 JSON 日志 |
-| 测试 | pytest（后端 61 个）+ Vitest（前端 71 个）+ Playwright（E2E 22 个） |
+| 测试 | pytest（后端 103 个，1 个跳过）+ Vitest（前端 88 个）+ Playwright（E2E 24 个） |
 | 监控 | Sentry + LangSmith（可选） |
 | 部署 | Docker + GitHub Actions CI/CD |
 | 前端优化 | 懒加载 + 虚拟列表 + 骨架屏 + PWA |
@@ -511,9 +516,10 @@ async def my_new_tool(param1: str) -> str:
 # ===== 后端 =====
 pip install -e ".[dev,langchain]"                # 安装依赖（含 LangChain）
 uvicorn backend.main:app --reload --port 8000    # 启动开发服务器
-ruff check backend/                              # Lint
-ruff format backend/                             # 格式化
-pytest                                           # 运行后端测试（61 个）
+ruff check backend/ tests/                       # Lint
+ruff format --check backend/ tests/              # 格式检查
+mypy backend/ --ignore-missing-imports --no-strict-optional --explicit-package-bases
+pytest tests/ -q                                 # 运行后端测试（103 个，1 个跳过）
 
 # ===== LangChain 模式 =====
 USE_LANGCHAIN=true uvicorn backend.main:app --reload  # 启用 LangChain Agent
@@ -524,24 +530,32 @@ cd frontend
 npm install                                      # 安装依赖
 npm run dev                                      # 启动开发服务器（端口 3000）
 npm run build                                    # 生产构建
-npm run test                                     # 运行前端测试（71 个）
+npm run test                                     # 运行前端测试（88 个）
 npm run lint                                     # Lint
 
 # ===== E2E 测试 =====
 cd e2e
 npm install                                      # 安装 Playwright
-npm test                                         # 运行 E2E 测试（22 个）
+npm run test:ci                                  # 运行 E2E 测试（25 个）
+
+# ===== 小程序 =====
+cd miniapp
+npm install                                      # 安装依赖
+npm run build:h5                                 # 构建 H5
+npm run build:mp-weixin                          # 构建微信小程序
 
 # ===== 数据库 =====
 alembic upgrade head                             # 执行迁移
 alembic revision --autogenerate -m "desc"        # 生成迁移脚本
 
 # ===== 种子数据 =====
-python -m backend.seeds.import_full_data         # 导入院校 + 专业 + 分数线数据
+python -m backend.seeds.import_cli --dataset basic --dry-run  # 预检种子数据
+python -m backend.seeds.import_cli --dataset full --duplicate-policy update --report-path data/import-report.json
 python -m backend.seeds.embed_data               # 生成向量嵌入数据（RAG）
 
 # ===== Docker =====
-docker compose up -d                             # 启动所有服务
+docker compose up -d                             # 启动所有服务（生产式）
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up  # 开发热重载
 docker compose logs -f api                       # 查看日志
 docker compose down                              # 停止服务
 ```

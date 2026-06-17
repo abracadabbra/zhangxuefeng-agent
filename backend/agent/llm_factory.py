@@ -3,9 +3,12 @@ LLM 工厂模块
 
 支持通过环境变量切换 LLM provider（OpenAI/Anthropic）
 """
-import os
+
 import logging
+import os
+
 from langchain_core.language_models import BaseChatModel
+from pydantic import SecretStr
 
 logger = logging.getLogger(__name__)
 
@@ -37,22 +40,24 @@ def create_llm(
 
     if provider == "openai":
         from langchain_openai import ChatOpenAI
+
         api_key = os.getenv("OPENAI_API_KEY")
         base_url = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
         if not api_key:
             raise ValueError("OPENAI_API_KEY 环境变量未设置")
         llm = ChatOpenAI(
             model=model,
-            api_key=api_key,
+            api_key=SecretStr(api_key),
             base_url=base_url,
             temperature=temperature,
-            max_tokens=max_tokens,
+            max_completion_tokens=max_tokens,
         )
         logger.info(f"Created OpenAI LLM: {model}")
         return llm
 
     elif provider == "anthropic":
         from langchain_anthropic import ChatAnthropic
+
         api_key = os.getenv("ANTHROPIC_API_KEY")
         if not api_key:
             raise ValueError("ANTHROPIC_API_KEY 环境变量未设置")

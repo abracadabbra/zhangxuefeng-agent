@@ -105,8 +105,8 @@ python --version
 # 方式一：使用 pyproject.toml（推荐，安装项目及所有依赖）
 pip install -e ".[dev]"
 
-# 方式二：使用 requirements.txt
-pip install -r backend/requirements.txt
+# 方式二：需要 LangChain/RAG 能力时安装额外依赖
+pip install -e ".[dev,langchain]"
 ```
 
 依赖说明：
@@ -244,8 +244,8 @@ npm run dev    # 或 pnpm dev
 
 ```bash
 # 确保在项目根目录，且已激活虚拟环境
-cd backend
-python -m seeds.import_data
+python -m backend.seeds.import_cli --dataset basic --dry-run
+python -m backend.seeds.import_cli --dataset basic --report-path data/import-report.json
 ```
 
 ### 6. （可选）启动 Redis
@@ -282,6 +282,9 @@ cp .env.example .env
 ```bash
 # 构建并启动（后台运行）
 docker compose up -d
+
+# 开发热重载模式
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up
 
 # 查看日志
 docker compose logs -f api
@@ -479,8 +482,9 @@ curl -X POST http://localhost:8000/chat \
 # 后端
 uvicorn backend.main:app --reload --port 8000   # 启动开发服务器
 pytest tests/                                     # 运行测试
-ruff check backend/                               # 代码检查
-ruff format backend/                              # 代码格式化
+ruff check backend/ tests/                        # 代码检查
+ruff format --check backend/ tests/               # 格式检查
+mypy backend/ --ignore-missing-imports --no-strict-optional --explicit-package-bases
 alembic revision --autogenerate -m "description"  # 生成迁移
 alembic upgrade head                              # 执行迁移
 
@@ -491,4 +495,13 @@ npm run build      # 构建生产版本
 npm run test       # 运行测试
 npm run lint       # 代码检查
 npm run preview    # 预览构建产物
+
+# E2E
+cd e2e
+npm run test:ci    # 运行 Playwright E2E（CI 同款）
+
+# 小程序
+cd miniapp
+npm run build:h5
+npm run build:mp-weixin
 ```

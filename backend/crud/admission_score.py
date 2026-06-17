@@ -3,19 +3,18 @@
 
 核心查询维度: (school, major, province, year)
 """
-from typing import Optional
-from sqlalchemy.orm import Session
-from sqlalchemy import func
 
-from backend.models.school import School
-from backend.models.major import Major
+from typing import Any, cast
+
+from sqlalchemy.orm import Session
+
 from backend.models.admission_score import AdmissionScore
+from backend.models.major import Major
+from backend.models.school import School
 from backend.schemas.admission_score import AdmissionScoreQuery, ScoreStats
 
 
-def get_admission_scores(
-    db: Session, query: AdmissionScoreQuery
-) -> tuple[list[dict], int]:
+def get_admission_scores(db: Session, query: AdmissionScoreQuery) -> tuple[list[dict], int]:
     """
     多条件查询录取分数线
 
@@ -97,7 +96,7 @@ def get_admission_scores(
 
 
 def get_scores_by_school(
-    db: Session, school_id: int, province: Optional[str] = None, year: Optional[int] = None
+    db: Session, school_id: int, province: str | None = None, year: int | None = None
 ) -> list[AdmissionScore]:
     """获取某院校的分数线"""
     q = db.query(AdmissionScore).filter(AdmissionScore.school_id == school_id)
@@ -109,7 +108,7 @@ def get_scores_by_school(
 
 
 def get_scores_by_major(
-    db: Session, major_id: int, province: Optional[str] = None, year: Optional[int] = None
+    db: Session, major_id: int, province: str | None = None, year: int | None = None
 ) -> list[AdmissionScore]:
     """获取某专业的分数线（跨院校）"""
     q = db.query(AdmissionScore).filter(AdmissionScore.major_id == major_id)
@@ -121,8 +120,8 @@ def get_scores_by_major(
 
 
 def get_score_stats(
-    db: Session, school_id: int, major_id: Optional[int], province: str, year: int
-) -> Optional[ScoreStats]:
+    db: Session, school_id: int, major_id: int | None, province: str, year: int
+) -> ScoreStats | None:
     """获取分数统计信息"""
     q = db.query(AdmissionScore).filter(
         AdmissionScore.school_id == school_id,
@@ -132,12 +131,12 @@ def get_score_stats(
     if major_id:
         q = q.filter(AdmissionScore.major_id == major_id)
 
-    rows = q.all()
+    rows = cast(list[Any], q.all())
     if not rows:
         return None
 
-    school = db.query(School).filter(School.id == school_id).first()
-    major = db.query(Major).filter(Major.id == major_id).first() if major_id else None
+    school = cast(Any, db.query(School).filter(School.id == school_id).first())
+    major = cast(Any, db.query(Major).filter(Major.id == major_id).first()) if major_id else None
 
     scores = [r.min_score for r in rows if r.min_score is not None]
     avg_scores = [r.avg_score for r in rows if r.avg_score is not None]

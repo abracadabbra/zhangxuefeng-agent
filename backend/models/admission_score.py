@@ -3,8 +3,10 @@
 
 核心四元组: (school, major, province, year)
 """
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, UniqueConstraint, Index
+
+from sqlalchemy import Column, Float, ForeignKey, Index, Integer, String, UniqueConstraint
 from sqlalchemy.orm import relationship
+
 from backend.database import Base
 
 
@@ -13,7 +15,12 @@ class AdmissionScore(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     school_id = Column(Integer, ForeignKey("schools.id"), nullable=False, comment="院校ID")
-    major_id = Column(Integer, ForeignKey("majors.id"), nullable=True, comment="专业ID（可为空表示院校分数线）")
+    major_id = Column(
+        Integer,
+        ForeignKey("majors.id"),
+        nullable=True,
+        comment="专业ID（可为空表示院校分数线）",
+    )
     province = Column(String(20), nullable=False, comment="招生省份")
     year = Column(Integer, nullable=False, comment="年份")
     batch = Column(String(20), nullable=False, comment="批次: 本科一批/本科二批/提前批/专科")
@@ -31,8 +38,13 @@ class AdmissionScore(Base):
     # 唯一约束: 同一学校、专业、省份、年份、批次、科类只有一条记录
     __table_args__ = (
         UniqueConstraint(
-            "school_id", "major_id", "province", "year", "batch", "subject_type",
-            name="uq_admission_score"
+            "school_id",
+            "major_id",
+            "province",
+            "year",
+            "batch",
+            "subject_type",
+            name="uq_admission_score",
         ),
         Index("ix_admission_scores_school_id", "school_id"),
         Index("ix_admission_scores_province", "province"),

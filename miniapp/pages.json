@@ -23,6 +23,14 @@
         "navigationBarBackgroundColor": "#f5f0e8",
         "navigationBarTextStyle": "black"
       }
+    },
+    {
+      "path": "pages/result/index",
+      "style": {
+        "navigationBarTitleText": "推荐结果",
+        "navigationBarBackgroundColor": "#f5f0e8",
+        "navigationBarTextStyle": "black"
+      }
     }
   ],
   "globalStyle": {

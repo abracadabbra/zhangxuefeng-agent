@@ -1,0 +1,64 @@
+{
+  "rows": [
+    {
+      "raw_row_number": 10,
+      "raw_values": {
+        "院校代号": "10459",
+        "院校名称": "郑州大学",
+        "专业代号": "0809",
+        "专业名称": "计算机类",
+        "计划数": "12",
+        "投档最低分": "600",
+        "投档最低位次": "20000"
+      },
+      "snapshot_id": "ha-2025-undergrad-physical-dry-run-fixture",
+      "source_batch_id": "河南-2025-manual"
+    }
+  ],
+  "schema_report": {
+    "matched_fields": {
+      "major_or_group_name": "专业名称",
+      "min_score": "投档最低分",
+      "school_name": "院校名称"
+    },
+    "missing_required_fields": [],
+    "observed_columns": [
+      "院校代号",
+      "院校名称",
+      "专业代号",
+      "专业名称",
+      "计划数",
+      "投档最低分",
+      "投档最低位次"
+    ],
+    "required_fields": [
+      "school_name",
+      "major_or_group_name",
+      "min_score"
+    ],
+    "status": "pass"
+  },
+  "schema_version": "real_data_reviewed_rows.v1",
+  "snapshot": {
+    "captured_at": "2026-06-09T17:30:00Z",
+    "operator": "codex-fixture",
+    "raw_file_name": "henan-2025-undergrad-physical-reviewed-fixture.html",
+    "raw_file_sha256": "6e17df3513033fc17aa8289e7e026a9eaaa3835cd4f8739ccf77772b0fe93c1d",
+    "raw_file_url": "https://datacenter.haeea.cn/PagePZQuery/ShowPZTDTJ.aspx?yearTip=2025&pc=1&kl=5",
+    "snapshot_id": "ha-2025-undergrad-physical-dry-run-fixture",
+    "source_batch_id": "河南-2025-manual",
+    "source_page_id": "ha-2025-undergrad-parallel-page"
+  },
+  "source_page": {
+    "attachments": [],
+    "authority_note": "河南省教育考试院通过河南高考信息网发布，页面链接至物理类/历史类本科批平行投档分数线查询入口。",
+    "document_title": "河南省2025年普通高招本科院校平行投档分数线",
+    "province": "河南",
+    "published_at": "2025-12-07",
+    "source_name": "河南省教育考试院",
+    "source_page_id": "ha-2025-undergrad-parallel-page",
+    "source_type": "official_exam_authority",
+    "source_url": "https://gaokao.haedu.cn/517/518/519/2025/1207/150720.html",
+    "year": 2025
+  }
+}

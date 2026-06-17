@@ -1,18 +1,16 @@
 """
 招生计划 CRUD 操作
 """
-from typing import Optional
+
 from sqlalchemy.orm import Session
 
-from backend.models.school import School
-from backend.models.major import Major
 from backend.models.enrollment_plan import EnrollmentPlan
+from backend.models.major import Major
+from backend.models.school import School
 from backend.schemas.enrollment_plan import EnrollmentPlanQuery
 
 
-def get_enrollment_plans(
-    db: Session, query: EnrollmentPlanQuery
-) -> tuple[list[dict], int]:
+def get_enrollment_plans(db: Session, query: EnrollmentPlanQuery) -> tuple[list[dict], int]:
     """
     多条件查询招生计划
 
@@ -37,12 +35,7 @@ def get_enrollment_plans(
 
     total = q.count()
     offset = (query.page - 1) * query.page_size
-    rows = (
-        q.order_by(EnrollmentPlan.year.desc())
-        .offset(offset)
-        .limit(query.page_size)
-        .all()
-    )
+    rows = q.order_by(EnrollmentPlan.year.desc()).offset(offset).limit(query.page_size).all()
 
     results = []
     for row in rows:
@@ -66,7 +59,7 @@ def get_enrollment_plans(
 
 
 def get_plans_by_school(
-    db: Session, school_id: int, province: Optional[str] = None, year: Optional[int] = None
+    db: Session, school_id: int, province: str | None = None, year: int | None = None
 ) -> list[EnrollmentPlan]:
     """获取某院校的招生计划"""
     q = db.query(EnrollmentPlan).filter(EnrollmentPlan.school_id == school_id)
@@ -78,7 +71,7 @@ def get_plans_by_school(
 
 
 def get_plans_by_major(
-    db: Session, major_id: int, province: Optional[str] = None, year: Optional[int] = None
+    db: Session, major_id: int, province: str | None = None, year: int | None = None
 ) -> list[EnrollmentPlan]:
     """获取某专业的招生计划（跨院校）"""
     q = db.query(EnrollmentPlan).filter(EnrollmentPlan.major_id == major_id)

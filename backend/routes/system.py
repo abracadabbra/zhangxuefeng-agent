@@ -1,6 +1,7 @@
 """
 系统端点：/、/health、/db/status、/tools、/cache/flush、反馈 API
 """
+
 import logging
 from datetime import datetime
 
@@ -118,9 +119,7 @@ async def feedback_stats():
         total = db.query(func.count(Feedback.id)).scalar()
         avg_rating = db.query(func.avg(Feedback.rating)).scalar()
         distribution = (
-            db.query(Feedback.rating, func.count(Feedback.id))
-            .group_by(Feedback.rating)
-            .all()
+            db.query(Feedback.rating, func.count(Feedback.id)).group_by(Feedback.rating).all()
         )
         return {
             "total": total,

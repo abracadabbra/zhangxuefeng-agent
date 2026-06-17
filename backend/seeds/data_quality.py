@@ -3,16 +3,16 @@
 
 检查种子数据的完整性、一致性和有效性
 """
+
 import json
 from pathlib import Path
-from typing import Any
 
 
 def load_json(filename: str) -> list[dict]:
     """加载 JSON 文件"""
     data_dir = Path(__file__).parent
     filepath = data_dir / filename
-    with open(filepath, "r", encoding="utf-8") as f:
+    with open(filepath, encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -43,7 +43,19 @@ def check_schools(schools: list[dict]) -> list[str]:
 
         # 类型有效性
         school_type = school.get("school_type", "")
-        valid_types = ["综合", "理工", "医药", "师范", "财经", "政法", "农林", "语言", "艺术", "体育", "民族"]
+        valid_types = [
+            "综合",
+            "理工",
+            "医药",
+            "师范",
+            "财经",
+            "政法",
+            "农林",
+            "语言",
+            "艺术",
+            "体育",
+            "民族",
+        ]
         if school_type not in valid_types:
             issues.append(f"院校[{i}] 类型无效: {school_type}")
 
@@ -177,7 +189,15 @@ def run_quality_check():
     east = load_json("seed_schools_east.json")
     v2_schools = load_json("seed_schools_v2.json")
     all_schools = schools + extended + west + central + east + v2_schools
-    print(f"  文件: seed_schools.json({len(schools)}), seed_schools_extended.json({len(extended)}), seed_schools_west.json({len(west)}), seed_schools_central.json({len(central)}), seed_schools_east.json({len(east)}), seed_schools_v2.json({len(v2_schools)})")
+    school_files = [
+        f"seed_schools.json({len(schools)})",
+        f"seed_schools_extended.json({len(extended)})",
+        f"seed_schools_west.json({len(west)})",
+        f"seed_schools_central.json({len(central)})",
+        f"seed_schools_east.json({len(east)})",
+        f"seed_schools_v2.json({len(v2_schools)})",
+    ]
+    print(f"  文件: {', '.join(school_files)}")
 
     print(f"\n[院校] 总数: {len(all_schools)}")
     school_issues = check_schools(all_schools)
@@ -194,7 +214,12 @@ def run_quality_check():
         ext_majors = load_json("seed_majors_extended.json")
         expanded_majors = load_json("seed_majors_expanded.json")
         majors = majors + ext_majors + expanded_majors
-        print(f"  文件: seed_majors.json({len(majors) - len(ext_majors) - len(expanded_majors)}), seed_majors_extended.json({len(ext_majors)}), seed_majors_expanded.json({len(expanded_majors)})")
+        major_files = [
+            f"seed_majors.json({len(majors) - len(ext_majors) - len(expanded_majors)})",
+            f"seed_majors_extended.json({len(ext_majors)})",
+            f"seed_majors_expanded.json({len(expanded_majors)})",
+        ]
+        print(f"  文件: {', '.join(major_files)}")
     except FileNotFoundError:
         pass
     print(f"\n[专业] 总数: {len(majors)}")
@@ -213,7 +238,13 @@ def run_quality_check():
         province_scores = load_json("seed_scores_province.json")
         v2_scores = load_json("seed_scores_v2.json")
         scores = scores + ext_scores + province_scores + v2_scores
-        print(f"  文件: seed_scores.json, seed_scores_extended.json, seed_scores_province.json, seed_scores_v2.json")
+        score_files = [
+            "seed_scores.json",
+            "seed_scores_extended.json",
+            "seed_scores_province.json",
+            "seed_scores_v2.json",
+        ]
+        print(f"  文件: {', '.join(score_files)}")
     except FileNotFoundError:
         pass
     print(f"\n[分数线] 总数: {len(scores)}")
@@ -231,7 +262,7 @@ def run_quality_check():
         ext_plans = load_json("seed_plans_extended.json")
         v2_plans = load_json("seed_plans_v2.json")
         plans = plans + ext_plans + v2_plans
-        print(f"  文件: seed_plans.json, seed_plans_extended.json, seed_plans_v2.json")
+        print("  文件: seed_plans.json, seed_plans_extended.json, seed_plans_v2.json")
     except FileNotFoundError:
         pass
     print(f"\n[招生计划] 总数: {len(plans)}")

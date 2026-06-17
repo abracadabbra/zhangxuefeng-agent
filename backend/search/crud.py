@@ -3,7 +3,11 @@
 
 提供语义搜索功能，支持元数据过滤
 """
+
 import logging
+from typing import TypeGuard, cast
+
+from chromadb.api.types import Embeddings, Metadata, QueryResult, Where
 
 from backend.search.embeddings import generate_embedding
 from backend.search.vector_store import get_major_collection, get_school_collection
@@ -13,6 +17,32 @@ logger = logging.getLogger(__name__)
 # 默认搜索参数
 DEFAULT_TOP_K = 10
 DEFAULT_DISTANCE_THRESHOLD = 0.5  # 相似度阈值，越小越严格
+
+
+def _is_number(value: object) -> TypeGuard[int | float]:
+    return isinstance(value, int | float) and not isinstance(value, bool)
+
+
+def _metadata_number(metadata: Metadata, key: str) -> int | float | None:
+    value = metadata.get(key)
+    if _is_number(value):
+        return value
+    return None
+
+
+def _confidence_from_similarity(similarity: float) -> str:
+    if similarity >= 0.85:
+        return "high"
+    if similarity >= 0.7:
+        return "medium"
+    return "low"
+
+
+def _result_source(kind: str, doc_id: str) -> dict[str, str]:
+    return {
+        "source_type": "vector_index",
+        "source": f"chroma:{kind}:{doc_id}",
+    }
 
 
 async def semantic_search_schools(
@@ -49,7 +79,7 @@ async def semantic_search_schools(
     query_embedding = await generate_embedding(query)
 
     # 构建元数据过滤条件
-    where_conditions = []
+    where_conditions: list[Where] = []
     if province:
         where_conditions.append({"province": province})
     if level:
@@ -59,15 +89,15 @@ async def semantic_search_schools(
     if is_211 is not None:
         where_conditions.append({"is_211": 1 if is_211 else 0})
 
-    where = None
+    where: Where | None = None
     if len(where_conditions) == 1:
         where = where_conditions[0]
     elif len(where_conditions) > 1:
         where = {"$and": where_conditions}
 
     # 执行向量搜索
-    results = collection.query(
-        query_embeddings=[query_embedding],
+    results: QueryResult = collection.query(
+        query_embeddings=cast(Embeddings, [query_embedding]),
         n_results=top_k,
         where=where,
         include=["documents", "metadatas", "distances"],
@@ -75,26 +105,32 @@ async def semantic_search_schools(
 
     # 处理结果
     schools = []
-    if results and results["ids"] and results["ids"][0]:
+    metadatas = results.get("metadatas")
+    distances = results.get("distances")
+    if results["ids"] and results["ids"][0] and metadatas and distances:
         for i, doc_id in enumerate(results["ids"][0]):
-            distance = results["distances"][0][i]
+            distance = distances[0][i]
             # cosine distance: 0 = 完全相同，2 = 完全不同
             # 转换为相似度分数: 1 - distance/2
             similarity = 1 - distance / 2
 
             if similarity >= (1 - distance_threshold):
-                metadata = results["metadatas"][0][i]
-                schools.append({
-                    "id": int(doc_id.replace("school_", "")),
-                    "name": metadata.get("name", ""),
-                    "province": metadata.get("province", ""),
-                    "level": metadata.get("level", ""),
-                    "school_type": metadata.get("school_type", ""),
-                    "ranking": metadata.get("ranking"),
-                    "is_985": metadata.get("is_985", 0),
-                    "is_211": metadata.get("is_211", 0),
-                    "similarity": round(similarity, 4),
-                })
+                metadata = metadatas[0][i]
+                schools.append(
+                    {
+                        "id": int(doc_id.replace("school_", "")),
+                        "name": metadata.get("name", ""),
+                        "province": metadata.get("province", ""),
+                        "level": metadata.get("level", ""),
+                        "school_type": metadata.get("school_type", ""),
+                        "ranking": metadata.get("ranking"),
+                        "is_985": metadata.get("is_985", 0),
+                        "is_211": metadata.get("is_211", 0),
+                        "similarity": round(similarity, 4),
+                        "confidence": _confidence_from_similarity(similarity),
+                        **_result_source("school", doc_id),
+                    }
+                )
 
     logger.info(f"语义搜索 '{query}'，找到 {len(schools)} 所学校")
     return schools
@@ -132,21 +168,21 @@ async def semantic_search_majors(
     query_embedding = await generate_embedding(query)
 
     # 构建元数据过滤条件
-    where_conditions = []
+    where_conditions: list[Where] = []
     if category:
         where_conditions.append({"category": category})
     if is_hot is not None:
         where_conditions.append({"is_hot": 1 if is_hot else 0})
 
-    where = None
+    where: Where | None = None
     if len(where_conditions) == 1:
         where = where_conditions[0]
     elif len(where_conditions) > 1:
         where = {"$and": where_conditions}
 
     # 执行向量搜索
-    results = collection.query(
-        query_embeddings=[query_embedding],
+    results: QueryResult = collection.query(
+        query_embeddings=cast(Embeddings, [query_embedding]),
         n_results=top_k,
         where=where,
         include=["documents", "metadatas", "distances"],
@@ -154,30 +190,36 @@ async def semantic_search_majors(
 
     # 处理结果
     majors = []
-    if results and results["ids"] and results["ids"][0]:
+    metadatas = results.get("metadatas")
+    distances = results.get("distances")
+    if results["ids"] and results["ids"][0] and metadatas and distances:
         for i, doc_id in enumerate(results["ids"][0]):
-            distance = results["distances"][0][i]
+            distance = distances[0][i]
             similarity = 1 - distance / 2
 
             if similarity >= (1 - distance_threshold):
-                metadata = results["metadatas"][0][i]
+                metadata = metadatas[0][i]
 
                 # 就业率过滤（ChromaDB 不支持浮点数范围过滤，这里手动过滤）
-                employment_rate = metadata.get("employment_rate")
-                if min_employment_rate and employment_rate:
-                    if employment_rate < min_employment_rate:
+                employment_rate = _metadata_number(metadata, "employment_rate")
+                if min_employment_rate is not None:
+                    if employment_rate is None or employment_rate < min_employment_rate:
                         continue
 
-                majors.append({
-                    "id": int(doc_id.replace("major_", "")),
-                    "name": metadata.get("name", ""),
-                    "category": metadata.get("category", ""),
-                    "sub_category": metadata.get("sub_category", ""),
-                    "employment_rate": employment_rate,
-                    "avg_salary": metadata.get("avg_salary"),
-                    "is_hot": metadata.get("is_hot", 0),
-                    "similarity": round(similarity, 4),
-                })
+                majors.append(
+                    {
+                        "id": int(doc_id.replace("major_", "")),
+                        "name": metadata.get("name", ""),
+                        "category": metadata.get("category", ""),
+                        "sub_category": metadata.get("sub_category", ""),
+                        "employment_rate": employment_rate,
+                        "avg_salary": metadata.get("avg_salary"),
+                        "is_hot": metadata.get("is_hot", 0),
+                        "similarity": round(similarity, 4),
+                        "confidence": _confidence_from_similarity(similarity),
+                        **_result_source("major", doc_id),
+                    }
+                )
 
     logger.info(f"语义搜索 '{query}'，找到 {len(majors)} 个专业")
     return majors
@@ -196,19 +238,21 @@ async def add_school_to_index(school_id: int, school_data: dict, embedding: list
 
     collection.add(
         ids=[f"school_{school_id}"],
-        embeddings=[embedding],
+        embeddings=cast(Embeddings, [embedding]),
         documents=[school_data.get("description", "")],
-        metadatas=[{
-            "name": school_data.get("name", ""),
-            "province": school_data.get("province", ""),
-            "city": school_data.get("city", ""),
-            "level": school_data.get("level", ""),
-            "school_type": school_data.get("school_type", ""),
-            "ranking": school_data.get("ranking"),
-            "is_985": school_data.get("is_985", 0),
-            "is_211": school_data.get("is_211", 0),
-            "is_double_first_class": school_data.get("is_double_first_class", 0),
-        }],
+        metadatas=[
+            {
+                "name": school_data.get("name", ""),
+                "province": school_data.get("province", ""),
+                "city": school_data.get("city", ""),
+                "level": school_data.get("level", ""),
+                "school_type": school_data.get("school_type", ""),
+                "ranking": school_data.get("ranking"),
+                "is_985": school_data.get("is_985", 0),
+                "is_211": school_data.get("is_211", 0),
+                "is_double_first_class": school_data.get("is_double_first_class", 0),
+            }
+        ],
     )
 
 
@@ -225,14 +269,16 @@ async def add_major_to_index(major_id: int, major_data: dict, embedding: list[fl
 
     collection.add(
         ids=[f"major_{major_id}"],
-        embeddings=[embedding],
+        embeddings=cast(Embeddings, [embedding]),
         documents=[major_data.get("description", "")],
-        metadatas=[{
-            "name": major_data.get("name", ""),
-            "category": major_data.get("category", ""),
-            "sub_category": major_data.get("sub_category", ""),
-            "employment_rate": major_data.get("employment_rate"),
-            "avg_salary": major_data.get("avg_salary"),
-            "is_hot": major_data.get("is_hot", 0),
-        }],
+        metadatas=[
+            {
+                "name": major_data.get("name", ""),
+                "category": major_data.get("category", ""),
+                "sub_category": major_data.get("sub_category", ""),
+                "employment_rate": major_data.get("employment_rate"),
+                "avg_salary": major_data.get("avg_salary"),
+                "is_hot": major_data.get("is_hot", 0),
+            }
+        ],
     )

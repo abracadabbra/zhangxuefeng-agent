@@ -1,13 +1,13 @@
 """LangChain Agent 集成测试"""
-import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
 
+from unittest.mock import MagicMock, patch
+
+import pytest
+
+from backend.agent import langchain_agent
 from backend.agent.llm_factory import create_llm
 from backend.agent.tools_adapter import convert_tools, get_tool_descriptions
 from backend.tools.registry import ToolRegistry
-
-# 导入 LangChain Agent 模块
-from backend.agent import langchain_agent
 
 
 class TestLLMFactory:
@@ -23,6 +23,7 @@ class TestLLMFactory:
     @patch.dict("os.environ", {"LLM_PROVIDER": "anthropic", "ANTHROPIC_API_KEY": "test-key"})
     def test_create_anthropic_llm(self):
         """测试创建 Anthropic LLM"""
+        pytest.importorskip("langchain_anthropic")
         llm = create_llm(provider="anthropic", model="claude-3-5-sonnet-20241022")
         assert llm is not None
         assert hasattr(llm, "invoke")

@@ -1,14 +1,15 @@
 """
 共享依赖：Agent 实例管理、SessionStore、配置常量
 """
-import logging
 
-logger = logging.getLogger(__name__)
+import logging
 
 from backend.agent.core import AgentCore
 from backend.config import get_settings
 from backend.session_store import SessionStore
 from backend.soul_query import SoulQueryEngine
+
+logger = logging.getLogger(__name__)
 
 settings = get_settings()
 

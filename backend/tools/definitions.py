@@ -8,8 +8,11 @@
 - search_policy：搜索招生政策
 - calculate_match：分数匹配院校推荐
 """
+
 import json
+from collections.abc import Iterator
 from contextlib import contextmanager
+from typing import Any, cast
 
 from sqlalchemy.orm import Session
 
@@ -18,17 +21,34 @@ from ..crud.major import get_major_by_name
 from ..crud.school import get_school_by_name
 from ..database import SessionLocal
 from ..schemas.admission_score import AdmissionScoreQuery
-from .registry import register_tool
+from .registry import register_tool, tool_registry
 
 
 @contextmanager
-def _get_db() -> Session:
+def _get_db() -> Iterator[Session]:
     """获取数据库会话（上下文管理器，自动关闭）"""
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
+
+
+def _database_source(source: str, confidence: str = "high") -> dict[str, str]:
+    return {
+        "confidence": confidence,
+        "source_type": "database",
+        "source": source,
+    }
+
+
+def _semantic_source(search_type: str, results: list[dict[str, Any]]) -> dict[str, str]:
+    top_confidence = str(results[0].get("confidence") or "low") if results else "low"
+    return {
+        "confidence": top_confidence,
+        "source_type": "vector_index",
+        "source": f"chroma:{search_type}",
+    }
 
 
 @register_tool(
@@ -58,40 +78,55 @@ def _get_db() -> Session:
         "required": ["school_name"],
     },
 )
-async def search_admission(school_name: str, province: str = "", year: int = 0, category: str = "") -> str:
+async def search_admission(
+    school_name: str, province: str = "", year: int = 0, category: str = ""
+) -> str:
     """搜索高校录取分数线"""
     with _get_db() as db:
-        school = get_school_by_name(db, school_name)
+        school = cast(Any, get_school_by_name(db, school_name))
         if not school:
-            return json.dumps({
-                "status": "not_found",
-                "message": f"未找到学校：{school_name}",
-                "hint": "school_name 必须是具体学校名称（如'北京大学'），不能是省份、批次或科类。如需按省份查询，请使用 province 参数。"
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "status": "not_found",
+                    "message": f"未找到学校：{school_name}",
+                    "hint": (
+                        "school_name 必须是具体学校名称（如'北京大学'），"
+                        "不能是省份、批次或科类。如需按省份查询，请使用 province 参数。"
+                    ),
+                },
+                ensure_ascii=False,
+            )
 
-        query = AdmissionScoreQuery(
-            school_id=school.id,
-            province=province if province else None,
-            year=year if year else None,
-            subject_type=category if category else None,
-            page=1,
-            page_size=20
+        query = AdmissionScoreQuery.model_validate(
+            {
+                "school_id": school.id,
+                "province": province if province else None,
+                "year": year if year else None,
+                "subject_type": category if category else None,
+                "page": 1,
+                "page_size": 20,
+            }
         )
 
         results, total = get_admission_scores(db, query)
 
-        return json.dumps({
-            "status": "success",
-            "school": {
-                "id": school.id,
-                "name": school.name,
-                "province": school.province,
-                "level": school.level,
-                "ranking": school.ranking
+        return json.dumps(
+            {
+                "status": "success",
+                **_database_source("admission_scores"),
+                "school": {
+                    "id": school.id,
+                    "name": school.name,
+                    "province": school.province,
+                    "level": school.level,
+                    "ranking": school.ranking,
+                },
+                "scores": results,
+                "total": total,
             },
-            "scores": results,
-            "total": total
-        }, ensure_ascii=False, default=str)
+            ensure_ascii=False,
+            default=str,
+        )
 
 
 @register_tool(
@@ -116,30 +151,40 @@ async def search_admission(school_name: str, province: str = "", year: int = 0, 
 async def search_employment(major_name: str, degree_level: str = "") -> str:
     """搜索专业就业数据"""
     with _get_db() as db:
-        major = get_major_by_name(db, major_name)
+        major = cast(Any, get_major_by_name(db, major_name))
         if not major:
-            return json.dumps({
-                "status": "not_found",
-                "message": f"未找到专业：{major_name}",
-                "hint": "major_name 必须是具体专业名称（如'计算机科学与技术'），不能是大类（如'工科'）或行业（如'互联网'）。"
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "status": "not_found",
+                    "message": f"未找到专业：{major_name}",
+                    "hint": (
+                        "major_name 必须是具体专业名称（如'计算机科学与技术'），"
+                        "不能是大类（如'工科'）或行业（如'互联网'）。"
+                    ),
+                },
+                ensure_ascii=False,
+            )
 
-        return json.dumps({
-            "status": "success",
-            "major": {
-                "id": major.id,
-                "name": major.name,
-                "category": major.category,
-                "sub_category": major.sub_category,
-                "description": major.description
+        return json.dumps(
+            {
+                "status": "success",
+                **_database_source("majors"),
+                "major": {
+                    "id": major.id,
+                    "name": major.name,
+                    "category": major.category,
+                    "sub_category": major.sub_category,
+                    "description": major.description,
+                },
+                "employment": {
+                    "employment_rate": major.employment_rate,
+                    "avg_salary": major.avg_salary,
+                    "job_directions": major.job_directions,
+                    "is_hot": major.is_hot,
+                },
             },
-            "employment": {
-                "employment_rate": major.employment_rate,
-                "avg_salary": major.avg_salary,
-                "job_directions": major.job_directions,
-                "is_hot": major.is_hot
-            }
-        }, ensure_ascii=False)
+            ensure_ascii=False,
+        )
 
 
 @register_tool(
@@ -167,35 +212,47 @@ async def compare_schools(school_names: list[str], dimensions: list[str] | None 
     with _get_db() as db:
         schools = []
         for name in school_names:
-            school = get_school_by_name(db, name)
+            school = cast(Any, get_school_by_name(db, name))
             if school:
-                schools.append({
-                    "id": school.id,
-                    "name": school.name,
-                    "province": school.province,
-                    "city": school.city,
-                    "level": school.level,
-                    "school_type": school.school_type,
-                    "ranking": school.ranking,
-                    "is_985": school.is_985,
-                    "is_211": school.is_211,
-                    "is_double_first_class": school.is_double_first_class,
-                    "website": school.website,
-                    "description": school.description
-                })
+                schools.append(
+                    {
+                        "id": school.id,
+                        "name": school.name,
+                        "province": school.province,
+                        "city": school.city,
+                        "level": school.level,
+                        "school_type": school.school_type,
+                        "ranking": school.ranking,
+                        "is_985": school.is_985,
+                        "is_211": school.is_211,
+                        "is_double_first_class": school.is_double_first_class,
+                        "website": school.website,
+                        "description": school.description,
+                    }
+                )
 
         if not schools:
-            return json.dumps({
-                "status": "not_found",
-                "message": "未找到任何匹配的学校",
-                "hint": "请确保传入的是具体学校名称列表（如['北京大学','清华大学']），不是省份或批次。"
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "status": "not_found",
+                    "message": "未找到任何匹配的学校",
+                    "hint": (
+                        "请确保传入的是具体学校名称列表"
+                        "（如['北京大学','清华大学']），不是省份或批次。"
+                    ),
+                },
+                ensure_ascii=False,
+            )
 
-        return json.dumps({
-            "status": "success",
-            "schools": schools,
-            "comparison_count": len(schools)
-        }, ensure_ascii=False)
+        return json.dumps(
+            {
+                "status": "success",
+                **_database_source("schools"),
+                "schools": schools,
+                "comparison_count": len(schools),
+            },
+            ensure_ascii=False,
+        )
 
 
 @register_tool(
@@ -225,32 +282,73 @@ async def search_policy(keyword: str, school_name: str = "", year: int = 0) -> s
     policy_db = {
         "强基计划": {
             "title": "强基计划",
-            "summary": "教育部自2020年起实施的招生改革计划，聚焦高端芯片与软件、智能科技、新材料、先进制造和国家安全等关键领域。36所双一流A类高校参与，高考成绩占比不低于85%，校测成绩占比不超过15%。",
-            "key_points": ["报名时间一般在4月", "只能报考1所高校", "录取在提前批之前", "入校后原则上不得转专业"],
+            "summary": (
+                "教育部自2020年起实施的招生改革计划，聚焦高端芯片与软件、"
+                "智能科技、新材料、先进制造和国家安全等关键领域。"
+                "36所双一流A类高校参与，高考成绩占比不低于85%，"
+                "校测成绩占比不超过15%。"
+            ),
+            "key_points": [
+                "报名时间一般在4月",
+                "只能报考1所高校",
+                "录取在提前批之前",
+                "入校后原则上不得转专业",
+            ],
             "source": "教育部阳光高考平台",
         },
         "提前批": {
             "title": "提前批次录取",
-            "summary": "在普通批次之前进行录取的批次，包括军事、公安、航海、消防、公费师范生、定向医学生等类型。未被录取不影响后续批次。",
-            "key_points": ["一般在6月底填报", "不影响后续批次录取", "部分有体检/面试要求", "公费师范生需回生源地任教6年"],
+            "summary": (
+                "在普通批次之前进行录取的批次，包括军事、公安、航海、消防、"
+                "公费师范生、定向医学生等类型。未被录取不影响后续批次。"
+            ),
+            "key_points": [
+                "一般在6月底填报",
+                "不影响后续批次录取",
+                "部分有体检/面试要求",
+                "公费师范生需回生源地任教6年",
+            ],
             "source": "各省教育考试院",
         },
         "综合评价": {
             "title": "综合评价招生",
-            "summary": "综合高考成绩、校测成绩和学业水平考试成绩进行录取的招生模式。高考成绩占比一般不低于60%。",
-            "key_points": ["部分高校在部分省份试点", "需要额外申请和参加校测", "录取批次一般在提前批", "代表高校：南科大、上科大、昆山杜克等"],
+            "summary": (
+                "综合高考成绩、校测成绩和学业水平考试成绩进行录取的招生模式。"
+                "高考成绩占比一般不低于60%。"
+            ),
+            "key_points": [
+                "部分高校在部分省份试点",
+                "需要额外申请和参加校测",
+                "录取批次一般在提前批",
+                "代表高校：南科大、上科大、昆山杜克等",
+            ],
             "source": "各高校招生简章",
         },
         "艺术特长生": {
             "title": "艺术特长生招生",
-            "summary": "2024年起已取消高校高水平艺术团招生，改为从在校生中遴选。艺术类专业招生仍保留，但文化课要求提高。",
-            "key_points": ["2024年起取消高水平艺术团招生", "艺术类专业招生仍保留", "文化课成绩要求逐步提高至普通类本科线"],
+            "summary": (
+                "2024年起已取消高校高水平艺术团招生，改为从在校生中遴选。"
+                "艺术类专业招生仍保留，但文化课要求提高。"
+            ),
+            "key_points": [
+                "2024年起取消高水平艺术团招生",
+                "艺术类专业招生仍保留",
+                "文化课成绩要求逐步提高至普通类本科线",
+            ],
             "source": "教育部2021年艺考改革文件",
         },
         "专项计划": {
             "title": "高校专项计划",
-            "summary": "面向农村和脱贫地区学生的定向招生计划，包括国家专项、地方专项和高校专项三类。可降分录取，最多可降20分。",
-            "key_points": ["国家专项：面向集中连片特殊困难县等", "地方专项：面向各省实施区域农村学生", "高校专项：95所高校，需单独报名", "一般可降5-20分录取"],
+            "summary": (
+                "面向农村和脱贫地区学生的定向招生计划，包括国家专项、"
+                "地方专项和高校专项三类。可降分录取，最多可降20分。"
+            ),
+            "key_points": [
+                "国家专项：面向集中连片特殊困难县等",
+                "地方专项：面向各省实施区域农村学生",
+                "高校专项：95所高校，需单独报名",
+                "一般可降5-20分录取",
+            ],
             "source": "教育部高校招生工作规定",
         },
     }
@@ -273,20 +371,31 @@ async def search_policy(keyword: str, school_name: str = "", year: int = 0) -> s
                 break
 
     if matched_policies:
-        return json.dumps({
-            "status": "success",
-            "query": keyword,
-            "results": matched_policies,
-            "source": "预置政策库（仅供参考，请以各省教育考试院最新公告为准）",
-            "disclaimer": "政策信息可能存在时效性，请以官方最新发布为准。",
-        }, ensure_ascii=False)
+        return json.dumps(
+            {
+                "status": "success",
+                "query": keyword,
+                "results": matched_policies,
+                "source": "预置政策库（仅供参考，请以各省教育考试院最新公告为准）",
+                "disclaimer": "政策信息可能存在时效性，请以官方最新发布为准。",
+            },
+            ensure_ascii=False,
+        )
 
-    return json.dumps({
-        "status": "not_found",
-        "message": f"未找到与「{keyword}」直接相关的政策信息。常见政策包括：强基计划、提前批、综合评价、专项计划等。",
-        "suggestions": "请尝试更具体的关键词，如「强基计划」「提前批」「综合评价」「专项计划」。",
-        "source": "预置政策库",
-    }, ensure_ascii=False)
+    return json.dumps(
+        {
+            "status": "not_found",
+            "message": (
+                f"未找到与「{keyword}」直接相关的政策信息。"
+                "常见政策包括：强基计划、提前批、综合评价、专项计划等。"
+            ),
+            "suggestions": (
+                "请尝试更具体的关键词，如「强基计划」「提前批」「综合评价」「专项计划」。"
+            ),
+            "source": "预置政策库",
+        },
+        ensure_ascii=False,
+    )
 
 
 @register_tool(
@@ -321,7 +430,9 @@ async def search_policy(keyword: str, school_name: str = "", year: int = 0) -> s
         "required": ["score", "province", "category"],
     },
 )
-async def calculate_match(score: float, province: str, category: str, strategy: str = "", limit: int = 10) -> str:
+async def calculate_match(
+    score: float, province: str, category: str, strategy: str = "", limit: int = 10
+) -> str:
     """分数匹配院校推荐"""
     with _get_db() as db:
         if strategy == "冲":
@@ -334,18 +445,20 @@ async def calculate_match(score: float, province: str, category: str, strategy: 
             min_score = score - 20
             max_score = score + 10
 
-        query = AdmissionScoreQuery(
-            province=province,
-            subject_type=category,
-            min_score_floor=int(min_score),
-            max_score_ceil=int(max_score),
-            page=1,
-            page_size=limit * 2
+        query = AdmissionScoreQuery.model_validate(
+            {
+                "province": province,
+                "subject_type": category,
+                "min_score_floor": int(min_score),
+                "max_score_ceil": int(max_score),
+                "page": 1,
+                "page_size": limit * 2,
+            }
         )
 
         results, total = get_admission_scores(db, query)
 
-        school_map = {}
+        school_map: dict[int, dict[str, Any]] = {}
         for r in results:
             sid = r["school_id"]
             if sid not in school_map or r["min_score"] < school_map[sid]["min_score"]:
@@ -353,18 +466,23 @@ async def calculate_match(score: float, province: str, category: str, strategy: 
 
         matched = sorted(school_map.values(), key=lambda x: x["min_score"])[:limit]
 
-        return json.dumps({
-            "status": "success",
-            "query": {
-                "score": score,
-                "province": province,
-                "category": category,
-                "strategy": strategy or "稳",
-                "score_range": f"{int(min_score)}-{int(max_score)}"
+        return json.dumps(
+            {
+                "status": "success",
+                **_database_source("admission_scores"),
+                "query": {
+                    "score": score,
+                    "province": province,
+                    "category": category,
+                    "strategy": strategy or "稳",
+                    "score_range": f"{int(min_score)}-{int(max_score)}",
+                },
+                "matched_schools": matched,
+                "total_matches": len(matched),
             },
-            "matched_schools": matched,
-            "total_matches": len(matched)
-        }, ensure_ascii=False, default=str)
+            ensure_ascii=False,
+            default=str,
+        )
 
 
 @register_tool(
@@ -375,7 +493,10 @@ async def calculate_match(score: float, province: str, category: str, strategy: 
         "properties": {
             "query": {
                 "type": "string",
-                "description": "搜索查询，支持自然语言，如 '计算机相关专业'、'就业率高的医学专业'、'北京的985高校'",
+                "description": (
+                    "搜索查询，支持自然语言，如 '计算机相关专业'、"
+                    "'就业率高的医学专业'、'北京的985高校'"
+                ),
             },
             "type": {
                 "type": "string",
@@ -415,40 +536,51 @@ async def semantic_search(
                 province=province if province else None,
                 top_k=top_k,
             )
-            return json.dumps({
-                "status": "success",
-                "type": "school",
-                "query": query,
-                "results": results,
-                "total": len(results),
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "status": "success",
+                    **_semantic_source("school", results),
+                    "type": "school",
+                    "query": query,
+                    "results": results,
+                    "total": len(results),
+                },
+                ensure_ascii=False,
+            )
         elif type == "major":
             results = await semantic_search_majors(
                 query=query,
                 category=category if category else None,
                 top_k=top_k,
             )
-            return json.dumps({
-                "status": "success",
-                "type": "major",
-                "query": query,
-                "results": results,
-                "total": len(results),
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "status": "success",
+                    **_semantic_source("major", results),
+                    "type": "major",
+                    "query": query,
+                    "results": results,
+                    "total": len(results),
+                },
+                ensure_ascii=False,
+            )
         else:
-            return json.dumps({
-                "status": "error",
-                "message": f"不支持的搜索类型: {type}，请使用 'school' 或 'major'",
-            }, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "status": "error",
+                    "message": f"不支持的搜索类型: {type}，请使用 'school' 或 'major'",
+                },
+                ensure_ascii=False,
+            )
     except Exception as e:
-        return json.dumps({
-            "status": "error",
-            "message": f"语义搜索失败: {str(e)}",
-            "hint": "请确保已运行数据嵌入脚本: python -m backend.seeds.embed_data",
-        }, ensure_ascii=False)
+        return json.dumps(
+            {
+                "status": "error",
+                "message": f"语义搜索失败: {str(e)}",
+                "hint": "请确保已运行数据嵌入脚本: python -m backend.seeds.embed_data",
+            },
+            ensure_ascii=False,
+        )
 
-
-# 导出所有工具定义供 Agent 使用
-from .registry import tool_registry
 
 TOOLS = tool_registry.get_all_definitions()

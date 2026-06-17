@@ -3,6 +3,7 @@
 
 存储教育部学科评估结果（第四轮/第五轮）和第三方排名数据
 """
+
 from sqlalchemy import Column, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import relationship
 
@@ -13,7 +14,10 @@ class SubjectRanking(Base):
     __tablename__ = "subject_rankings"
     __table_args__ = (
         UniqueConstraint(
-            "school_id", "major_category", "ranking_source", "ranking_year",
+            "school_id",
+            "major_category",
+            "ranking_source",
+            "ranking_year",
             name="uq_subject_ranking",
         ),
     )

@@ -4,9 +4,14 @@
 - JSON 格式（生产环境）：含时间、级别、消息、request_id、user_id
 - 可读格式（开发环境）：彩色控制台输出
 """
+
 import logging
 import sys
+from contextvars import ContextVar, Token
 from typing import Any
+
+_request_id_var: ContextVar[str] = ContextVar("request_id", default="-")
+_user_id_var: ContextVar[str] = ContextVar("user_id", default="-")
 
 
 class RequestContextFilter(logging.Filter):
@@ -14,12 +19,34 @@ class RequestContextFilter(logging.Filter):
 
     def __init__(self) -> None:
         super().__init__()
-        self.request_id: str = "-"
-        self.user_id: str = "-"
+
+    @property
+    def request_id(self) -> str:
+        return _request_id_var.get()
+
+    @request_id.setter
+    def request_id(self, value: str) -> None:
+        _request_id_var.set(value)
+
+    @property
+    def user_id(self) -> str:
+        return _user_id_var.get()
+
+    @user_id.setter
+    def user_id(self, value: str) -> None:
+        _user_id_var.set(value)
+
+    def set_context(self, request_id: str, user_id: str) -> tuple[Token[str], Token[str]]:
+        return (_request_id_var.set(request_id), _user_id_var.set(user_id))
+
+    def reset_context(self, tokens: tuple[Token[str], Token[str]]) -> None:
+        request_token, user_token = tokens
+        _request_id_var.reset(request_token)
+        _user_id_var.reset(user_token)
 
     def filter(self, record: logging.LogRecord) -> bool:
-        record.request_id = self.request_id  # type: ignore[attr-defined]
-        record.user_id = self.user_id  # type: ignore[attr-defined]
+        record.request_id = _request_id_var.get()  # type: ignore[attr-defined]
+        record.user_id = _user_id_var.get()  # type: ignore[attr-defined]
         return True
 
 
@@ -52,10 +79,10 @@ class ConsoleFormatter(logging.Formatter):
     """开发环境可读格式，带颜色。"""
 
     COLORS = {
-        logging.DEBUG: "\033[36m",     # cyan
-        logging.INFO: "\033[32m",      # green
-        logging.WARNING: "\033[33m",   # yellow
-        logging.ERROR: "\033[31m",     # red
+        logging.DEBUG: "\033[36m",  # cyan
+        logging.INFO: "\033[32m",  # green
+        logging.WARNING: "\033[33m",  # yellow
+        logging.ERROR: "\033[31m",  # red
         logging.CRITICAL: "\033[35m",  # magenta
     }
     RESET = "\033[0m"

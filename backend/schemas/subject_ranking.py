@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 
 class SubjectRankingOut(BaseModel):
     """学科排名输出模式"""
+
     id: int
     school_id: int
     major_category: str
@@ -22,6 +23,7 @@ class SubjectRankingOut(BaseModel):
 
 class SubjectRankingQuery(BaseModel):
     """学科排名查询参数"""
+
     school_name: str | None = Field(None, description="院校名称（模糊匹配）")
     school_id: int | None = Field(None, description="院校ID")
     major_category: str | None = Field(None, description="学科门类")

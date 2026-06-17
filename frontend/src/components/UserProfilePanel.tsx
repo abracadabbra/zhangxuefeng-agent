@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { fetchUserProfile, updateUserProfile } from '../api/profile'
 import type { UserProfile } from '../types'
 
 interface UserProfilePanelProps {
@@ -10,37 +11,25 @@ export default function UserProfilePanel({ sessionId }: UserProfilePanelProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [isSaved, setIsSaved] = useState(false)
 
-  useEffect(() => {
-    fetchProfile()
-  }, [sessionId])
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
-      const response = await fetch(`/api/profile/${sessionId}`)
-      if (response.ok) {
-        const data = await response.json()
-        setProfile(data.profile)
-      }
+      const nextProfile = await fetchUserProfile(sessionId)
+      setProfile(nextProfile ?? {})
     } catch (error) {
       console.error('Failed to fetch profile:', error)
     }
-  }
+  }, [sessionId])
+
+  useEffect(() => {
+    fetchProfile()
+  }, [fetchProfile])
 
   const handleSave = async () => {
     setIsLoading(true)
     setIsSaved(false)
 
     try {
-      // 逐个字段更新
-      for (const [field, value] of Object.entries(profile)) {
-        if (value) {
-          await fetch(`/api/profile/${sessionId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ field, value }),
-          })
-        }
-      }
+      await updateUserProfile(sessionId, profile)
       setIsSaved(true)
       setTimeout(() => setIsSaved(false), 2000)
     } catch (error) {
@@ -54,14 +43,23 @@ export default function UserProfilePanel({ sessionId }: UserProfilePanelProps) {
     setProfile(prev => ({ ...prev, [field]: value || undefined }))
   }
 
+  const handleNumberChange = (field: string, value: string) => {
+    const parsed = Number(value)
+    setProfile(prev => ({
+      ...prev,
+      [field]: value && Number.isFinite(parsed) ? parsed : undefined,
+    }))
+  }
+
   return (
-    <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+    <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <h2 className="text-lg font-semibold text-gray-900 mb-6">用户画像设置</h2>
       <p className="text-sm text-gray-500 mb-6">
         设置您的基本信息，以便 AI 助手提供更精准的建议。
       </p>
 
       <div className="space-y-4">
+        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">基础信息</div>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -70,7 +68,7 @@ export default function UserProfilePanel({ sessionId }: UserProfilePanelProps) {
             <input
               type="number"
               value={profile.score || ''}
-              onChange={e => handleChange('score', e.target.value)}
+              onChange={e => handleNumberChange('score', e.target.value)}
               placeholder="如：580"
               className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             />
@@ -133,9 +131,98 @@ export default function UserProfilePanel({ sessionId }: UserProfilePanelProps) {
           </div>
         </div>
 
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              省份批次
+            </label>
+            <input
+              value={profile.admissionBatch || ''}
+              onChange={e => handleChange('admissionBatch', e.target.value)}
+              placeholder="如：本科一批 / 本科批"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              位次
+            </label>
+            <input
+              type="number"
+              value={profile.rank || ''}
+              onChange={e => handleNumberChange('rank', e.target.value)}
+              placeholder="如：12000"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            />
+          </div>
+        </div>
+
+        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide pt-2">偏好与约束</div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              目标城市
+            </label>
+            <input
+              value={profile.targetCity || ''}
+              onChange={e => handleChange('targetCity', e.target.value)}
+              placeholder="如：北京、上海、成都"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              地域偏好
+            </label>
+            <input
+              value={profile.regionPreference || ''}
+              onChange={e => handleChange('regionPreference', e.target.value)}
+              placeholder="如：华北、长三角、珠三角"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              城市层级
+            </label>
+            <select
+              value={profile.cityTier || ''}
+              onChange={e => handleChange('cityTier', e.target.value)}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            >
+              <option value="">请选择城市层级</option>
+              <option value="一线城市">一线城市</option>
+              <option value="新一线城市">新一线城市</option>
+              <option value="省会城市">省会城市</option>
+              <option value="不限">不限</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              风险偏好
+            </label>
+            <select
+              value={profile.riskTolerance || ''}
+              onChange={e => handleChange('riskTolerance', e.target.value)}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            >
+              <option value="">请选择风险偏好</option>
+              <option value="保守">保守</option>
+              <option value="稳健">稳健</option>
+              <option value="激进">激进</option>
+            </select>
+          </div>
+        </div>
+
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            预算范围
+            家庭预算
           </label>
           <select
             value={profile.budget || ''}
@@ -150,6 +237,47 @@ export default function UserProfilePanel({ sessionId }: UserProfilePanelProps) {
             <option value="20000以上/年">20000以上/年</option>
             <option value="中外合作办学">中外合作办学</option>
           </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            选科限制
+          </label>
+          <input
+            value={profile.subjectRequirements || ''}
+            onChange={e => handleChange('subjectRequirements', e.target.value)}
+            placeholder="如：物理+化学，或不限"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              职业方向
+            </label>
+            <input
+              value={profile.careerGoal || ''}
+              onChange={e => handleChange('careerGoal', e.target.value)}
+              placeholder="如：计算机、金融、医学"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              职业偏好权重
+            </label>
+            <input
+              type="number"
+              min={1}
+              max={10}
+              value={profile.careerPreferenceWeight || ''}
+              onChange={e => handleNumberChange('careerPreferenceWeight', e.target.value)}
+              placeholder="1-10"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            />
+          </div>
         </div>
 
         <div>

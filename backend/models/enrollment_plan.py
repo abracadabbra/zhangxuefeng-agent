@@ -3,8 +3,10 @@
 
 记录各院校在各省份的招生计划人数和选科要求
 """
-from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint
+
+from sqlalchemy import Column, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import relationship
+
 from backend.database import Base
 
 
@@ -17,7 +19,11 @@ class EnrollmentPlan(Base):
     province = Column(String(20), nullable=False, comment="招生省份")
     year = Column(Integer, nullable=False, comment="年份")
     plan_count = Column(Integer, nullable=True, comment="计划招生人数")
-    subject_requirement = Column(String(100), nullable=True, comment="选科要求: 物理必选/化学必选/不限等")
+    subject_requirement = Column(
+        String(100),
+        nullable=True,
+        comment="选科要求: 物理必选/化学必选/不限等",
+    )
     batch = Column(String(20), nullable=True, comment="批次")
     duration = Column(Integer, nullable=True, comment="学制（年）")
     tuition = Column(Integer, nullable=True, comment="学费（元/年）")
@@ -28,10 +34,7 @@ class EnrollmentPlan(Base):
 
     # 唯一约束
     __table_args__ = (
-        UniqueConstraint(
-            "school_id", "major_id", "province", "year",
-            name="uq_enrollment_plan"
-        ),
+        UniqueConstraint("school_id", "major_id", "province", "year", name="uq_enrollment_plan"),
     )
 
     def __repr__(self):

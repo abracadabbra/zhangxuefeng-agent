@@ -120,11 +120,7 @@ ERROR_CODES = {
     },
     429: {
         "description": "请求频率超限",
-        "content": {
-            "application/json": {
-                "example": {"detail": "请求过于频繁，请稍后再试"}
-            }
-        },
+        "content": {"application/json": {"example": {"detail": "请求过于频繁，请稍后再试"}}},
     },
     500: {
         "description": "服务器内部错误",

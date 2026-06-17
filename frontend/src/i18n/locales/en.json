@@ -61,6 +61,8 @@
   "chat": {
     "title": "Column Chat",
     "export": "Export",
+    "exportMarkdown": "Export Markdown report",
+    "exportPdf": "Export PDF report",
     "liveConsult": "Live",
     "welcomeTitle": "Hi! I'm Zhang Xuefeng AI Assistant",
     "welcomeDesc": "College admissions, grad school, career planning — ask me anything!",

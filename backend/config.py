@@ -4,6 +4,7 @@
 所有环境变量在此定义、验证、提供默认值。
 支持 .env 文件（项目根目录）。
 """
+
 from functools import lru_cache
 
 from pydantic import Field
@@ -50,9 +51,7 @@ class Settings(BaseSettings):
     sentry_dsn: str = Field(default="", description="Sentry DSN")
 
     # ---------- 成本预警 ----------
-    cost_alert_threshold_usd: float = Field(
-        default=50.0, description="成本预警阈值（USD）"
-    )
+    cost_alert_threshold_usd: float = Field(default=50.0, description="成本预警阈值（USD）")
 
     # ---------- 日志 ----------
     log_level: str = Field(default="INFO", description="日志级别")

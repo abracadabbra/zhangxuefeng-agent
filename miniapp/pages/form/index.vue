@@ -3,9 +3,9 @@
     <!-- 进度条 -->
     <view class="progress">
       <view class="progress-bar">
-        <view class="progress-fill" :style="{ width: `${(step / 4) * 100}%` }" />
+        <view class="progress-fill" :style="{ width: `${(step / totalSteps) * 100}%` }" />
       </view>
-      <text class="progress-text">{{ step }} / 4</text>
+      <text class="progress-text">{{ step }} / {{ totalSteps }}</text>
     </view>
 
     <!-- 步骤内容 -->
@@ -55,6 +55,12 @@
         <text class="step-hint">新高考的话告诉我选科组合。</text>
         <view class="radio-group">
           <view
+            :class="['radio-item', { active: profile.subject === '综合' }]"
+            @tap="profile.subject = '综合'"
+          >
+            <text class="radio-text">综合</text>
+          </view>
+          <view
             :class="['radio-item', { active: profile.subject === '理科' }]"
             @tap="profile.subject = '理科'"
           >
@@ -69,11 +75,11 @@
         </view>
       </view>
 
-      <!-- Step 4: 家庭条件 -->
+      <!-- Step 4: 家庭条件与预算 -->
       <view v-if="step === 4" class="step">
         <view class="step-header">
           <view class="stamp">STEP 4</view>
-          <text class="step-title">家里什么条件？</text>
+          <text class="step-title">家庭条件和预算？</text>
         </view>
         <text class="step-hint">这个决定了完全不同的策略。</text>
         <view class="radio-group">
@@ -86,6 +92,130 @@
             <text class="radio-text">{{ opt }}</text>
           </view>
         </view>
+        <view class="field-block">
+          <text class="field-label">家庭预算</text>
+          <view class="radio-group compact">
+            <view
+              v-for="opt in budgetOptions"
+              :key="opt"
+              :class="['radio-item', { active: profile.budget === opt }]"
+              @tap="profile.budget = opt"
+            >
+              <text class="radio-text">{{ opt }}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- Step 5: 批次与位次 -->
+      <view v-if="step === 5" class="step">
+        <view class="step-header">
+          <view class="stamp">STEP 5</view>
+          <text class="step-title">批次和位次？</text>
+        </view>
+        <text class="step-hint">位次比分数更能说明竞争位置，可以先填大概。</text>
+        <view class="field-block">
+          <text class="field-label">省份批次</text>
+          <input
+            v-model="profile.admissionBatch"
+            class="input-field"
+            placeholder="如：本科一批 / 本科批"
+          />
+        </view>
+        <view class="field-block">
+          <text class="field-label">省内位次</text>
+          <input
+            v-model="profile.rank"
+            class="input-field"
+            type="number"
+            placeholder="如：12000"
+          />
+        </view>
+        <view class="field-block">
+          <text class="field-label">选科限制</text>
+          <input
+            v-model="profile.subjectRequirements"
+            class="input-field"
+            placeholder="如：物理+化学 / 不限"
+          />
+        </view>
+      </view>
+
+      <!-- Step 6: 地域偏好 -->
+      <view v-if="step === 6" class="step">
+        <view class="step-header">
+          <view class="stamp">STEP 6</view>
+          <text class="step-title">想去哪里？</text>
+        </view>
+        <text class="step-hint">城市和地域会影响实习、就业和生活成本。</text>
+        <view class="field-block">
+          <text class="field-label">目标城市</text>
+          <input
+            v-model="profile.targetCity"
+            class="input-field"
+            placeholder="如：北京、上海、成都"
+          />
+        </view>
+        <view class="field-block">
+          <text class="field-label">地域偏好</text>
+          <input
+            v-model="profile.regionPreference"
+            class="input-field"
+            placeholder="如：华北、长三角、珠三角"
+          />
+        </view>
+        <view class="field-block">
+          <text class="field-label">城市层级</text>
+          <view class="radio-group compact">
+            <view
+              v-for="opt in cityTierOptions"
+              :key="opt"
+              :class="['radio-item', { active: profile.cityTier === opt }]"
+              @tap="profile.cityTier = opt"
+            >
+              <text class="radio-text">{{ opt }}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- Step 7: 职业偏好 -->
+      <view v-if="step === 7" class="step">
+        <view class="step-header">
+          <view class="stamp">STEP 7</view>
+          <text class="step-title">以后想干什么？</text>
+        </view>
+        <text class="step-hint">职业方向越明确，专业建议越不容易跑偏。</text>
+        <view class="field-block">
+          <text class="field-label">职业方向</text>
+          <input
+            v-model="profile.careerGoal"
+            class="input-field"
+            placeholder="如：计算机、金融、医学"
+          />
+        </view>
+        <view class="field-block">
+          <text class="field-label">风险偏好</text>
+          <view class="radio-group compact">
+            <view
+              v-for="opt in riskOptions"
+              :key="opt"
+              :class="['radio-item', { active: profile.riskTolerance === opt }]"
+              @tap="profile.riskTolerance = opt"
+            >
+              <text class="radio-text">{{ opt }}</text>
+            </view>
+          </view>
+        </view>
+        <view class="field-block">
+          <text class="field-label">职业偏好权重（1-10）</text>
+          <input
+            v-model="profile.careerPreferenceWeight"
+            class="input-field"
+            type="number"
+            placeholder="越看重就业就填得越高"
+          />
+        </view>
       </view>
     </view>
 
@@ -95,14 +225,14 @@
         <text class="btn-text">上一步</text>
       </view>
       <view class="spacer" />
-      <view v-if="step < 4" class="btn-skip" @tap="onSkip">
+      <view v-if="step > 4 && step < totalSteps" class="btn-skip" @tap="onSkip">
         <text class="btn-text">跳过</text>
       </view>
       <view
         :class="['btn-primary', { disabled: !canProceed }]"
         @tap="onNext"
       >
-        <text class="btn-text">{{ step === 4 ? '开始咨询' : '下一步' }}</text>
+        <text class="btn-text">{{ step === totalSteps ? '开始咨询' : '下一步' }}</text>
       </view>
     </view>
 
@@ -115,13 +245,25 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { updateUserProfile } from '../../utils/profile'
 
 const step = ref(1)
+const totalSteps = 7
 const profile = ref({
   score: '',
   province: '',
   subject: '',
   familyCondition: '',
+  targetCity: '',
+  riskTolerance: '',
+  careerGoal: '',
+  admissionBatch: '',
+  subjectRequirements: '',
+  rank: '',
+  budget: '',
+  regionPreference: '',
+  cityTier: '',
+  careerPreferenceWeight: '',
 })
 const scoreError = ref('')
 
@@ -133,11 +275,15 @@ const provinces = [
 ]
 
 const familyOptions = ['工薪阶层', '经商家庭', '体制内家庭', '其他']
+const budgetOptions = ['不限', '5000以内/年', '5000-10000/年', '10000-20000/年', '20000以上/年', '中外合作办学']
+const cityTierOptions = ['一线城市', '新一线城市', '省会城市', '不限']
+const riskOptions = ['保守', '稳健', '激进']
 
 const canProceed = computed(() => {
   if (step.value === 1) return profile.value.score && !scoreError.value
   if (step.value === 2) return !!profile.value.province
   if (step.value === 3) return !!profile.value.subject
+  if (step.value === 4) return !!profile.value.familyCondition
   return true
 })
 
@@ -152,7 +298,7 @@ function validateScore() {
 
 function onNext() {
   if (!canProceed.value) return
-  if (step.value < 4) {
+  if (step.value < totalSteps) {
     step.value++
   } else {
     onSubmit()
@@ -160,32 +306,25 @@ function onNext() {
 }
 
 function onSkip() {
-  if (step.value < 4) step.value++
+  if (step.value < totalSteps) step.value++
 }
 
-function onSubmit() {
+async function onSubmit() {
   const sessionId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
     const r = (Math.random() * 16) | 0
     const v = c === 'x' ? r : (r & 0x3) | 0x8
     return v.toString(16)
   })
 
-  // 保存画像到后端
-  const fields: Record<string, string> = {}
-  if (profile.value.score) fields['score'] = profile.value.score
-  if (profile.value.province) fields['province'] = profile.value.province
-  if (profile.value.subject) fields['subject'] = profile.value.subject
-  if (profile.value.familyCondition) fields['family_background'] = profile.value.familyCondition
-
-  Object.entries(fields).forEach(([field, value]) => {
-    uni.request({
-      url: `/api/profile/${sessionId}`,
-      method: 'PUT',
-      data: { field, value },
-    })
-  })
-
-  uni.navigateTo({ url: `/pages/chat/index?session_id=${sessionId}` })
+  try {
+    uni.showLoading({ title: '保存中' })
+    await updateUserProfile(sessionId, profile.value)
+    uni.navigateTo({ url: `/pages/chat/index?session_id=${sessionId}` })
+  } catch {
+    uni.showToast({ title: '画像保存失败，请重试', icon: 'none' })
+  } finally {
+    uni.hideLoading()
+  }
 }
 </script>
 
@@ -254,6 +393,7 @@ function onSubmit() {
 
 /* 输入框 */
 .input-field {
+  box-sizing: border-box;
   width: 100%;
   height: 96rpx;
   padding: 0 24rpx;
@@ -267,6 +407,21 @@ function onSubmit() {
   font-size: 24rpx;
   color: #c44;
   margin-top: 8rpx;
+}
+
+.field-block {
+  margin-top: 28rpx;
+}
+.field-block:first-of-type {
+  margin-top: 0;
+}
+.field-label {
+  display: block;
+  margin-bottom: 12rpx;
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #1a1a2e;
+  font-family: serif;
 }
 
 /* 省份列表 */
@@ -295,10 +450,17 @@ function onSubmit() {
   flex-wrap: wrap;
   gap: 16rpx;
 }
+.radio-group.compact {
+  gap: 12rpx;
+}
 .radio-item {
   padding: 20rpx 32rpx;
   border: 3rpx solid #1a1a2e;
   background: #fff;
+  box-sizing: border-box;
+}
+.radio-group.compact .radio-item {
+  padding: 16rpx 24rpx;
 }
 .radio-item.active {
   background: #1a1a2e;
@@ -315,8 +477,10 @@ function onSubmit() {
 /* 按钮 */
 .actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 16rpx;
   margin-top: 40rpx;
+  align-items: center;
 }
 .spacer {
   flex: 1;
@@ -329,6 +493,13 @@ function onSubmit() {
 }
 .btn-primary {
   background: #1a1a2e;
+}
+.btn-primary,
+.btn-secondary,
+.btn-skip {
+  box-sizing: border-box;
+  min-width: 148rpx;
+  text-align: center;
 }
 .btn-primary .btn-text {
   color: #f5f0e8;
