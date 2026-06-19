@@ -1,0 +1,442 @@
+{
+  "action": "source_coverage_report",
+  "passed": true,
+  "source_count": 9,
+  "review_status_counts": {
+    "candidate": 9
+  },
+  "priority_scope": {
+    "provinces": [
+      "山东",
+      "河南",
+      "广东",
+      "江苏",
+      "浙江",
+      "河北",
+      "四川",
+      "湖北"
+    ],
+    "data_categories": [
+      "admission_scores",
+      "enrollment_plans"
+    ]
+  },
+  "province_summary": [
+    {
+      "province": "全国",
+      "source_count": 1,
+      "source_ids": [
+        "moe_school_list"
+      ],
+      "data_categories": [
+        "schools"
+      ],
+      "years": [
+        2023
+      ],
+      "review_statuses": [
+        "candidate"
+      ],
+      "has_registered_source": true,
+      "has_registered_year": true,
+      "has_approved_source": false
+    },
+    {
+      "province": "四川",
+      "source_count": 1,
+      "source_ids": [
+        "sc_exam_authority"
+      ],
+      "data_categories": [
+        "admission_scores",
+        "enrollment_plans",
+        "policies"
+      ],
+      "years": [],
+      "review_statuses": [
+        "candidate"
+      ],
+      "has_registered_source": true,
+      "has_registered_year": false,
+      "has_approved_source": false
+    },
+    {
+      "province": "山东",
+      "source_count": 1,
+      "source_ids": [
+        "sd_exam_authority"
+      ],
+      "data_categories": [
+        "admission_scores",
+        "enrollment_plans",
+        "policies"
+      ],
+      "years": [
+        2025
+      ],
+      "review_statuses": [
+        "candidate"
+      ],
+      "has_registered_source": true,
+      "has_registered_year": true,
+      "has_approved_source": false
+    },
+    {
+      "province": "广东",
+      "source_count": 1,
+      "source_ids": [
+        "gd_exam_authority"
+      ],
+      "data_categories": [
+        "admission_scores",
+        "enrollment_plans",
+        "policies"
+      ],
+      "years": [],
+      "review_statuses": [
+        "candidate"
+      ],
+      "has_registered_source": true,
+      "has_registered_year": false,
+      "has_approved_source": false
+    },
+    {
+      "province": "江苏",
+      "source_count": 1,
+      "source_ids": [
+        "js_exam_authority"
+      ],
+      "data_categories": [
+        "admission_scores",
+        "enrollment_plans",
+        "policies"
+      ],
+      "years": [],
+      "review_statuses": [
+        "candidate"
+      ],
+      "has_registered_source": true,
+      "has_registered_year": false,
+      "has_approved_source": false
+    },
+    {
+      "province": "河北",
+      "source_count": 1,
+      "source_ids": [
+        "hebei_exam_authority"
+      ],
+      "data_categories": [
+        "admission_scores",
+        "enrollment_plans",
+        "policies"
+      ],
+      "years": [],
+      "review_statuses": [
+        "candidate"
+      ],
+      "has_registered_source": true,
+      "has_registered_year": false,
+      "has_approved_source": false
+    },
+    {
+      "province": "河南",
+      "source_count": 1,
+      "source_ids": [
+        "ha_exam_authority"
+      ],
+      "data_categories": [
+        "admission_scores",
+        "enrollment_plans",
+        "policies"
+      ],
+      "years": [],
+      "review_statuses": [
+        "candidate"
+      ],
+      "has_registered_source": true,
+      "has_registered_year": false,
+      "has_approved_source": false
+    },
+    {
+      "province": "浙江",
+      "source_count": 1,
+      "source_ids": [
+        "zj_exam_authority"
+      ],
+      "data_categories": [
+        "admission_scores",
+        "enrollment_plans",
+        "policies"
+      ],
+      "years": [],
+      "review_statuses": [
+        "candidate"
+      ],
+      "has_registered_source": true,
+      "has_registered_year": false,
+      "has_approved_source": false
+    },
+    {
+      "province": "湖北",
+      "source_count": 1,
+      "source_ids": [
+        "hubei_exam_authority"
+      ],
+      "data_categories": [
+        "admission_scores",
+        "enrollment_plans",
+        "policies"
+      ],
+      "years": [],
+      "review_statuses": [
+        "candidate"
+      ],
+      "has_registered_source": true,
+      "has_registered_year": false,
+      "has_approved_source": false
+    }
+  ],
+  "data_category_summary": [
+    {
+      "data_category": "admission_scores",
+      "source_count": 8,
+      "source_ids": [
+        "gd_exam_authority",
+        "ha_exam_authority",
+        "hebei_exam_authority",
+        "hubei_exam_authority",
+        "js_exam_authority",
+        "sc_exam_authority",
+        "sd_exam_authority",
+        "zj_exam_authority"
+      ],
+      "provinces": [
+        "四川",
+        "山东",
+        "广东",
+        "江苏",
+        "河北",
+        "河南",
+        "浙江",
+        "湖北"
+      ],
+      "years": [
+        2025
+      ]
+    },
+    {
+      "data_category": "enrollment_plans",
+      "source_count": 8,
+      "source_ids": [
+        "gd_exam_authority",
+        "ha_exam_authority",
+        "hebei_exam_authority",
+        "hubei_exam_authority",
+        "js_exam_authority",
+        "sc_exam_authority",
+        "sd_exam_authority",
+        "zj_exam_authority"
+      ],
+      "provinces": [
+        "四川",
+        "山东",
+        "广东",
+        "江苏",
+        "河北",
+        "河南",
+        "浙江",
+        "湖北"
+      ],
+      "years": [
+        2025
+      ]
+    },
+    {
+      "data_category": "policies",
+      "source_count": 8,
+      "source_ids": [
+        "gd_exam_authority",
+        "ha_exam_authority",
+        "hebei_exam_authority",
+        "hubei_exam_authority",
+        "js_exam_authority",
+        "sc_exam_authority",
+        "sd_exam_authority",
+        "zj_exam_authority"
+      ],
+      "provinces": [
+        "四川",
+        "山东",
+        "广东",
+        "江苏",
+        "河北",
+        "河南",
+        "浙江",
+        "湖北"
+      ],
+      "years": [
+        2025
+      ]
+    },
+    {
+      "data_category": "schools",
+      "source_count": 1,
+      "source_ids": [
+        "moe_school_list"
+      ],
+      "provinces": [
+        "全国"
+      ],
+      "years": [
+        2023
+      ]
+    }
+  ],
+  "gap_summary": {
+    "missing_priority_provinces": [],
+    "priority_provinces_without_years": [
+      "河南",
+      "广东",
+      "江苏",
+      "浙江",
+      "河北",
+      "四川",
+      "湖北"
+    ],
+    "priority_provinces_without_approved_source": [
+      "山东",
+      "河南",
+      "广东",
+      "江苏",
+      "浙江",
+      "河北",
+      "四川",
+      "湖北"
+    ]
+  },
+  "readiness": {
+    "ready_for_snapshot_planning": false,
+    "ready_for_loader_discussion": false,
+    "ready_for_agent_visibility_discussion": false,
+    "snapshot_planning_blockers": [
+      "priority_provinces_without_years",
+      "priority_provinces_without_approved_source"
+    ],
+    "loader_discussion_blockers": [
+      "requires_source_approval",
+      "requires_raw_snapshot",
+      "requires_parser_and_quality_gate",
+      "requires_loader_approval_packet"
+    ],
+    "agent_visibility_discussion_blockers": [
+      "requires_loader_run_evidence",
+      "requires_answer_source_policy_review",
+      "requires_agent_visibility_approval"
+    ]
+  },
+  "issue_counts": {
+    "error": 0,
+    "warning": 7,
+    "info": 8
+  },
+  "issues": [
+    {
+      "severity": "info",
+      "code": "priority_province_without_approved_source",
+      "message": "priority province has no approved source yet: 山东",
+      "field": "province_summary.review_statuses"
+    },
+    {
+      "severity": "warning",
+      "code": "priority_province_without_registered_year",
+      "message": "priority province has no registered dataset year: 河南",
+      "field": "province_summary.years"
+    },
+    {
+      "severity": "info",
+      "code": "priority_province_without_approved_source",
+      "message": "priority province has no approved source yet: 河南",
+      "field": "province_summary.review_statuses"
+    },
+    {
+      "severity": "warning",
+      "code": "priority_province_without_registered_year",
+      "message": "priority province has no registered dataset year: 广东",
+      "field": "province_summary.years"
+    },
+    {
+      "severity": "info",
+      "code": "priority_province_without_approved_source",
+      "message": "priority province has no approved source yet: 广东",
+      "field": "province_summary.review_statuses"
+    },
+    {
+      "severity": "warning",
+      "code": "priority_province_without_registered_year",
+      "message": "priority province has no registered dataset year: 江苏",
+      "field": "province_summary.years"
+    },
+    {
+      "severity": "info",
+      "code": "priority_province_without_approved_source",
+      "message": "priority province has no approved source yet: 江苏",
+      "field": "province_summary.review_statuses"
+    },
+    {
+      "severity": "warning",
+      "code": "priority_province_without_registered_year",
+      "message": "priority province has no registered dataset year: 浙江",
+      "field": "province_summary.years"
+    },
+    {
+      "severity": "info",
+      "code": "priority_province_without_approved_source",
+      "message": "priority province has no approved source yet: 浙江",
+      "field": "province_summary.review_statuses"
+    },
+    {
+      "severity": "warning",
+      "code": "priority_province_without_registered_year",
+      "message": "priority province has no registered dataset year: 河北",
+      "field": "province_summary.years"
+    },
+    {
+      "severity": "info",
+      "code": "priority_province_without_approved_source",
+      "message": "priority province has no approved source yet: 河北",
+      "field": "province_summary.review_statuses"
+    },
+    {
+      "severity": "warning",
+      "code": "priority_province_without_registered_year",
+      "message": "priority province has no registered dataset year: 四川",
+      "field": "province_summary.years"
+    },
+    {
+      "severity": "info",
+      "code": "priority_province_without_approved_source",
+      "message": "priority province has no approved source yet: 四川",
+      "field": "province_summary.review_statuses"
+    },
+    {
+      "severity": "warning",
+      "code": "priority_province_without_registered_year",
+      "message": "priority province has no registered dataset year: 湖北",
+      "field": "province_summary.years"
+    },
+    {
+      "severity": "info",
+      "code": "priority_province_without_approved_source",
+      "message": "priority province has no approved source yet: 湖北",
+      "field": "province_summary.review_statuses"
+    }
+  ],
+  "structural_smoke_passed": true,
+  "non_goals": [
+    "Does not replace source registry structural smoke review.",
+    "Does not approve sources, years, or licenses.",
+    "Does not fetch remote source pages.",
+    "Does not create raw snapshots.",
+    "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+  ]
+}

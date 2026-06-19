@@ -1,0 +1,104 @@
+{
+  "purpose": "Template for reviewed Shandong official sample intake.",
+  "not_a_dry_run_bundle": true,
+  "pilot_scope": {
+    "source_id": "sd_exam_authority",
+    "dataset": "admission_scores",
+    "province": "山东",
+    "published_year": 2025,
+    "target_row_count": "5-20"
+  },
+  "source_review": {
+    "homepage_url": "https://www.sdzk.cn/default.aspx",
+    "dataset_page_url": "",
+    "attachment_url": "",
+    "source_type": "provincial_exam_authority",
+    "data_category_confirmed": false,
+    "license_or_citation_notes": "",
+    "review_status": "candidate",
+    "reviewed_by": "",
+    "reviewed_at": "",
+    "review_notes": ""
+  },
+  "snapshot_planning_review": {
+    "action": "source_snapshot_planning_review",
+    "passed": false,
+    "ready_for_snapshot_planning": false,
+    "scope": {
+      "data_category": "admission_scores",
+      "province": "山东",
+      "year": 2025
+    },
+    "blockers": [
+      "source_scope:source_not_reviewed"
+    ],
+    "required_reviews": [
+      "Approve or review the source before preparing a raw snapshot."
+    ],
+    "source_summary": {
+      "matching_source_ids": [
+        "sd_exam_authority"
+      ],
+      "review_statuses": [
+        "candidate"
+      ],
+      "coverage_years": [
+        2025
+      ],
+      "has_matching_source": true,
+      "has_approved_source": false,
+      "has_requested_year": true
+    }
+  },
+  "snapshot_review": {
+    "snapshot_id": "",
+    "source_url": "",
+    "local_snapshot_dir": "",
+    "original_file_name": "",
+    "original_file_sha256": "",
+    "collector": "manual",
+    "collector_version": "0.1.0",
+    "collected_at": "",
+    "published_year_confirmed": false,
+    "original_file_preserved": false
+  },
+  "row_review_columns": [
+    "source_record_ref",
+    "school_name",
+    "major_name",
+    "province",
+    "year",
+    "batch",
+    "subject_type",
+    "min_score",
+    "min_rank",
+    "confidence",
+    "review.extracted_by",
+    "review.reviewed_by",
+    "review.reviewed_at",
+    "review.notes"
+  ],
+  "quality_config": {
+    "current_year": 2026,
+    "expected_provinces": ["山东"],
+    "expected_years": [2025],
+    "require_review_metadata": true
+  },
+  "stop_gates": [
+    "dataset_page_url or attachment_url is missing",
+    "source is not official or authorized",
+    "original file checksum is missing",
+    "source_record_ref cannot locate the original row",
+    "row review metadata is incomplete",
+    "dry-run audit has blockers or warnings",
+    "artifact manifest has path, scope, or loader approval issues"
+  ],
+  "non_goals": [
+    "Does not collect or download remote files.",
+    "Does not create production data.",
+    "Does not approve canonical loader execution.",
+    "Does not write database rows.",
+    "Does not modify seed data.",
+    "Does not refresh RAG or Agent-visible data."
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "purpose": "Template for recording a separately approved canonical loader run.",
+  "action": "canonical_loader_run_record",
+  "run_id": "",
+  "completed_at": "",
+  "artifact_manifest_path": "",
+  "loader_entrypoint": "load_candidates_after_artifact_manifest",
+  "result_status": "",
+  "source_id": "sd_exam_authority",
+  "snapshot_id": "sd_pilot_2025_001",
+  "dataset": "admission_scores",
+  "loaded_counts": {},
+  "reviewed_by": "",
+  "reviewed_at": "",
+  "run_notes": "",
+  "non_goals": [
+    "Does not execute the canonical loader.",
+    "Does not approve Agent/RAG visibility.",
+    "Does not refresh RAG or Agent-visible data.",
+    "Does not replace rollback review."
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "purpose": "Blocked Henan dataset-year review example for priority source coverage.",
+  "action": "source_year_review",
+  "source_id": "ha_exam_authority",
+  "scope": {
+    "province": "河南",
+    "data_categories": [
+      "admission_scores",
+      "enrollment_plans"
+    ]
+  },
+  "homepage_url": "https://www.haeea.cn/",
+  "source_url": "",
+  "candidate_years": [],
+  "year_evidence": [],
+  "decision": {
+    "allow_source_year_registration": false,
+    "register_years": []
+  },
+  "reviewed_by": "",
+  "reviewed_at": "",
+  "review_notes": "No official dataset page or year has been reviewed yet.",
+  "non_goals": [
+    "Does not modify sources.json.",
+    "Does not register Henan dataset years.",
+    "Does not approve the Henan source.",
+    "Does not fetch remote source pages or download attachments.",
+    "Does not create raw snapshots.",
+    "Does not parse rows or run quality gates.",
+    "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+  ]
+}

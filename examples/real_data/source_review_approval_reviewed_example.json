@@ -1,0 +1,45 @@
+{
+  "purpose": "Synthetic reviewed example showing a complete source approval packet shape.",
+  "action": "source_review_approval",
+  "allow_source_review_approval": true,
+  "source_id": "synthetic_reviewed_source_example",
+  "target_review_status": "approved",
+  "scope": {
+    "data_category": "admission_scores",
+    "province": "\u793a\u4f8b\u7701",
+    "years": [
+      2025
+    ]
+  },
+  "evidence": {
+    "dataset_page_url": "https://example.invalid/synthetic-admission-scores.html",
+    "attachment_url": "",
+    "license_or_citation_notes": "Synthetic example only; not an official source.",
+    "data_category_confirmed": true,
+    "published_year_confirmed": true,
+    "license_reviewed": true
+  },
+  "usage_review": {
+    "action": "source_usage_review",
+    "ready_for_source_approval_license_review": true,
+    "scope": {
+      "source_id": "synthetic_reviewed_source_example",
+      "data_category": "admission_scores",
+      "province": "示例省",
+      "years": [
+        2025
+      ]
+    }
+  },
+  "reviewed_by": "synthetic-reviewer",
+  "reviewed_at": "2026-06-08",
+  "review_notes": "Formatting example only. Do not use for registry update.",
+  "non_goals": [
+    "Does not approve any real source.",
+    "Does not modify the source registry.",
+    "Does not download remote files.",
+    "Does not create raw snapshots.",
+    "Does not parse rows or run quality gates.",
+    "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+  ]
+}

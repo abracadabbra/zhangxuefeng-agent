@@ -1,0 +1,75 @@
+{
+  "action": "loader_run_evidence_review",
+  "passed": false,
+  "ready_for_activation_evidence": false,
+  "scope": {
+    "source_id": "sd_exam_authority",
+    "snapshot_id": "sd_pilot_2025_001",
+    "dataset": "admission_scores",
+    "candidate_count": 1
+  },
+  "issue_counts": {
+    "error": 6,
+    "warning": 0,
+    "info": 0
+  },
+  "issues": [
+    {
+      "severity": "error",
+      "code": "missing_loader_run_record_run_id",
+      "message": "loader_run_record.run_id is required",
+      "field": "loader_run_record.run_id"
+    },
+    {
+      "severity": "error",
+      "code": "missing_loader_run_record_completed_at",
+      "message": "loader_run_record.completed_at is required",
+      "field": "loader_run_record.completed_at"
+    },
+    {
+      "severity": "error",
+      "code": "missing_loader_run_record_artifact_manifest_path",
+      "message": "loader_run_record.artifact_manifest_path is required",
+      "field": "loader_run_record.artifact_manifest_path"
+    },
+    {
+      "severity": "error",
+      "code": "loader_run_record_manifest_path_mismatch",
+      "message": "loader run record artifact manifest path does not match input",
+      "field": "loader_run_record.artifact_manifest_path"
+    },
+    {
+      "severity": "error",
+      "code": "loader_run_not_succeeded",
+      "message": "loader run record result_status must be succeeded",
+      "field": "loader_run_record.result_status"
+    },
+    {
+      "severity": "error",
+      "code": "missing_loader_run_loaded_counts",
+      "message": "loader run record loaded_counts must be a non-empty object",
+      "field": "loader_run_record.loaded_counts"
+    }
+  ],
+  "loader_run_evidence": {
+    "run_id": "",
+    "completed_at": "",
+    "artifact_manifest_path": "",
+    "result_status": "",
+    "loaded_counts": {}
+  },
+  "required_reviews": [
+    "Record loader run ID and completion time.",
+    "Record loader run artifact manifest path.",
+    "Resolve loader run record manifest path mismatch.",
+    "Confirm the canonical loader run succeeded.",
+    "Record valid loader run loaded counts."
+  ],
+  "non_goals": [
+    "Does not execute the canonical loader.",
+    "Does not write database rows.",
+    "Does not modify seed data.",
+    "Does not refresh RAG or Agent-visible data.",
+    "Does not approve Agent/RAG visibility by itself."
+  ]
+}

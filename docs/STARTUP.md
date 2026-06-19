@@ -131,6 +131,20 @@ pip install -e ".[dev,langchain]"
 python -c "import fastapi; import uvicorn; import sqlalchemy; print('依赖安装成功')"
 ```
 
+真实数据 MVP 相关 CLI 还可以先跑 no-write 环境检查：
+
+```bash
+# 检查 Python 版本、运行依赖和测试依赖
+python -m backend.data_pipeline.env_check
+
+# 只检查运行真实数据 CLI 所需依赖
+python -m backend.data_pipeline.env_check --runtime-only
+```
+
+报告里的 `ready_for_cli_runtime=true` 后，再运行 source audit、dry-run、
+artifact manifest、answer source policy 或 Agent visibility activation 等
+真实数据 CLI。该检查不下载数据、不写数据库、不刷新 RAG/Agent。
+
 ### 3. 配置环境变量
 
 ```bash
@@ -487,6 +501,10 @@ ruff format --check backend/ tests/               # 格式检查
 mypy backend/ --ignore-missing-imports --no-strict-optional --explicit-package-bases
 alembic revision --autogenerate -m "description"  # 生成迁移
 alembic upgrade head                              # 执行迁移
+
+# 真实数据 MVP（no-write 检查）
+python -m backend.data_pipeline.env_check
+python -m backend.data_pipeline.env_check --runtime-only
 
 # 前端
 cd frontend

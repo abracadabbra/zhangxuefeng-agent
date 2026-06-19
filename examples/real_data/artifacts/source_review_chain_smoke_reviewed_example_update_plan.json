@@ -1,0 +1,44 @@
+{
+  "action": "source_registry_update_plan",
+  "passed": true,
+  "ready_for_registry_patch": true,
+  "source_id": "synthetic_reviewed_source_example",
+  "planned_updates": {
+    "review_status": {
+      "current": "reviewed",
+      "target": "approved",
+      "will_update": true
+    },
+    "data_categories": {
+      "current": [
+        "admission_scores"
+      ],
+      "add": []
+    },
+    "coverage_provinces": {
+      "current": [
+        "示例省"
+      ],
+      "add": []
+    },
+    "coverage_years": {
+      "current": [
+        2025
+      ],
+      "add": []
+    }
+  },
+  "issue_counts": {
+    "error": 0,
+    "warning": 0,
+    "info": 0
+  },
+  "issues": [],
+  "non_goals": [
+    "Does not modify sources.json.",
+    "Does not approve source review by itself.",
+    "Does not fetch remote source pages.",
+    "Does not create raw snapshots.",
+    "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+  ]
+}

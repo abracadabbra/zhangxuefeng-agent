@@ -1,0 +1,35 @@
+{
+  "purpose": "Blocked usage/citation review for Shandong 2025 first-choice filing table source.",
+  "action": "source_usage_review",
+  "source_id": "sd_exam_authority",
+  "scope": {
+    "data_category": "admission_scores",
+    "province": "山东",
+    "years": [
+      2025
+    ]
+  },
+  "source_url": "https://www.sdzk.cn/NewsInfo.aspx?NewsID=6996",
+  "attachment_url": "https://www.sdzk.cn/Floadup/file/20250719/6388855130412530367357143.xls",
+  "usage_terms": {
+    "copyright_notice": "未经授权不得复制、转载、建立镜像",
+    "redistribution_restriction_detected": true,
+    "citation_or_usage_notes": "Official page and attachment identified, but usage/citation authorization is not approved for real-data ingestion."
+  },
+  "decision": {
+    "usage_status": "blocked_pending_authorization",
+    "license_reviewed": false,
+    "allow_real_data_ingestion": false
+  },
+  "reviewed_by": "",
+  "reviewed_at": "",
+  "review_notes": "Not an approval. Keep source approval blocked until usage/citation terms are reviewed and real-data ingestion is explicitly allowed.",
+  "non_goals": [
+    "Does not approve the source.",
+    "Does not modify the source registry.",
+    "Does not download remote files.",
+    "Does not create raw snapshots.",
+    "Does not parse rows or run quality gates.",
+    "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+  ]
+}

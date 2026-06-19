@@ -1,0 +1,35 @@
+{
+  "purpose": "Synthetic passing usage/citation review example. Not an official source approval.",
+  "action": "source_usage_review",
+  "source_id": "synthetic_reviewed_source_example",
+  "scope": {
+    "data_category": "admission_scores",
+    "province": "示例省",
+    "years": [
+      2025
+    ]
+  },
+  "source_url": "https://example.invalid/synthetic-admission-scores.html",
+  "attachment_url": "",
+  "usage_terms": {
+    "copyright_notice": "Synthetic example data with explicit internal-use permission.",
+    "redistribution_restriction_detected": false,
+    "citation_or_usage_notes": "Synthetic example only. Shows reviewed usage shape; not a real source approval."
+  },
+  "decision": {
+    "usage_status": "approved_for_real_data_ingestion",
+    "license_reviewed": true,
+    "allow_real_data_ingestion": true
+  },
+  "reviewed_by": "synthetic_reviewer",
+  "reviewed_at": "2026-06-08T00:00:00Z",
+  "review_notes": "Positive example for usage review contract only. Do not copy to a real source without human review.",
+  "non_goals": [
+    "Does not approve Shandong or any real source.",
+    "Does not modify the source registry.",
+    "Does not download remote files.",
+    "Does not create raw snapshots.",
+    "Does not parse rows or run quality gates.",
+    "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+  ]
+}

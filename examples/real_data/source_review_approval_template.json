@@ -1,0 +1,44 @@
+{
+  "purpose": "Template for separately approving a source registry review before snapshot planning.",
+  "action": "source_review_approval",
+  "allow_source_review_approval": false,
+  "source_id": "sd_exam_authority",
+  "target_review_status": "approved",
+  "scope": {
+    "data_category": "admission_scores",
+    "province": "山东",
+    "years": [
+      2025
+    ]
+  },
+  "evidence": {
+    "dataset_page_url": "",
+    "attachment_url": "",
+    "license_or_citation_notes": "",
+    "data_category_confirmed": false,
+    "published_year_confirmed": false,
+    "license_reviewed": false
+  },
+  "usage_review": {
+    "action": "source_usage_review",
+    "ready_for_source_approval_license_review": false,
+    "scope": {
+      "source_id": "sd_exam_authority",
+      "data_category": "admission_scores",
+      "province": "山东",
+      "years": [
+        2025
+      ]
+    }
+  },
+  "reviewed_by": "",
+  "reviewed_at": "",
+  "review_notes": "",
+  "non_goals": [
+    "Does not modify the source registry.",
+    "Does not download remote files.",
+    "Does not create raw snapshots.",
+    "Does not parse rows or run quality gates.",
+    "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+  ]
+}

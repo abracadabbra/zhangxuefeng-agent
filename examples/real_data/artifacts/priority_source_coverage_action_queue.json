@@ -1,0 +1,276 @@
+{
+  "action": "priority_source_coverage_action_queue",
+  "passed": false,
+  "ready_for_human_review": true,
+  "next_gate": "review_priority_dataset_years",
+  "scope": {
+    "provinces": [
+      "山东",
+      "河南",
+      "广东",
+      "江苏",
+      "浙江",
+      "河北",
+      "四川",
+      "湖北"
+    ],
+    "data_categories": [
+      "admission_scores",
+      "enrollment_plans"
+    ]
+  },
+  "current_state": {
+    "coverage_report_passed": true,
+    "ready_for_snapshot_planning": false,
+    "missing_priority_province_count": 0,
+    "priority_province_without_year_count": 7,
+    "priority_province_without_approved_source_count": 8
+  },
+  "priority_actions": [
+    {
+      "id": "review_dataset_year:河南",
+      "phase": "source_review",
+      "status": "pending",
+      "province": "河南",
+      "instruction": "Review official dataset years for 河南 after usage/citation evidence is recorded.",
+      "blocks": "source_snapshot_planning",
+      "source": "priority_source_coverage_report.json"
+    },
+    {
+      "id": "review_dataset_year:广东",
+      "phase": "source_review",
+      "status": "pending",
+      "province": "广东",
+      "instruction": "Review official dataset years for 广东 after usage/citation evidence is recorded.",
+      "blocks": "source_snapshot_planning",
+      "source": "priority_source_coverage_report.json"
+    },
+    {
+      "id": "review_dataset_year:江苏",
+      "phase": "source_review",
+      "status": "pending",
+      "province": "江苏",
+      "instruction": "Review official dataset years for 江苏 after usage/citation evidence is recorded.",
+      "blocks": "source_snapshot_planning",
+      "source": "priority_source_coverage_report.json"
+    },
+    {
+      "id": "review_dataset_year:浙江",
+      "phase": "source_review",
+      "status": "pending",
+      "province": "浙江",
+      "instruction": "Review official dataset years for 浙江 after usage/citation evidence is recorded.",
+      "blocks": "source_snapshot_planning",
+      "source": "priority_source_coverage_report.json"
+    },
+    {
+      "id": "review_dataset_year:河北",
+      "phase": "source_review",
+      "status": "pending",
+      "province": "河北",
+      "instruction": "Review official dataset years for 河北 after usage/citation evidence is recorded.",
+      "blocks": "source_snapshot_planning",
+      "source": "priority_source_coverage_report.json"
+    },
+    {
+      "id": "review_dataset_year:四川",
+      "phase": "source_review",
+      "status": "pending",
+      "province": "四川",
+      "instruction": "Review official dataset years for 四川 after usage/citation evidence is recorded.",
+      "blocks": "source_snapshot_planning",
+      "source": "priority_source_coverage_report.json"
+    },
+    {
+      "id": "review_dataset_year:湖北",
+      "phase": "source_review",
+      "status": "pending",
+      "province": "湖北",
+      "instruction": "Review official dataset years for 湖北 after usage/citation evidence is recorded.",
+      "blocks": "source_snapshot_planning",
+      "source": "priority_source_coverage_report.json"
+    },
+    {
+      "id": "complete_source_approval:山东",
+      "phase": "source_approval",
+      "status": "pending",
+      "province": "山东",
+      "instruction": "Complete usage/citation and source approval for 山东 before snapshot planning.",
+      "blocks": "source_snapshot_planning",
+      "source": "priority_source_coverage_report.json"
+    },
+    {
+      "id": "complete_source_approval:河南",
+      "phase": "source_approval",
+      "status": "pending",
+      "province": "河南",
+      "instruction": "Complete usage/citation and source approval for 河南 before snapshot planning.",
+      "blocks": "source_snapshot_planning",
+      "source": "priority_source_coverage_report.json"
+    },
+    {
+      "id": "complete_source_approval:广东",
+      "phase": "source_approval",
+      "status": "pending",
+      "province": "广东",
+      "instruction": "Complete usage/citation and source approval for 广东 before snapshot planning.",
+      "blocks": "source_snapshot_planning",
+      "source": "priority_source_coverage_report.json"
+    },
+    {
+      "id": "complete_source_approval:江苏",
+      "phase": "source_approval",
+      "status": "pending",
+      "province": "江苏",
+      "instruction": "Complete usage/citation and source approval for 江苏 before snapshot planning.",
+      "blocks": "source_snapshot_planning",
+      "source": "priority_source_coverage_report.json"
+    },
+    {
+      "id": "complete_source_approval:浙江",
+      "phase": "source_approval",
+      "status": "pending",
+      "province": "浙江",
+      "instruction": "Complete usage/citation and source approval for 浙江 before snapshot planning.",
+      "blocks": "source_snapshot_planning",
+      "source": "priority_source_coverage_report.json"
+    },
+    {
+      "id": "complete_source_approval:河北",
+      "phase": "source_approval",
+      "status": "pending",
+      "province": "河北",
+      "instruction": "Complete usage/citation and source approval for 河北 before snapshot planning.",
+      "blocks": "source_snapshot_planning",
+      "source": "priority_source_coverage_report.json"
+    },
+    {
+      "id": "complete_source_approval:四川",
+      "phase": "source_approval",
+      "status": "pending",
+      "province": "四川",
+      "instruction": "Complete usage/citation and source approval for 四川 before snapshot planning.",
+      "blocks": "source_snapshot_planning",
+      "source": "priority_source_coverage_report.json"
+    },
+    {
+      "id": "complete_source_approval:湖北",
+      "phase": "source_approval",
+      "status": "pending",
+      "province": "湖北",
+      "instruction": "Complete usage/citation and source approval for 湖北 before snapshot planning.",
+      "blocks": "source_snapshot_planning",
+      "source": "priority_source_coverage_report.json"
+    }
+  ],
+  "issue_counts": {
+    "error": 0,
+    "warning": 15,
+    "info": 0
+  },
+  "issues": [
+    {
+      "severity": "warning",
+      "code": "review_dataset_year:河南_pending",
+      "message": "Review official dataset years for 河南 after usage/citation evidence is recorded.",
+      "field": "priority_actions.review_dataset_year:河南"
+    },
+    {
+      "severity": "warning",
+      "code": "review_dataset_year:广东_pending",
+      "message": "Review official dataset years for 广东 after usage/citation evidence is recorded.",
+      "field": "priority_actions.review_dataset_year:广东"
+    },
+    {
+      "severity": "warning",
+      "code": "review_dataset_year:江苏_pending",
+      "message": "Review official dataset years for 江苏 after usage/citation evidence is recorded.",
+      "field": "priority_actions.review_dataset_year:江苏"
+    },
+    {
+      "severity": "warning",
+      "code": "review_dataset_year:浙江_pending",
+      "message": "Review official dataset years for 浙江 after usage/citation evidence is recorded.",
+      "field": "priority_actions.review_dataset_year:浙江"
+    },
+    {
+      "severity": "warning",
+      "code": "review_dataset_year:河北_pending",
+      "message": "Review official dataset years for 河北 after usage/citation evidence is recorded.",
+      "field": "priority_actions.review_dataset_year:河北"
+    },
+    {
+      "severity": "warning",
+      "code": "review_dataset_year:四川_pending",
+      "message": "Review official dataset years for 四川 after usage/citation evidence is recorded.",
+      "field": "priority_actions.review_dataset_year:四川"
+    },
+    {
+      "severity": "warning",
+      "code": "review_dataset_year:湖北_pending",
+      "message": "Review official dataset years for 湖北 after usage/citation evidence is recorded.",
+      "field": "priority_actions.review_dataset_year:湖北"
+    },
+    {
+      "severity": "warning",
+      "code": "complete_source_approval:山东_pending",
+      "message": "Complete usage/citation and source approval for 山东 before snapshot planning.",
+      "field": "priority_actions.complete_source_approval:山东"
+    },
+    {
+      "severity": "warning",
+      "code": "complete_source_approval:河南_pending",
+      "message": "Complete usage/citation and source approval for 河南 before snapshot planning.",
+      "field": "priority_actions.complete_source_approval:河南"
+    },
+    {
+      "severity": "warning",
+      "code": "complete_source_approval:广东_pending",
+      "message": "Complete usage/citation and source approval for 广东 before snapshot planning.",
+      "field": "priority_actions.complete_source_approval:广东"
+    },
+    {
+      "severity": "warning",
+      "code": "complete_source_approval:江苏_pending",
+      "message": "Complete usage/citation and source approval for 江苏 before snapshot planning.",
+      "field": "priority_actions.complete_source_approval:江苏"
+    },
+    {
+      "severity": "warning",
+      "code": "complete_source_approval:浙江_pending",
+      "message": "Complete usage/citation and source approval for 浙江 before snapshot planning.",
+      "field": "priority_actions.complete_source_approval:浙江"
+    },
+    {
+      "severity": "warning",
+      "code": "complete_source_approval:河北_pending",
+      "message": "Complete usage/citation and source approval for 河北 before snapshot planning.",
+      "field": "priority_actions.complete_source_approval:河北"
+    },
+    {
+      "severity": "warning",
+      "code": "complete_source_approval:四川_pending",
+      "message": "Complete usage/citation and source approval for 四川 before snapshot planning.",
+      "field": "priority_actions.complete_source_approval:四川"
+    },
+    {
+      "severity": "warning",
+      "code": "complete_source_approval:湖北_pending",
+      "message": "Complete usage/citation and source approval for 湖北 before snapshot planning.",
+      "field": "priority_actions.complete_source_approval:湖北"
+    }
+  ],
+  "required_reviews": [
+    "Review official dataset pages and candidate years.",
+    "Complete usage/citation and source approval reviews."
+  ],
+  "non_goals": [
+    "Does not modify sources.json.",
+    "Does not approve any source or registered year.",
+    "Does not fetch remote source pages or download attachments.",
+    "Does not create raw snapshots.",
+    "Does not parse rows or run quality gates.",
+    "Does not execute loader or write databases.",
+    "Does not refresh RAG or Agent-visible data."
+  ]
+}

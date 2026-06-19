@@ -1,0 +1,79 @@
+{
+  "purpose": "Synthetic intake packet chained from approved source snapshot planning.",
+  "not_a_dry_run_bundle": true,
+  "pilot_scope": {
+    "source_id": "synthetic_reviewed_source_example",
+    "dataset": "admission_scores",
+    "province": "示例省",
+    "published_year": 2025,
+    "target_row_count": "1 synthetic row"
+  },
+  "source_review": {
+    "homepage_url": "https://example.invalid/synthetic-admission-scores.html",
+    "dataset_page_url": "https://example.invalid/synthetic-admission-scores.html",
+    "attachment_url": "",
+    "source_type": "provincial_exam_authority",
+    "data_category_confirmed": true,
+    "license_or_citation_notes": "Synthetic example only; not an official source.",
+    "review_status": "approved",
+    "reviewed_by": "synthetic-intake-reviewer",
+    "reviewed_at": "2026-06-08T00:00:00Z",
+    "review_notes": "Shape example for intake review after snapshot planning passes."
+  },
+  "snapshot_planning_review": {
+    "action": "source_snapshot_planning_review",
+    "passed": true,
+    "ready_for_snapshot_planning": true,
+    "scope": {
+      "data_category": "admission_scores",
+      "province": "示例省",
+      "year": 2025
+    },
+    "blockers": [],
+    "required_reviews": [],
+    "source_summary": {
+      "matching_source_ids": [
+        "synthetic_reviewed_source_example"
+      ],
+      "review_statuses": [
+        "approved"
+      ],
+      "coverage_years": [
+        2025
+      ],
+      "has_matching_source": true,
+      "has_approved_source": true,
+      "has_requested_year": true
+    }
+  },
+  "snapshot_review": {
+    "snapshot_id": "synthetic_snapshot_2025_001",
+    "source_url": "https://example.invalid/synthetic-admission-scores.html",
+    "local_snapshot_dir": "examples/real_data/snapshots/synthetic_snapshot_2025_001",
+    "original_file_name": "synthetic-sample.csv",
+    "original_file_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "collector": "manual",
+    "collector_version": "0.1.0",
+    "collected_at": "2026-06-08T00:00:00Z",
+    "published_year_confirmed": true,
+    "original_file_preserved": true
+  },
+  "quality_config": {
+    "current_year": 2026,
+    "expected_provinces": [
+      "示例省"
+    ],
+    "expected_years": [
+      2025
+    ],
+    "require_review_metadata": true
+  },
+  "non_goals": [
+    "Does not approve any real source.",
+    "Does not collect or download remote files.",
+    "Does not create raw snapshots.",
+    "Does not parse rows or run quality gates.",
+    "Does not approve canonical loader execution.",
+    "Does not write database rows, seed data, RAG indexes, or Agent-visible data."
+  ]
+}

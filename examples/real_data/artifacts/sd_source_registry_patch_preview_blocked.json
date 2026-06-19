@@ -1,0 +1,38 @@
+{
+  "action": "source_registry_patch_preview",
+  "passed": false,
+  "ready_for_registry_patch_preview": false,
+  "source_id": "sd_exam_authority",
+  "changes_applied": [],
+  "patched_source": {},
+  "issue_counts": {
+    "error": 2,
+    "warning": 0,
+    "info": 0
+  },
+  "issues": [
+    {
+      "severity": "error",
+      "code": "update_plan_not_ready",
+      "message": "update plan must be ready for registry patch",
+      "field": "update_plan.ready_for_registry_patch"
+    },
+    {
+      "severity": "error",
+      "code": "patch_approval_review_not_ready",
+      "message": "patch approval review must be ready for registry patch execution",
+      "field": "patch_approval_review.ready_for_registry_patch_execution"
+    }
+  ],
+  "required_reviews": [
+    "Resolve source registry update plan blockers.",
+    "Pass source registry patch approval review."
+  ],
+  "non_goals": [
+    "Does not modify sources.json.",
+    "Does not approve source review by itself.",
+    "Does not fetch remote source pages.",
+    "Does not create raw snapshots.",
+    "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+  ]
+}

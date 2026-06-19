@@ -1,0 +1,206 @@
+{
+  "action": "real_data_mvp_action_queue",
+  "passed": false,
+  "ready_for_human_review": true,
+  "next_gate": "source_usage_and_citation_review",
+  "scope": {
+    "source_id": "sd_exam_authority",
+    "readiness": {
+      "source_snapshot_planning": {
+        "data_category": "admission_scores",
+        "province": "山东",
+        "year": 2025
+      },
+      "synthetic_example_chain": {
+        "source_id": "sd_exam_authority",
+        "snapshot_id": "sd_pilot_2025_001",
+        "dataset": "admission_scores",
+        "candidate_count": 1
+      },
+      "usage_to_approval_chain": {
+        "source_id": "synthetic_reviewed_source_example",
+        "data_category": "admission_scores",
+        "province": "示例省",
+        "years": [
+          2025
+        ],
+        "target_review_status": "approved"
+      },
+      "source_to_quality_chain": {
+        "source_id": "synthetic_reviewed_source_example",
+        "snapshot_id": "synthetic_snapshot_2025_001",
+        "dataset": "admission_scores",
+        "province": "示例省",
+        "year": 2025,
+        "candidate_count": 1
+      }
+    },
+    "source_review": {
+      "data_category": "admission_scores",
+      "province": "山东",
+      "years": [
+        2025
+      ]
+    }
+  },
+  "source_review_context": {
+    "candidate_url": "https://www.sdzk.cn/NewsInfo.aspx?NewsID=6996",
+    "candidate_attachment_url": "https://www.sdzk.cn/Floadup/file/20250719/6388855130412530367357143.xls",
+    "input_artifacts": {
+      "human_checklist": "sd_source_review_human_checklist_blocked.json",
+      "candidate_review": "sd_source_review_approval_candidate_review.json",
+      "registry_patch_chain": "sd_source_registry_patch_chain_smoke_blocked.json",
+      "readiness_summary": "sd_mvp_readiness_summary.json"
+    },
+    "verified_action_ids": [
+      "verify_official_page",
+      "verify_attachment_or_table",
+      "confirm_dataset_scope"
+    ],
+    "pending_action_ids": [
+      "review_usage_and_citation",
+      "record_reviewer",
+      "prepare_separate_source_approval"
+    ]
+  },
+  "current_state": {
+    "ready_for_real_snapshot": false,
+    "source_review_ready": false,
+    "registry_update_ready": false,
+    "registry_patch_chain_ready": false,
+    "usage_to_approval_chain_ready": true,
+    "source_to_quality_chain_ready": true,
+    "evidence_inventory_ready": true
+  },
+  "priority_actions": [
+    {
+      "id": "review_usage_and_citation",
+      "phase": "source_review",
+      "status": "pending",
+      "instruction": "Record official usage, citation, and redistribution notes.",
+      "blocks": "source_snapshot_planning",
+      "source": "sd_source_review_handoff_blocked.json"
+    },
+    {
+      "id": "record_reviewer",
+      "phase": "source_review",
+      "status": "pending",
+      "instruction": "Record reviewer identity and review timestamp.",
+      "blocks": "source_snapshot_planning",
+      "source": "sd_source_review_handoff_blocked.json"
+    },
+    {
+      "id": "prepare_separate_source_approval",
+      "phase": "source_review",
+      "status": "pending",
+      "instruction": "Only after all checks pass, prepare the separate source approval packet.",
+      "blocks": "source_snapshot_planning",
+      "source": "sd_source_review_handoff_blocked.json"
+    },
+    {
+      "id": "resolve_source_snapshot_planning",
+      "phase": "snapshot_planning",
+      "status": "blocked",
+      "instruction": "Resolve source review before preparing raw snapshots.",
+      "blocks": "raw_snapshot_preparation",
+      "source": "sd_mvp_readiness_summary.json"
+    },
+    {
+      "id": "provide_loader_run_command",
+      "phase": "loader",
+      "status": "deferred",
+      "instruction": "Provide a separate approved loader run command only after source review and real snapshot planning pass.",
+      "blocks": "loader_execution",
+      "source": "sd_mvp_readiness_summary.json"
+    },
+    {
+      "id": "provide_agent_visibility_approval",
+      "phase": "agent_visibility",
+      "status": "deferred",
+      "instruction": "Provide Agent/RAG visibility approval only after a reviewed loader run exists.",
+      "blocks": "agent_visibility",
+      "source": "sd_mvp_readiness_summary.json"
+    }
+  ],
+  "issue_counts": {
+    "error": 1,
+    "warning": 3,
+    "info": 2
+  },
+  "issues": [
+    {
+      "severity": "warning",
+      "code": "review_usage_and_citation_pending",
+      "message": "Record official usage, citation, and redistribution notes.",
+      "field": "priority_actions.review_usage_and_citation"
+    },
+    {
+      "severity": "warning",
+      "code": "record_reviewer_pending",
+      "message": "Record reviewer identity and review timestamp.",
+      "field": "priority_actions.record_reviewer"
+    },
+    {
+      "severity": "warning",
+      "code": "prepare_separate_source_approval_pending",
+      "message": "Only after all checks pass, prepare the separate source approval packet.",
+      "field": "priority_actions.prepare_separate_source_approval"
+    },
+    {
+      "severity": "error",
+      "code": "resolve_source_snapshot_planning_blocked",
+      "message": "Resolve source review before preparing raw snapshots.",
+      "field": "priority_actions.resolve_source_snapshot_planning"
+    }
+  ],
+  "required_reviews": [
+    "Approve or review the source before preparing a raw snapshot.",
+    "Provide a separate approved loader run command.",
+    "Provide separate Agent visibility approval.",
+    "Review official dataset candidate years.",
+    "Attach official evidence for each candidate dataset year.",
+    "Allow source year registration only after human review passes.",
+    "Choose reviewed years to register.",
+    "Provide year reviewer identity.",
+    "Provide year review date or timestamp.",
+    "Review official dataset pages and candidate years.",
+    "Complete usage/citation and source approval reviews.",
+    "Record loader run ID and completion time.",
+    "Record loader run artifact manifest path.",
+    "Resolve loader run record manifest path mismatch.",
+    "Confirm the canonical loader run succeeded.",
+    "Record valid loader run loaded counts.",
+    "Confirm Agent visibility approval explicitly allows activation.",
+    "Confirm the approved canonical loader run.",
+    "Record Agent visibility reviewer and review time.",
+    "Resolve source registry update plan blockers.",
+    "Set allow_source_registry_patch=true only after human review.",
+    "Confirm the planned registry updates.",
+    "Provide registry patch reviewer.",
+    "Provide registry patch review date or timestamp.",
+    "Pass source registry patch approval review.",
+    "Resolve source registry patch preview blockers.",
+    "Set allow_source_review_approval=true only after human review.",
+    "Complete license or citation review.",
+    "Complete source usage review before source approval.",
+    "Provide reviewer identity.",
+    "Provide review date or timestamp.",
+    "Pass source review approval before registry patch planning.",
+    "Complete source review handoff manual actions.",
+    "Provide reviewer identity and review timestamp.",
+    "Prepare a separate source approval packet only after evidence passes.",
+    "Complete source license or citation review.",
+    "Approve real-data ingestion only after usage review passes.",
+    "Provide usage reviewer identity.",
+    "Provide usage review date or timestamp."
+  ],
+  "non_goals": [
+    "Does not approve the source.",
+    "Does not modify sources.json.",
+    "Does not fetch remote source pages or download attachments.",
+    "Does not create raw snapshots.",
+    "Does not parse rows or run quality gates.",
+    "Does not execute loader or write databases.",
+    "Does not refresh RAG or Agent-visible data."
+  ]
+}

@@ -1,239 +1,321 @@
-# 真实高考数据 MVP 设计
+# Real Data MVP Design
 
-## Objective
+## Purpose
 
-用山东省官方小样本数据建立真实数据进入系统的最小闭环。设计目标是让数据在进入查询路径前先具备可追踪、可校验、可引用能力，同时避免破坏现有 seed 数据、数据库结构和 Agent 工具。
+The MVP introduces an auditable data pipeline foundation before adding crawlers
+or large datasets. It keeps existing query APIs and Agent tools stable while
+adding the contracts needed to answer: where did this fact come from, when was
+it collected, how fresh is it, and how confident should the Agent be?
 
-## Boundaries
+## Current Architecture Summary
 
-本阶段只定义合同和 pilot 实施边界。后续实现应优先写入隔离的真实数据工作区，例如 `data/real_data/` 或等价 staging 目录；未通过审批前不修改 `backend/seeds/`、ORM 模型、生产数据库和 Agent 工具。
+Current data flow:
 
-## Pilot Source
+```text
+backend/seeds/*.json
+  -> backend/seeds/import_*.py
+  -> SQLAlchemy canonical tables
+  -> CRUD query functions
+  -> FastAPI routers and Agent tools
+  -> RAG/Agent answer
+```
 
-默认 pilot 选择山东，因为山东省教育招生考试院 2025 年普通类常规批第 1 次志愿投档情况表具有明确官方页面和 `.xls` 附件，适合做“官方来源 → 文件快照 → 原始行 → canonical 候选”的链路验证。
+Current limitations:
 
-候选来源信息：
+- Seed JSON records do not have uniform source metadata.
+- Import scripts load directly into canonical tables.
+- Quality checks validate shape and ranges, but not provenance or coverage.
+- Agent tools return facts without a consistent source envelope.
 
-- source_name: 山东省教育招生考试院
-- province: 山东
-- year: 2025
-- source_type: official_exam_authority
-- document_title: 山东省2025年普通类常规批第1次志愿投档情况表
-- source_url: https://www.sdzk.cn/NewsInfo.aspx?NewsID=6996
-- raw_format: xls
+## Target MVP Architecture
 
-河南省教育考试院 2025 本科批平行投档分数线可作为下一省份候选。
+```text
+Official or authorized source
+  -> source registry
+  -> raw snapshot + manifest
+  -> parser
+  -> canonical row candidates
+  -> quality gate
+  -> canonical DB + lineage records
+  -> RAG index refresh
+  -> Agent tool responses with sources
+```
 
-河南候选来源信息：
+## Module Boundaries
 
-- source_name: 河南省教育考试院
-- province: 河南
-- year: 2025
-- source_type: official_exam_authority
-- document_title: 河南省2025年普通高招本科院校平行投档分数线
-- source_url: https://gaokao.haedu.cn/517/518/519/2025/1207/150720.html
-- linked_data_views:
-  - https://datacenter.haeea.cn/PagePZQuery/ShowPZTDTJ.aspx?yearTip=2025&pc=1&kl=5
-  - https://datacenter.haeea.cn/PagePZQuery/ShowPZTDTJ.aspx?yearTip=2025&pc=1&kl=1
-- access_note: datacenter direct requests return an anti-automation challenge in this environment; capture must be handled as a reviewed manual/browser snapshot before parser integration.
-- snapshot_note: because the score-bearing data view is dynamic and has no static attachment in the source page, a reviewed manual/browser snapshot must record `raw_file_url`, `raw_file_name`, `raw_file_sha256`, `captured_at`, and `operator` before any rows are parsed.
+Recommended package:
 
-实际快照验证结论：
+```text
+backend/data_pipeline/
+  __init__.py
+  sources/
+    registry.py
+    sources.yaml or sources.json
+  raw_store/
+    manifest.py
+    checksums.py
+  collectors/
+    manual.py
+    base.py
+  parsers/
+    base.py
+    admission_scores.py
+    enrollment_plans.py
+  quality/
+    checks.py
+    report.py
+  lineage/
+    models.py
+    service.py
+  loaders/
+    admission_scores.py
+    enrollment_plans.py
+```
 
-- 该山东 `.xls` 是 legacy OLE2 Excel 文件，适合验证真实官方文件的 snapshot、hash、sheet/header 读取和 raw row lineage。
-- 该表实际列为 `专业代号及名称`、`院校代号及名称`、`投档计划数`、`最低位次`，不包含 `最低分`。
-- 因此它不能单独产出当前 admission-score canonical 合同要求的 `min_score`；真实行应在解析阶段被标记为缺少 `min_score`，不得伪造分数进入 quality gate 或 staging。
-- Parser 边界应先输出 header/schema fit report，记录 observed columns、matched canonical fields、missing required fields；对于该山东快照，schema report 应为 `blocked` 且 `missing_required_fields = ("min_score",)`。
-- 后续若要跑通真实行的 pass → staging 闭环，需要补一个含最低分的官方来源，或单独审批扩展 canonical 合同以支持“位次/计划”类投档记录。
-- 河南 2025 本科批平行投档分数线是下一步 pass → staging 的更合适候选，但必须先取得可审计快照和字段表头，不能仅凭入口链接写入 canonical 数据。
+MVP implementation should start with manual snapshot ingestion. Collector
+classes can exist as interfaces or stubs, but should not fetch remote pages.
 
-## Data Contracts
+## Source Registry Contract
 
-### Source Batch
+Each source entry should use a stable `source_id` and explicit review metadata.
 
-`SourceBatch` 描述一个官方或授权数据发布批次。
+```json
+{
+  "source_id": "moe_school_list",
+  "name": "Ministry of Education Higher Education Institution List",
+  "source_type": "ministry",
+  "homepage_url": "https://example.edu.cn",
+  "data_categories": ["schools"],
+  "coverage": {
+    "provinces": ["全国"],
+    "years": [2026]
+  },
+  "trust_score": 1.0,
+  "update_frequency": "annual",
+  "collection_method": "manual_download",
+  "license_note": "Official public data; verify citation requirements.",
+  "review_status": "candidate",
+  "notes": ""
+}
+```
 
-Required fields:
+Recommended first source types:
 
-- `source_batch_id`: stable id, e.g. `sd-2025-regular-batch-1投档`
-- `source_name`: official or authorized publisher
-- `source_url`: official page URL
-- `province`: province covered by the data
-- `year`: admission year
-- `published_at`: source publish time when available
-- `captured_at`: snapshot capture time
-- `snapshot_id`: stable snapshot version
-- `raw_file_name`: downloaded or manually attached file name
-- `raw_file_sha256`: raw file hash
-- `license_or_authority`: why the source is acceptable
-- `operator`: person or process that captured the snapshot
+- Ministry-level official data for school identity.
+- Provincial exam authority data for admission scores and enrollment plans.
+- University admission office pages for school-specific plans.
+- University employment quality reports for later employment data.
+- Ranking providers only after usage/citation rules are confirmed.
 
-### Raw Record
+## Raw Snapshot Contract
 
-`RawRecord` preserves row-level lineage from the source snapshot.
+Suggested path:
 
-Required fields:
+```text
+data/raw/<source_id>/<dataset>/<year>/<snapshot_id>/
+  manifest.json
+  files/
+    original.*
+```
 
-- `source_batch_id`
-- `snapshot_id`
-- `raw_row_number`
-- `raw_columns`
-- `raw_values`
-- `parse_status`: `parsed`, `warning`, or `blocked`
-- `parse_notes`
+Manifest fields:
 
-### Source Schema Report
+```json
+{
+  "snapshot_id": "sd_exam_2025_scores_20260606_001",
+  "source_id": "sd_exam_authority",
+  "dataset": "admission_scores",
+  "source_url": "https://example.gov.cn/file.pdf",
+  "published_year": 2025,
+  "collected_at": "2026-06-06T00:00:00+08:00",
+  "collector": "manual",
+  "collector_version": "0.1.0",
+  "files": [
+    {
+      "path": "files/original.pdf",
+      "sha256": "<checksum>",
+      "content_type": "application/pdf"
+    }
+  ],
+  "license_note": "Manual review required before production use."
+}
+```
 
-`SourceSchemaReport` checks whether extracted raw rows fit the selected canonical contract before row normalization.
+## Canonical Candidate Contract
 
-Required fields:
+Parsers should output candidate rows before loading. Candidate rows should avoid
+database sessions and remain easy to unit test.
 
-- `status`: `pass` or `blocked`
-- `observed_columns`: headers extracted from the official snapshot
-- `required_fields`: canonical fields required for this pilot contract
-- `matched_fields`: mapping from canonical field to observed source column
-- `missing_required_fields`: required canonical fields not present in the source headers
+Admission score candidate:
 
-For the 山东 2025 official `.xls`, this report is expected to block the current admission-score contract because the source has rank and plan columns but no score column.
+```json
+{
+  "entity_type": "admission_score",
+  "natural_key": {
+    "school_name": "Example University",
+    "major_name": null,
+    "province": "山东",
+    "year": 2025,
+    "batch": "本科批",
+    "subject_type": "综合"
+  },
+  "values": {
+    "min_score": 620,
+    "avg_score": null,
+    "max_score": null,
+    "min_rank": 12000,
+    "plan_count": null
+  },
+  "source": {
+    "snapshot_id": "sd_exam_2025_scores_20260606_001",
+    "source_record_ref": "page=12,row=8",
+    "confidence": 0.95
+  }
+}
+```
 
-### Reviewed Raw Rows Artifact
+Enrollment plan candidate:
 
-`ReviewedRawRowsArtifact` stores the reviewed small-sample raw rows before canonical staging.
+```json
+{
+  "entity_type": "enrollment_plan",
+  "natural_key": {
+    "school_name": "Example University",
+    "major_name": "Computer Science and Technology",
+    "province": "山东",
+    "year": 2025
+  },
+  "values": {
+    "plan_count": 20,
+    "subject_requirement": "物理+化学",
+    "batch": "本科批",
+    "duration": 4,
+    "tuition": 6000
+  },
+  "source": {
+    "snapshot_id": "sd_exam_2025_plans_20260606_001",
+    "source_record_ref": "sheet=plans,row=42",
+    "confidence": 0.95
+  }
+}
+```
 
-Required fields:
+## Lineage Model
 
-- `schema_version`: `real_data_reviewed_rows.v1`
-- `source_page`
-- `snapshot`
-- `rows`
-- `schema_report`
+Prefer side tables for MVP to avoid high-risk edits across all existing query
+paths.
 
-Readback validation must reject artifacts when the snapshot does not match the source page, any row lineage does not match the snapshot, or the stored schema report does not match a fresh schema assessment of the stored rows.
+Proposed tables:
 
-### Canonical Candidate
+- `data_sources`: source registry rows promoted into DB.
+- `data_snapshots`: raw snapshot metadata and checksum status.
+- `data_lineage_records`: maps canonical records or natural keys to snapshots.
 
-`CanonicalCandidate` is not production data yet. It is the normalized candidate that must pass quality gate before any DB write.
+Lineage record shape:
 
-Required fields for admission score pilot:
+```text
+id
+entity_type
+entity_id nullable
+natural_key_json
+snapshot_id
+source_record_ref
+parser_name
+parser_version
+quality_status
+confidence
+created_at
+```
 
-- `province`
-- `year`
-- `school_name`
-- `major_or_group_name`
-- `batch`
-- `subject_type`
-- `plan_count`
-- `min_score`
-- `min_rank`
-- `source_batch_id`
-- `snapshot_id`
-- `raw_row_number`
-- `confidence`
-
-Optional fields:
-
-- `school_code`
-- `major_code`
-- `selection_requirement`
-- `tuition`
-- `duration`
-- `notes`
-
-### Quality Report
-
-`QualityReport` is the gate output.
-
-Required fields:
-
-- `report_id`
-- `source_batch_id`
-- `snapshot_id`
-- `status`: `pass`, `warning`, or `blocked`
-- `record_count_raw`
-- `record_count_parsed`
-- `record_count_passed`
-- `field_errors`
-- `range_errors`
-- `duplicate_conflicts`
-- `cross_source_conflicts`
-- `coverage_metrics`
-- `freshness_result`
-- `confidence_summary`
-- `blocked_reasons`
-
-For reviewed-row pilots, `record_count_raw` is the number of reviewed raw rows in the input artifact, `record_count_parsed` is the number of canonical candidates produced after schema/parse checks, and `record_count_passed` is zero when the gate blocks staging.
-
-### Agent Citation Metadata
-
-Any future Agent-facing query result derived from real data should carry:
-
-- `source`: human-readable official source name
-- `source_url`: official source page URL
-- `snapshot_url`: exact raw file or reviewed dynamic data-view URL captured in the snapshot
-- `year`
-- `snapshot`
-- `confidence`
-- `source_batch_id`
-
-This extends the existing tool metadata pattern, where current database tools already return logical `source`, `source_type`, and `confidence`.
+This allows an MVP loader to first link by natural key and later backfill
+`entity_id` after canonical upsert.
 
 ## Quality Gate
 
-The pilot quality gate should reject or warn before database writes.
+Quality checks should be grouped into severity levels:
+
+- `error`: blocks load.
+- `warning`: allows load but lowers confidence or requires report review.
+- `info`: coverage and freshness statistics.
 
 Blocking checks:
 
-- Missing required fields.
-- Invalid year outside configured pilot year.
-- Score outside 0-750.
-- Rank less than 1 when present.
-- Duplicate canonical key within the same snapshot.
-- Conflicting values for the same canonical key across snapshots unless manually resolved.
-- Unknown or unofficial source authority.
-- Missing snapshot hash.
+- Missing `source_id`, `snapshot_id`, source URL, or checksum.
+- Missing canonical natural-key fields.
+- Invalid year, score, rank, plan count, duration, or tuition ranges.
+- Duplicate candidate rows with conflicting values inside the same snapshot.
+- Unknown school or major when the loader is configured not to create reference
+  entities.
 
 Warning checks:
 
-- Coverage below pilot target.
-- Missing optional code fields.
-- Freshness older than expected for the selected admission year.
-- Confidence below `high` but above block threshold.
-- School or major name requires manual normalization.
+- Source is older than the configured freshness window.
+- Cross-source conflict for the same natural key.
+- Low coverage compared with expected pilot scope.
+- Source trust score below the Agent default-answer threshold.
 
-Coverage checks for pilot:
+## Confidence and Freshness
 
-- At least the selected sample schools are present.
-- Parsed record count matches expected sampled rows.
-- Each canonical record has source lineage.
+Initial confidence can be deterministic:
 
-Confidence rules:
+```text
+confidence = source_trust_score - freshness_penalty - conflict_penalty
+```
 
-- `high`: official source, exact row lineage, required fields complete, no conflicts.
-- `medium`: official source with minor normalization warnings.
-- `low`: incomplete source or unresolved parsing ambiguity; should not enter Agent-facing result.
+Suggested source trust defaults:
 
-## Data Flow
+- Ministry or provincial exam authority: 1.00
+- Government statistical report: 0.95
+- University official site/report: 0.90
+- Licensed third-party report: 0.85
+- Mainstream media: 0.70
+- Forum or user-generated content: 0.30
 
-1. Register source batch metadata from official page.
-2. Capture raw file snapshot and compute SHA-256.
-   - For static attachments, snapshot metadata is built from the registered attachment.
-   - For dynamic official views, snapshot metadata must be built from a reviewed manual/browser capture and retain the official data-view URL.
-3. Parse a small selected subset into raw records.
-4. Write and validate reviewed raw rows artifact for the audited small sample.
-5. Run source schema fit before canonical normalization.
-6. Normalize raw records into canonical candidates.
-7. Run quality gate, including schema/parse blocking issues.
-8. If report is `pass` or accepted `warning`, write only to an isolated staging artifact or staging table after separate approval.
-9. Expose citation metadata contract for future Agent tool integration.
+Freshness penalty can start simple:
 
-The reviewed-row pilot runner is an isolated orchestration helper for steps 3-9. It does not fetch, scrape, mutate seed data, touch production DB tables, or modify Agent tools. It accepts already reviewed `RawRecord` inputs and a validated `SourceSnapshot`; for real pilot execution, prefer starting from a validated `ReviewedRawRowsArtifact` so raw-row lineage and schema fit are rechecked before staging.
+- Same or previous admission cycle: 0.00
+- 2 years old: 0.10
+- 3+ years old: 0.20 or warning
+
+## Agent Tool Source Envelope
+
+Future tool responses should include a consistent `sources` array:
+
+```json
+{
+  "status": "success",
+  "items": [],
+  "sources": [
+    {
+      "source_id": "sd_exam_authority",
+      "name": "Shandong Education Admissions Examination Institute",
+      "source_url": "https://example.gov.cn/file.pdf",
+      "published_year": 2025,
+      "snapshot_id": "sd_exam_2025_scores_20260606_001",
+      "confidence": 0.95,
+      "freshness": "current"
+    }
+  ]
+}
+```
+
+The Agent prompt already asks for data citation, so the main missing piece is
+tool-level metadata.
 
 ## Compatibility
 
-The existing seed import path remains untouched. `backend/seeds/import_cli.py` may later inspire validation/report shapes, but the first implementation should not mutate seed files or overload seed import with official source semantics unless explicitly approved.
+- Keep SQLite and SQLAlchemy for MVP.
+- Use Alembic for any schema additions.
+- Preserve existing seed import scripts until the pipeline proves itself.
+- Do not change existing API response contracts in the first foundation step
+  unless source metadata is behind additive fields.
+- Keep RAG refresh as a later step after canonical data is quality-gated.
 
-The existing Agent tool metadata is a compatible pattern, but current tools should not be changed until staging data and citation contracts are validated.
+## Rollback Strategy
 
-## Rollback
-
-Planning rollback is deleting this file and restoring `prd.md`. Implementation rollback should remove only isolated snapshot/canonical/report artifacts or staging tables introduced by that implementation step.
+- Planning-only changes can be reverted by restoring Trellis task files.
+- Pipeline code can be removed without affecting existing seed imports if it is
+  added under `backend/data_pipeline/`.
+- Schema additions should be isolated to source/snapshot/lineage tables.
+- Agent response source metadata should be additive and removable without
+  breaking existing consumers.

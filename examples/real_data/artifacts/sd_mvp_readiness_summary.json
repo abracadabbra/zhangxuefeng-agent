@@ -1,0 +1,119 @@
+{
+  "action": "real_data_mvp_readiness_summary",
+  "passed": false,
+  "ready_for_real_snapshot": false,
+  "synthetic_chain_ready": true,
+  "usage_to_approval_chain_ready": true,
+  "source_to_quality_chain_ready": true,
+  "evidence_inventory_ready": true,
+  "ready_for_loader_discussion": false,
+  "ready_for_agent_visibility_discussion": false,
+  "scope": {
+    "source_snapshot_planning": {
+      "data_category": "admission_scores",
+      "province": "山东",
+      "year": 2025
+    },
+    "synthetic_example_chain": {
+      "source_id": "sd_exam_authority",
+      "snapshot_id": "sd_pilot_2025_001",
+      "dataset": "admission_scores",
+      "candidate_count": 1
+    },
+    "usage_to_approval_chain": {
+      "source_id": "synthetic_reviewed_source_example",
+      "data_category": "admission_scores",
+      "province": "示例省",
+      "years": [
+        2025
+      ],
+      "target_review_status": "approved"
+    },
+    "source_to_quality_chain": {
+      "source_id": "synthetic_reviewed_source_example",
+      "snapshot_id": "synthetic_snapshot_2025_001",
+      "dataset": "admission_scores",
+      "province": "示例省",
+      "year": 2025,
+      "candidate_count": 1
+    }
+  },
+  "source_summary": {
+    "matching_source_ids": [
+      "sd_exam_authority"
+    ],
+    "review_statuses": [
+      "candidate"
+    ],
+    "coverage_years": [
+      2025
+    ],
+    "has_matching_source": true,
+    "has_approved_source": false,
+    "has_requested_year": true
+  },
+  "artifact_summary": {
+    "artifact_count": 43,
+    "issue_counts": {
+      "error": 0,
+      "warning": 0,
+      "info": 0
+    }
+  },
+  "blockers": [
+    "source_snapshot_planning_not_ready",
+    "separate_loader_run_command_required",
+    "separate_agent_visibility_approval_required"
+  ],
+  "required_reviews": [
+    "Approve or review the source before preparing a raw snapshot.",
+    "Provide a separate approved loader run command.",
+    "Provide separate Agent visibility approval.",
+    "Review official dataset candidate years.",
+    "Attach official evidence for each candidate dataset year.",
+    "Allow source year registration only after human review passes.",
+    "Choose reviewed years to register.",
+    "Provide year reviewer identity.",
+    "Provide year review date or timestamp.",
+    "Review official dataset pages and candidate years.",
+    "Complete usage/citation and source approval reviews.",
+    "Create source year review packets for priority provinces.",
+    "Complete blocked priority source year reviews.",
+    "Record loader run ID and completion time.",
+    "Record loader run artifact manifest path.",
+    "Resolve loader run record manifest path mismatch.",
+    "Confirm the canonical loader run succeeded.",
+    "Record valid loader run loaded counts.",
+    "Confirm Agent visibility approval explicitly allows activation.",
+    "Confirm the approved canonical loader run.",
+    "Record Agent visibility reviewer and review time.",
+    "Resolve source registry update plan blockers.",
+    "Set allow_source_registry_patch=true only after human review.",
+    "Confirm the planned registry updates.",
+    "Provide registry patch reviewer.",
+    "Provide registry patch review date or timestamp.",
+    "Pass source registry patch approval review.",
+    "Resolve source registry patch preview blockers.",
+    "Set allow_source_review_approval=true only after human review.",
+    "Complete license or citation review.",
+    "Complete source usage review before source approval.",
+    "Provide reviewer identity.",
+    "Provide review date or timestamp.",
+    "Pass source review approval before registry patch planning.",
+    "Complete source review handoff manual actions.",
+    "Provide reviewer identity and review timestamp.",
+    "Prepare a separate source approval packet only after evidence passes.",
+    "Complete source license or citation review.",
+    "Approve real-data ingestion only after usage review passes.",
+    "Provide usage reviewer identity.",
+    "Provide usage review date or timestamp."
+  ],
+  "non_goals": [
+    "Does not approve source review.",
+    "Does not fetch remote data or download official attachments.",
+    "Does not create raw snapshots.",
+    "Does not execute parser, quality gate, or canonical loader.",
+    "Does not write database rows, seed data, RAG indexes, or Agent data.",
+    "Does not replace separate loader or Agent visibility approvals."
+  ]
+}

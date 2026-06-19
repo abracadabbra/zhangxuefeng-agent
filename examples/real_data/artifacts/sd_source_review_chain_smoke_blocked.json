@@ -1,0 +1,216 @@
+{
+  "action": "source_review_chain_smoke",
+  "passed": false,
+  "scope": {
+    "source_id": "sd_exam_authority",
+    "data_category": "admission_scores",
+    "province": "山东",
+    "years": [
+      2025
+    ]
+  },
+  "checks": {
+    "source_scope_audit_passed": true,
+    "approval_review_passed": false,
+    "update_plan_ready": false,
+    "registry_not_modified": true
+  },
+  "issue_counts": {
+    "error": 2,
+    "warning": 0,
+    "info": 0
+  },
+  "issues": [
+    {
+      "severity": "error",
+      "code": "approval_review_not_passed",
+      "message": "source review approval must pass",
+      "field": "approval_review.passed"
+    },
+    {
+      "severity": "error",
+      "code": "update_plan_not_ready",
+      "message": "registry update plan must be ready for patch review",
+      "field": "update_plan.ready_for_registry_patch"
+    }
+  ],
+  "required_reviews": [
+    "Set allow_source_review_approval=true only after human review.",
+    "Complete license or citation review.",
+    "Complete source usage review before source approval.",
+    "Provide reviewer identity.",
+    "Provide review date or timestamp.",
+    "Pass source review approval before registry patch planning."
+  ],
+  "reviews": {
+    "source_scope_audit": {
+      "scope": {
+        "data_category": "admission_scores",
+        "expected_provinces": [
+          "山东"
+        ],
+        "expected_years": [
+          2025
+        ],
+        "require_reviewed": true
+      },
+      "passed": true,
+      "issues": [
+        {
+          "severity": "warning",
+          "code": "source_not_reviewed",
+          "message": "source is not reviewed or approved: sd_exam_authority",
+          "source_id": "sd_exam_authority"
+        }
+      ]
+    },
+    "approval_review": {
+      "action": "source_review_approval_review",
+      "passed": false,
+      "ready_for_registry_update": false,
+      "scope": {
+        "source_id": "sd_exam_authority",
+        "target_review_status": "approved",
+        "data_category": "admission_scores",
+        "province": "山东",
+        "years": [
+          2025
+        ]
+      },
+      "evidence_summary": {
+        "has_dataset_page_url": true,
+        "has_attachment_url": true,
+        "has_source_url": true,
+        "has_license_or_citation_notes": true,
+        "data_category_confirmed": true,
+        "published_year_confirmed": true,
+        "license_reviewed": false,
+        "has_usage_review": true,
+        "usage_review_ready": false,
+        "has_reviewer": false,
+        "has_reviewed_at": false
+      },
+      "issue_counts": {
+        "error": 5,
+        "warning": 0,
+        "info": 0
+      },
+      "issues": [
+        {
+          "severity": "error",
+          "code": "source_review_approval_not_allowed",
+          "message": "allow_source_review_approval must be true",
+          "field": "allow_source_review_approval"
+        },
+        {
+          "severity": "error",
+          "code": "evidence_license_reviewed_not_confirmed",
+          "message": "evidence.license_reviewed must be true",
+          "field": "evidence.license_reviewed"
+        },
+        {
+          "severity": "error",
+          "code": "source_usage_review_not_ready",
+          "message": "usage review must be ready for source approval",
+          "field": "usage_review.ready_for_source_approval_license_review"
+        },
+        {
+          "severity": "error",
+          "code": "missing_reviewed_by",
+          "message": "reviewed_by is required",
+          "field": "reviewed_by"
+        },
+        {
+          "severity": "error",
+          "code": "missing_reviewed_at",
+          "message": "reviewed_at is required",
+          "field": "reviewed_at"
+        }
+      ],
+      "required_reviews": [
+        "Set allow_source_review_approval=true only after human review.",
+        "Complete license or citation review.",
+        "Complete source usage review before source approval.",
+        "Provide reviewer identity.",
+        "Provide review date or timestamp."
+      ],
+      "registry_update_hint": {
+        "can_update_registry": false,
+        "source_id": "sd_exam_authority",
+        "target_review_status": "approved",
+        "add_data_category_if_missing": "admission_scores",
+        "add_province_if_missing": "山东",
+        "add_years_if_missing": [
+          2025
+        ]
+      },
+      "non_goals": [
+        "Does not modify the source registry.",
+        "Does not fetch remote source pages.",
+        "Does not create raw snapshots.",
+        "Does not parse rows or run quality gates.",
+        "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+      ]
+    },
+    "update_plan": {
+      "action": "source_registry_update_plan",
+      "passed": false,
+      "ready_for_registry_patch": false,
+      "source_id": "sd_exam_authority",
+      "planned_updates": {
+        "review_status": {
+          "current": "candidate",
+          "target": "approved",
+          "will_update": true
+        },
+        "data_categories": {
+          "current": [
+            "admission_scores",
+            "enrollment_plans",
+            "policies"
+          ],
+          "add": []
+        },
+        "coverage_provinces": {
+          "current": [
+            "山东"
+          ],
+          "add": []
+        },
+        "coverage_years": {
+          "current": [
+            2025
+          ],
+          "add": []
+        }
+      },
+      "issue_counts": {
+        "error": 1,
+        "warning": 0,
+        "info": 0
+      },
+      "issues": [
+        {
+          "severity": "error",
+          "code": "approval_review_not_ready",
+          "message": "approval review must be ready for registry update",
+          "field": "approval_review.ready_for_registry_update"
+        }
+      ],
+      "non_goals": [
+        "Does not modify sources.json.",
+        "Does not approve source review by itself.",
+        "Does not fetch remote source pages.",
+        "Does not create raw snapshots.",
+        "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+      ]
+    }
+  },
+  "non_goals": [
+    "Does not modify sources.json.",
+    "Does not approve source review by itself.",
+    "Does not fetch remote source pages.",
+    "Does not create raw snapshots.",
+    "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+  ]
+}

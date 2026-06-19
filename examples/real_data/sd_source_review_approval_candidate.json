@@ -1,0 +1,46 @@
+{
+  "purpose": "Candidate draft for Shandong 2025 first-choice filing table source review.",
+  "action": "source_review_approval",
+  "allow_source_review_approval": false,
+  "source_id": "sd_exam_authority",
+  "target_review_status": "approved",
+  "scope": {
+    "data_category": "admission_scores",
+    "province": "山东",
+    "years": [
+      2025
+    ]
+  },
+  "evidence": {
+    "dataset_page_url": "https://www.sdzk.cn/NewsInfo.aspx?NewsID=6996",
+    "attachment_url": "https://www.sdzk.cn/Floadup/file/20250719/6388855130412530367357143.xls",
+    "license_or_citation_notes": "Official Shandong exam authority page and xls attachment identified. Page footer says unauthorized copying, reprinting, or mirroring is prohibited, so source usage still needs separate authorization/citation review before approval.",
+    "data_category_confirmed": true,
+    "published_year_confirmed": true,
+    "license_reviewed": false
+  },
+  "usage_review": {
+    "action": "source_usage_review",
+    "ready_for_source_approval_license_review": false,
+    "artifact": "examples/real_data/artifacts/sd_source_usage_review_blocked.json",
+    "scope": {
+      "source_id": "sd_exam_authority",
+      "data_category": "admission_scores",
+      "province": "山东",
+      "years": [
+        2025
+      ]
+    }
+  },
+  "reviewed_by": "",
+  "reviewed_at": "",
+  "review_notes": "Not an approval. Official page, attachment, data category, and published year are identified; keep blocked until usage/citation terms are reviewed and a human reviewer records approval.",
+  "non_goals": [
+    "Does not approve the source.",
+    "Does not modify the source registry.",
+    "Does not download remote files.",
+    "Does not create raw snapshots.",
+    "Does not parse rows or run quality gates.",
+    "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+  ]
+}

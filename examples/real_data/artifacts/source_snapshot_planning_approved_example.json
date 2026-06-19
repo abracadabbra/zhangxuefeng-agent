@@ -1,0 +1,48 @@
+{
+  "action": "source_snapshot_planning_review",
+  "passed": true,
+  "ready_for_snapshot_planning": true,
+  "scope": {
+    "data_category": "admission_scores",
+    "province": "示例省",
+    "year": 2025
+  },
+  "blockers": [],
+  "required_reviews": [],
+  "source_summary": {
+    "matching_source_ids": [
+      "synthetic_reviewed_source_example"
+    ],
+    "review_statuses": [
+      "approved"
+    ],
+    "coverage_years": [
+      2025
+    ],
+    "has_matching_source": true,
+    "has_approved_source": true,
+    "has_requested_year": true
+  },
+  "source_scope_audit": {
+    "scope": {
+      "data_category": "admission_scores",
+      "expected_provinces": [
+        "示例省"
+      ],
+      "expected_years": [
+        2025
+      ],
+      "require_reviewed": true
+    },
+    "passed": true,
+    "issues": []
+  },
+  "non_goals": [
+    "Does not modify sources.json.",
+    "Does not approve source review by itself.",
+    "Does not fetch remote source pages.",
+    "Does not create raw snapshots.",
+    "Does not parse rows or run quality gates.",
+    "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+  ]
+}

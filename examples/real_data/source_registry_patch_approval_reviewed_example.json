@@ -1,0 +1,18 @@
+{
+  "purpose": "Synthetic reviewed example showing a complete registry patch approval packet shape.",
+  "action": "source_registry_patch_approval",
+  "allow_source_registry_patch": true,
+  "source_id": "synthetic_reviewed_source_example",
+  "planned_updates_confirmed": true,
+  "reviewed_by": "synthetic-registry-reviewer",
+  "reviewed_at": "2026-06-08",
+  "review_notes": "Formatting example only. Do not use for real registry changes.",
+  "non_goals": [
+    "Does not approve any real source.",
+    "Does not modify sources.json.",
+    "Does not download remote files.",
+    "Does not create raw snapshots.",
+    "Does not parse rows or run quality gates.",
+    "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "action": "agent_visibility_activation_review",
+  "passed": false,
+  "ready_for_agent_visibility": false,
+  "scope": {
+    "source_id": "sd_exam_authority",
+    "snapshot_id": "sd_pilot_2025_001",
+    "dataset": "admission_scores",
+    "candidate_count": 1
+  },
+  "issue_counts": {
+    "error": 1,
+    "warning": 0,
+    "info": 0
+  },
+  "issues": [
+    {
+      "severity": "error",
+      "code": "missing_agent_visibility_approval",
+      "message": "separate Agent visibility approval is required",
+      "field": "activation_approval"
+    }
+  ],
+  "required_reviews": [
+    "Provide separate Agent visibility approval."
+  ],
+  "non_goals": [
+    "Does not execute crawler.",
+    "Does not write canonical database rows.",
+    "Does not modify seed data.",
+    "Does not refresh RAG or Agent-visible data.",
+    "Does not replace separate deployment or rollback review."
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "source": {
+    "source_id": "sd_exam_authority",
+    "name": "Shandong Education Admissions Examination Institute",
+    "source_type": "provincial_exam_authority",
+    "homepage_url": "https://www.sdzk.cn/default.aspx",
+    "data_categories": ["admission_scores"],
+    "coverage": {
+      "provinces": ["山东"],
+      "years": [2025]
+    },
+    "trust_score": 1.0,
+    "update_frequency": "annual",
+    "collection_method": "manual_download",
+    "license_note": "Example only; replace with reviewed official citation notes."
+  },
+  "manifest": {
+    "snapshot_id": "sd_pilot_2025_001",
+    "source_id": "sd_exam_authority",
+    "dataset": "admission_scores",
+    "source_url": "https://example.gov.cn/manual-sample.csv",
+    "published_year": 2025,
+    "collected_at": "2026-06-06T00:00:00Z",
+    "collector": "manual",
+    "collector_version": "0.1.0",
+    "files": [
+      {
+        "path": "files/manual-sample.csv",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "content_type": "text/csv"
+      }
+    ],
+    "license_note": "Example only; replace before real pilot loading."
+  },
+  "quality_config": {
+    "current_year": 2026,
+    "expected_provinces": ["山东"],
+    "expected_years": [2025],
+    "require_review_metadata": true
+  },
+  "rows": [
+    {
+      "school_name": "山东大学",
+      "major_name": null,
+      "province": "山东",
+      "year": 2025,
+      "batch": "本科批",
+      "subject_type": "综合",
+      "min_score": 620,
+      "min_rank": 12000,
+      "source_record_ref": "manual_row=1",
+      "review": {
+        "extracted_by": "example-extractor",
+        "reviewed_by": "example-reviewer",
+        "reviewed_at": "2026-06-07",
+        "notes": "Synthetic example row; replace with reviewed official evidence."
+      }
+    }
+  ]
+}

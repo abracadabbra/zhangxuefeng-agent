@@ -1,0 +1,119 @@
+{
+  "action": "source_review_handoff",
+  "passed": false,
+  "ready_for_source_review_handoff": false,
+  "source_id": "sd_exam_authority",
+  "scope": {
+    "data_category": "admission_scores",
+    "province": "\u5c71\u4e1c",
+    "years": [
+      2025
+    ]
+  },
+  "candidate_url": "https://www.sdzk.cn/NewsInfo.aspx?NewsID=6996",
+  "candidate_attachment_url": "https://www.sdzk.cn/Floadup/file/20250719/6388855130412530367357143.xls",
+  "input_artifacts": {
+    "human_checklist": "sd_source_review_human_checklist_blocked.json",
+    "candidate_review": "sd_source_review_approval_candidate_review.json",
+    "registry_patch_chain": "sd_source_registry_patch_chain_smoke_blocked.json",
+    "readiness_summary": "sd_mvp_readiness_summary.json"
+  },
+  "current_state": {
+    "source_review_ready": false,
+    "registry_update_ready": false,
+    "registry_patch_chain_ready": false,
+    "ready_for_real_snapshot": false,
+    "registry_not_modified": true,
+    "real_data_loaded": false
+  },
+  "next_manual_actions": [
+    {
+      "id": "verify_official_page",
+      "status": "verified",
+      "instruction": "Verify the candidate URL is an official Shandong exam authority page."
+    },
+    {
+      "id": "verify_attachment_or_table",
+      "status": "verified",
+      "instruction": "Verify the official attachment or table containing admission scores."
+    },
+    {
+      "id": "confirm_dataset_scope",
+      "status": "confirmed",
+      "instruction": "Confirm the dataset category, province, and admission year semantics."
+    },
+    {
+      "id": "review_usage_and_citation",
+      "status": "pending",
+      "instruction": "Record official usage, citation, and redistribution notes."
+    },
+    {
+      "id": "record_reviewer",
+      "status": "pending",
+      "instruction": "Record reviewer identity and review timestamp."
+    },
+    {
+      "id": "prepare_separate_source_approval",
+      "status": "pending",
+      "instruction": "Only after all checks pass, prepare the separate source approval packet."
+    }
+  ],
+  "issue_counts": {
+    "error": 6,
+    "warning": 0,
+    "info": 0
+  },
+  "issues": [
+    {
+      "severity": "error",
+      "code": "source_review_not_ready",
+      "message": "source review approval remains blocked",
+      "field": "current_state.source_review_ready"
+    },
+    {
+      "severity": "error",
+      "code": "registry_update_not_ready",
+      "message": "registry update plan remains blocked",
+      "field": "current_state.registry_update_ready"
+    },
+    {
+      "severity": "error",
+      "code": "registry_patch_chain_not_ready",
+      "message": "registry patch approval and preview remain blocked",
+      "field": "current_state.registry_patch_chain_ready"
+    },
+    {
+      "severity": "error",
+      "code": "real_snapshot_not_ready",
+      "message": "real snapshot planning remains blocked",
+      "field": "current_state.ready_for_real_snapshot"
+    },
+    {
+      "severity": "error",
+      "code": "manual_actions_pending",
+      "message": "source handoff manual actions are still pending",
+      "field": "next_manual_actions"
+    },
+    {
+      "severity": "error",
+      "code": "separate_approval_required",
+      "message": "source approval still requires a separate human approval packet",
+      "field": "input_artifacts.human_checklist"
+    }
+  ],
+  "required_reviews": [
+    "Complete source review handoff manual actions.",
+    "Complete license or citation review.",
+    "Provide reviewer identity and review timestamp.",
+    "Prepare a separate source approval packet only after evidence passes."
+  ],
+  "non_goals": [
+    "Does not approve the source.",
+    "Does not modify sources.json.",
+    "Does not fetch remote source pages or download attachments.",
+    "Does not create raw snapshots.",
+    "Does not parse rows or run quality gates.",
+    "Does not execute loader or write databases.",
+    "Does not refresh RAG or Agent-visible data."
+  ]
+}

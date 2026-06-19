@@ -1,0 +1,39 @@
+{
+  "action": "source_usage_review",
+  "passed": true,
+  "ready_for_source_approval_license_review": true,
+  "scope": {
+    "source_id": "synthetic_reviewed_source_example",
+    "data_category": "admission_scores",
+    "province": "示例省",
+    "years": [
+      2025
+    ]
+  },
+  "evidence_summary": {
+    "has_source_url": true,
+    "has_attachment_url": false,
+    "has_copyright_notice": true,
+    "has_citation_or_usage_notes": true,
+    "redistribution_restriction_detected": false,
+    "usage_status": "approved_for_real_data_ingestion",
+    "license_reviewed": true,
+    "allow_real_data_ingestion": true,
+    "has_reviewer": true,
+    "has_reviewed_at": true
+  },
+  "issue_counts": {
+    "error": 0,
+    "warning": 0,
+    "info": 0
+  },
+  "issues": [],
+  "required_reviews": [],
+  "non_goals": [
+    "Does not approve source registry changes.",
+    "Does not fetch remote source pages or download attachments.",
+    "Does not create raw snapshots.",
+    "Does not parse rows or run quality gates.",
+    "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+  ]
+}

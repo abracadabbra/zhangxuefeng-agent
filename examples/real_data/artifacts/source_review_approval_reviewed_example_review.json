@@ -1,0 +1,51 @@
+{
+  "action": "source_review_approval_review",
+  "passed": true,
+  "ready_for_registry_update": true,
+  "scope": {
+    "source_id": "synthetic_reviewed_source_example",
+    "target_review_status": "approved",
+    "data_category": "admission_scores",
+    "province": "示例省",
+    "years": [
+      2025
+    ]
+  },
+  "evidence_summary": {
+    "has_dataset_page_url": true,
+    "has_attachment_url": false,
+    "has_source_url": true,
+    "has_license_or_citation_notes": true,
+    "data_category_confirmed": true,
+    "published_year_confirmed": true,
+    "license_reviewed": true,
+    "has_usage_review": true,
+    "usage_review_ready": true,
+    "has_reviewer": true,
+    "has_reviewed_at": true
+  },
+  "issue_counts": {
+    "error": 0,
+    "warning": 0,
+    "info": 0
+  },
+  "issues": [],
+  "required_reviews": [],
+  "registry_update_hint": {
+    "can_update_registry": true,
+    "source_id": "synthetic_reviewed_source_example",
+    "target_review_status": "approved",
+    "add_data_category_if_missing": "admission_scores",
+    "add_province_if_missing": "示例省",
+    "add_years_if_missing": [
+      2025
+    ]
+  },
+  "non_goals": [
+    "Does not modify the source registry.",
+    "Does not fetch remote source pages.",
+    "Does not create raw snapshots.",
+    "Does not parse rows or run quality gates.",
+    "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+  ]
+}

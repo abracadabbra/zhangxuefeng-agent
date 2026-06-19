@@ -1,0 +1,63 @@
+{
+  "status": "success",
+  "tool_name": "search_admission",
+  "query": {
+    "school_name": "山东大学",
+    "province": "山东",
+    "year": 2025
+  },
+  "results": [
+    {
+      "school_name": "山东大学",
+      "province": "山东",
+      "year": 2025,
+      "batch": "本科批",
+      "subject_type": "综合",
+      "min_score": 620,
+      "min_rank": 12000,
+      "sources": [
+        {
+          "source_id": "sd_exam_authority",
+          "source_name": "Shandong Education Admissions Examination Institute",
+          "source_type": "provincial_exam_authority",
+          "snapshot_id": "sd_pilot_2025_001",
+          "dataset": "admission_scores",
+          "published_year": 2025,
+          "source_url": "https://example.gov.cn/manual-sample.csv",
+          "confidence": 0.95,
+          "trust_score": 1.0,
+          "freshness": "current",
+          "review_status": "approved",
+          "license_note": "Synthetic example only; replace before real pilot."
+        }
+      ],
+      "source_summary": {
+        "source_count": 1,
+        "citation_ready": true,
+        "needs_caution": false,
+        "source_metadata_complete": true,
+        "best_confidence": 0.95,
+        "best_trust_score": 1.0,
+        "freshness": "current",
+        "review_statuses": ["approved"]
+      }
+    }
+  ],
+  "source_summary": {
+    "item_count": 1,
+    "items_with_sources": 1,
+    "items_needing_caution": 0,
+    "source_count": 1,
+    "citation_ready": true,
+    "needs_caution": false,
+    "source_metadata_complete": true
+  },
+  "answer_source_policy": {
+    "answer_mode": "citeable",
+    "citation_ready": true,
+    "requires_citation": true,
+    "requires_caution": false,
+    "allowed_default_answer": true,
+    "reasons": []
+  }
+}

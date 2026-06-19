@@ -1,0 +1,81 @@
+{
+  "action": "real_data_pilot_artifact_manifest",
+  "generated_at": "2026-06-07T00:00:00Z",
+  "source_id": "sd_exam_authority",
+  "snapshot_id": "sd_pilot_2025_001",
+  "dataset": "admission_scores",
+  "candidate_count": 1,
+  "ready_for_loader_execution": true,
+  "artifact_paths": {
+    "source_audit": "examples/real_data/artifacts/sd_source_audit.json",
+    "intake_review": "examples/real_data/artifacts/sd_intake_review.json",
+    "dry_run_audit": "examples/real_data/artifacts/sd_snapshot_pilot_audit.json",
+    "rows_bundle": "examples/real_data/sd_snapshot_pilot_rows.json",
+    "snapshot_dir": "examples/real_data/snapshots/sd_pilot_2025_001",
+    "loader_approval": "examples/real_data/artifacts/sd_snapshot_pilot_approval.json"
+  },
+  "artifact_path_issues": [],
+  "intake_review_issues": [],
+  "artifact_scope_issues": [],
+  "loader_approval_issues": [],
+  "review_summary": {
+    "source_audit_scope": {
+      "data_category": "admission_scores",
+      "expected_provinces": ["山东"],
+      "expected_years": [2025],
+      "require_reviewed": true
+    },
+    "source_audit_passed": true,
+    "source_issue_counts": {
+      "error": 0,
+      "warning": 0,
+      "info": 0
+    },
+    "intake_review_present": true,
+    "intake_review_passed": true,
+    "intake_ready_for_snapshot": true,
+    "intake_issue_counts": {
+      "error": 0,
+      "warning": 0,
+      "info": 0
+    },
+    "intake_scope": {
+      "source_id": "sd_exam_authority",
+      "dataset": "admission_scores",
+      "province": "山东",
+      "published_year": 2025
+    },
+    "dry_run_passed": true,
+    "dry_run_load_ready": true,
+    "dry_run_review_status": "ready_for_loader_review",
+    "dry_run_blockers": [],
+    "dry_run_issue_counts": {
+      "error": 0,
+      "warning": 0,
+      "info": 0
+    },
+    "loader_approval_present": true,
+    "loader_load_allowed": true
+  },
+  "loader_handoff": {
+    "recommended_entrypoint": "load_candidates_after_artifact_manifest",
+    "artifact_manifest_ready": true,
+    "requires_separate_loader_run_command": true,
+    "does_not_authorize": [
+      "crawler execution",
+      "seed data modification",
+      "RAG or Agent refresh",
+      "production database writes without a separate run command"
+    ]
+  },
+  "required_reviews": [
+    "Provide a separate approved loader run command."
+  ],
+  "non_goals": [
+    "Does not approve crawler execution.",
+    "Does not approve canonical loader execution.",
+    "Does not write database rows.",
+    "Does not modify seed data.",
+    "Does not refresh RAG or Agent-visible data."
+  ]
+}

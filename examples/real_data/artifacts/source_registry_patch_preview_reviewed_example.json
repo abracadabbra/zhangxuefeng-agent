@@ -1,0 +1,46 @@
+{
+  "action": "source_registry_patch_preview",
+  "passed": true,
+  "ready_for_registry_patch_preview": true,
+  "source_id": "synthetic_reviewed_source_example",
+  "changes_applied": [
+    "review_status"
+  ],
+  "patched_source": {
+    "source_id": "synthetic_reviewed_source_example",
+    "name": "Synthetic Reviewed Source Example",
+    "source_type": "provincial_exam_authority",
+    "homepage_url": "https://example.invalid/synthetic-admission-scores.html",
+    "data_categories": [
+      "admission_scores"
+    ],
+    "coverage": {
+      "provinces": [
+        "示例省"
+      ],
+      "years": [
+        2025
+      ]
+    },
+    "trust_score": 1.0,
+    "update_frequency": "annual",
+    "collection_method": "manual_download",
+    "license_note": "Synthetic example only; not an official source.",
+    "review_status": "approved",
+    "notes": "Temporary no-write registry input for demonstrating a passing source review chain. Do not copy into sources.json."
+  },
+  "issue_counts": {
+    "error": 0,
+    "warning": 0,
+    "info": 0
+  },
+  "issues": [],
+  "required_reviews": [],
+  "non_goals": [
+    "Does not modify sources.json.",
+    "Does not approve source review by itself.",
+    "Does not fetch remote source pages.",
+    "Does not create raw snapshots.",
+    "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+  ]
+}

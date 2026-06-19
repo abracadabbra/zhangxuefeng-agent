@@ -22,6 +22,7 @@ from ..security import mask_sensitive
 from ..tools.definitions import TOOLS
 from ..tools.registry import tool_registry
 from .prompt import SYSTEM_PROMPT
+from .source_policy import build_tool_answer_source_policy_review
 
 logger = logging.getLogger(__name__)
 
@@ -199,6 +200,9 @@ class AgentCore:
                 return {
                     "reply": message.content or "",
                     "tool_calls": all_tool_calls,
+                    "answer_source_policy_review": (
+                        build_tool_answer_source_policy_review(all_tool_calls)
+                    ),
                     "usage": (
                         {
                             "prompt_tokens": response.usage.prompt_tokens,

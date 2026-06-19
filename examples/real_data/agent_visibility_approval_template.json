@@ -1,0 +1,35 @@
+{
+  "purpose": "Template for separate Agent visibility approval after loader evidence exists.",
+  "action": "agent_visibility_approval",
+  "allow_agent_visibility": false,
+  "loader_run_confirmed": false,
+  "reviewed_by": "",
+  "reviewed_at": "",
+  "loader_run_evidence": {
+    "run_id": "",
+    "completed_at": "",
+    "artifact_manifest_path": "",
+    "result_status": "",
+    "loaded_counts": {}
+  },
+  "scope": {
+    "source_id": "sd_exam_authority",
+    "snapshot_id": "sd_pilot_2025_001",
+    "dataset": "admission_scores"
+  },
+  "review_notes": "",
+  "required_preconditions": [
+    "Artifact manifest is ready for loader execution.",
+    "Canonical loader run was separately approved and completed.",
+    "Loader run evidence matches the artifact manifest candidate count.",
+    "Answer source policy review passed.",
+    "Tool response carries source/year/snapshot/confidence metadata.",
+    "Rollback plan exists for Agent/RAG visibility changes."
+  ],
+  "non_goals": [
+    "Does not execute the canonical loader.",
+    "Does not write database rows.",
+    "Does not refresh RAG or Agent-visible data.",
+    "Does not approve deployment by itself."
+  ]
+}

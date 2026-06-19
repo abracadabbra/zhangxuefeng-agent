@@ -1,16 +1,15 @@
 """
 对话相关端点：/chat、/recommend、SSE 流式生成器
 """
-
 import json
 import logging
-from typing import Any
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from sse_starlette.sse import EventSourceResponse
 
 from backend.agent.core import AgentCore
+from backend.agent.source_policy import build_tool_answer_source_policy_review
 from backend.dependencies import (
     MODEL,
     OPENAI_API_KEY,
@@ -29,8 +28,6 @@ from backend.security import (
 from backend.soul_query import QueryState
 from backend.user_profile import (
     UserProfile,
-    apply_profile_context,
-    empty_profile,
     load_profile,
     save_profile,
 )
@@ -53,6 +50,10 @@ class ChatResponse(BaseModel):
     reply: str
     model: str
     tool_calls: list[dict] = Field(default_factory=list, description="工具调用记录")
+    answer_source_policy_review: dict | None = Field(
+        default=None,
+        description="工具结果来源策略汇总",
+    )
     usage: dict | None = None
 
 
@@ -65,75 +66,47 @@ class RecommendRequest(BaseModel):
 # ============== Helpers ==============
 
 
-def _model_or_mapping_to_dict(item: Any) -> dict[str, Any]:
-    if hasattr(item, "model_dump"):
-        return item.model_dump()
-    if isinstance(item, dict):
-        return item
-    return {}
+def _summarize_tool_calls(tool_calls: list[dict]) -> list[dict]:
+    """生成适合日志记录的工具调用摘要，避免写入完整参数和结果。"""
+    summary: list[dict] = []
+    for call in tool_calls:
+        arguments = call.get("arguments")
+        if not isinstance(arguments, dict):
+            arguments = {}
+        result = str(call.get("result", ""))
+        name = mask_sensitive(str(call.get("name", "unknown")))
+        summary.append(
+            {
+                "name": name,
+                "argument_keys": sorted(mask_sensitive(str(key)) for key in arguments),
+                "result_chars": len(result),
+            }
+        )
+    return summary
 
 
-def _recommendation_name(item: dict[str, Any]) -> str:
-    return str(
-        item.get("school_name")
-        or item.get("school")
-        or item.get("major_name")
-        or item.get("major")
-        or item.get("name")
-        or "推荐项"
+def _log_tool_call_summary(session_id: str, tool_calls: list[dict], *, mode: str) -> None:
+    """记录工具调用摘要，供排查和观测使用。"""
+    if not tool_calls:
+        return
+    logger.info(
+        "tool calls completed session_id=%s mode=%s count=%s summary=%s",
+        session_id,
+        mode,
+        len(tool_calls),
+        _summarize_tool_calls(tool_calls),
     )
 
-
-def _strategy_from_probability(item: dict[str, Any]) -> str:
-    if item.get("strategy") in {"冲", "稳", "保"}:
-        return str(item["strategy"])
-    probability = item.get("admission_probability")
-    if isinstance(probability, int | float):
-        if probability >= 0.8:
-            return "保"
-        if probability >= 0.55:
-            return "稳"
-        return "冲"
-    return "稳"
-
-
-def _string_list(value: Any) -> list[str]:
-    if not isinstance(value, list):
-        return []
-    return [str(item).strip() for item in value if str(item).strip()]
-
-
-def _normalize_recommendation_item(item: dict[str, Any]) -> dict[str, Any]:
-    normalized = dict(item)
-    normalized["strategy"] = _strategy_from_probability(normalized)
-    if not str(normalized.get("reason") or "").strip():
-        normalized["reason"] = "结合当前画像、录取概率和就业方向综合匹配。"
-    risks = _string_list(normalized.get("risk_points"))
-    normalized["risk_points"] = risks or ["需核实最新招生章程、选科限制和分数波动。"]
-    alternatives = _string_list(normalized.get("alternatives"))
-    normalized["alternatives"] = alternatives or ["可对比同层次院校或相近专业作为替代方案。"]
-    return normalized
-
-
-def _normalize_gradient_summary(
-    recommendations: list[dict[str, Any]],
-    gradient_summary: Any,
-) -> dict[str, list[str]]:
-    normalized: dict[str, list[str]] = {"冲": [], "稳": [], "保": []}
-    if isinstance(gradient_summary, dict):
-        for strategy in normalized:
-            values = gradient_summary.get(strategy)
-            if isinstance(values, list):
-                normalized[strategy] = [str(item) for item in values if str(item).strip()]
-
-    for item in recommendations:
-        strategy = str(item.get("strategy") or "稳")
-        if strategy not in normalized:
-            strategy = "稳"
-        name = _recommendation_name(item)
-        if name not in normalized[strategy]:
-            normalized[strategy].append(name)
-    return normalized
+# 中文字段名 -> UserProfile 字段名映射
+_CONTEXT_KEY_MAP = {
+    "分数": "score",
+    "省份": "province",
+    "科类": "subject",
+    "家庭条件": "family_background",
+    "目标城市": "target_city",
+    "风险偏好": "risk_tolerance",
+    "职业方向": "career_goal",
+}
 
 
 def _extract_profile_from_message(message: str, profile: UserProfile) -> bool:
@@ -150,38 +123,10 @@ def _extract_profile_from_message(message: str, profile: UserProfile) -> bool:
             updated = True
 
     provinces = [
-        "北京",
-        "天津",
-        "上海",
-        "重庆",
-        "河北",
-        "山西",
-        "辽宁",
-        "吉林",
-        "黑龙江",
-        "江苏",
-        "浙江",
-        "安徽",
-        "福建",
-        "江西",
-        "山东",
-        "河南",
-        "湖北",
-        "湖南",
-        "广东",
-        "海南",
-        "四川",
-        "贵州",
-        "云南",
-        "陕西",
-        "甘肃",
-        "青海",
-        "台湾",
-        "内蒙古",
-        "广西",
-        "西藏",
-        "宁夏",
-        "新疆",
+        "北京", "天津", "上海", "重庆", "河北", "山西", "辽宁", "吉林",
+        "黑龙江", "江苏", "浙江", "安徽", "福建", "江西", "山东", "河南",
+        "湖北", "湖南", "广东", "海南", "四川", "贵州", "云南", "陕西",
+        "甘肃", "青海", "台湾", "内蒙古", "广西", "西藏", "宁夏", "新疆",
     ]
     for p in provinces:
         if p in message and profile.province is None:
@@ -211,46 +156,33 @@ def _extract_profile_from_message(message: str, profile: UserProfile) -> bool:
     return updated
 
 
-def _sse_message(payload: dict) -> dict[str, str]:
-    return {
-        "event": "message",
-        "data": json.dumps(payload, ensure_ascii=False),
-    }
+# ============== SSE Stream Generators ==============
 
 
-def _summarize_tool_calls(tool_calls: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """生成适合日志记录的工具调用摘要，避免写入完整参数和结果。"""
-    summary: list[dict[str, Any]] = []
-    for call in tool_calls:
-        arguments = call.get("arguments")
-        if not isinstance(arguments, dict):
-            arguments = {}
-        result = str(call.get("result", ""))
-        name = mask_sensitive(str(call.get("name", "unknown")))
-        summary.append(
-            {
-                "name": name,
-                "argument_keys": sorted(mask_sensitive(str(key)) for key in arguments),
-                "result_chars": len(result),
-            }
-        )
-    return summary
-
-
-def _log_tool_call_summary(session_id: str, tool_calls: list[dict[str, Any]], *, mode: str) -> None:
-    """记录工具调用摘要，供排查和观测使用。"""
-    if not tool_calls:
-        return
-    logger.info(
-        "tool calls completed session_id=%s mode=%s count=%s summary=%s",
-        session_id,
-        mode,
-        len(tool_calls),
-        _summarize_tool_calls(tool_calls),
+def _record_stream_tool_result(tool_calls_log: list[dict], event: dict) -> None:
+    """Attach a stream tool result to the first matching pending tool call."""
+    for tool_call in tool_calls_log:
+        if tool_call.get("name") == event.get("name") and "result" not in tool_call:
+            tool_call["result"] = event.get("result")
+            return
+    tool_calls_log.append(
+        {
+            "name": event.get("name"),
+            "arguments": {},
+            "result": event.get("result"),
+        }
     )
 
 
-# ============== SSE Stream Generators ==============
+def _stream_policy_review_event(tool_calls_log: list[dict]) -> dict:
+    review = build_tool_answer_source_policy_review(tool_calls_log)
+    return {
+        "event": "message",
+        "data": json.dumps(
+            {"type": "answer_source_policy_review", "review": review},
+            ensure_ascii=False,
+        ),
+    }
 
 
 async def _stream_response(
@@ -262,50 +194,53 @@ async def _stream_response(
 ):
     """SSE 流式响应生成器（AgentCore 模式）"""
     full_reply = ""
-    tool_calls_log: list[dict[str, Any]] = []
+    tool_calls_log = []
 
     try:
         async for event in agent_instance.chat_stream(messages, user_context=user_context):
             if event["type"] == "text":
                 full_reply += event["content"]
-                yield _sse_message({"type": "text", "content": event["content"]})
+                yield {
+                    "event": "message",
+                    "data": json.dumps({"type": "text", "content": event["content"]}, ensure_ascii=False),
+                }
             elif event["type"] == "tool_call":
-                tool_calls_log.append(
-                    {
-                        "name": event["name"],
-                        "arguments": event.get("arguments", {}),
-                        "result": "",
-                    }
-                )
-                yield _sse_message(
-                    {
-                        "type": "tool_call",
-                        "name": event["name"],
-                        "arguments": event["arguments"],
-                    }
-                )
+                tool_calls_log.append({"name": event["name"], "arguments": event["arguments"]})
+                yield {
+                    "event": "message",
+                    "data": json.dumps(
+                        {"type": "tool_call", "name": event["name"], "arguments": event["arguments"]},
+                        ensure_ascii=False,
+                    ),
+                }
             elif event["type"] == "tool_result":
-                for call in reversed(tool_calls_log):
-                    if call["name"] == event["name"] and not call.get("result"):
-                        call["result"] = event.get("result", "")
-                        break
-                yield _sse_message(
-                    {
-                        "type": "tool_result",
-                        "name": event["name"],
-                        "result": event["result"],
-                    }
-                )
+                _record_stream_tool_result(tool_calls_log, event)
+                yield {
+                    "event": "message",
+                    "data": json.dumps(
+                        {"type": "tool_result", "name": event["name"], "result": event["result"]},
+                        ensure_ascii=False,
+                    ),
+                }
+                yield _stream_policy_review_event(tool_calls_log)
             elif event["type"] == "done":
-                yield _sse_message({"type": "done", "usage": event["usage"]})
+                yield {
+                    "event": "message",
+                    "data": json.dumps({"type": "done", "usage": event["usage"]}, ensure_ascii=False),
+                }
     except Exception as e:
         logger.error(f"LLM 流式调用失败: {type(e).__name__}: {e}", exc_info=True)
-        yield _sse_message({"type": "text", "content": f"\n\n{safe_error_message(e)}"})
-        yield _sse_message({"type": "done", "usage": None})
+        yield {
+            "event": "message",
+            "data": json.dumps({"type": "text", "content": f"\n\n{safe_error_message(e)}"}, ensure_ascii=False),
+        }
+        yield {
+            "event": "message",
+            "data": json.dumps({"type": "done", "usage": None}, ensure_ascii=False),
+        }
 
     session_store.add_message(session_id, "user", user_message)
     session_store.add_message(session_id, "assistant", full_reply)
-    _log_tool_call_summary(session_id, tool_calls_log, mode="agentcore-stream")
 
 
 async def _stream_response_langchain(
@@ -315,7 +250,8 @@ async def _stream_response_langchain(
     user_context: dict,
 ):
     """LangChain Agent 的 SSE 流式响应生成器"""
-    tool_calls_log: list[dict[str, Any]] = []
+    tool_calls_log = []
+
     try:
         async for event in agent_instance.chat_stream(
             message=user_message,
@@ -323,42 +259,46 @@ async def _stream_response_langchain(
             user_context=user_context,
         ):
             if event["type"] == "text":
-                yield _sse_message({"type": "text", "content": event["content"]})
+                yield {
+                    "event": "message",
+                    "data": json.dumps({"type": "text", "content": event["content"]}, ensure_ascii=False),
+                }
             elif event["type"] == "tool_call":
                 tool_calls_log.append(
-                    {
-                        "name": event["name"],
-                        "arguments": event.get("arguments", {}),
-                        "result": "",
-                    }
+                    {"name": event["name"], "arguments": event["arguments"]}
                 )
-                yield _sse_message(
-                    {
-                        "type": "tool_call",
-                        "name": event["name"],
-                        "arguments": event["arguments"],
-                    }
-                )
+                yield {
+                    "event": "message",
+                    "data": json.dumps(
+                        {"type": "tool_call", "name": event["name"], "arguments": event["arguments"]},
+                        ensure_ascii=False,
+                    ),
+                }
             elif event["type"] == "tool_result":
-                for call in reversed(tool_calls_log):
-                    if call["name"] == event["name"] and not call.get("result"):
-                        call["result"] = event.get("result", "")
-                        break
-                yield _sse_message(
-                    {
-                        "type": "tool_result",
-                        "name": event["name"],
-                        "result": event["result"],
-                    }
-                )
+                _record_stream_tool_result(tool_calls_log, event)
+                yield {
+                    "event": "message",
+                    "data": json.dumps(
+                        {"type": "tool_result", "name": event["name"], "result": event["result"]},
+                        ensure_ascii=False,
+                    ),
+                }
+                yield _stream_policy_review_event(tool_calls_log)
             elif event["type"] == "done":
-                yield _sse_message({"type": "done", "usage": None})
+                yield {
+                    "event": "message",
+                    "data": json.dumps({"type": "done", "usage": None}, ensure_ascii=False),
+                }
     except Exception as e:
         logger.error(f"LangChain 流式调用失败: {type(e).__name__}: {e}", exc_info=True)
-        yield _sse_message({"type": "text", "content": f"\n\n{safe_error_message(e)}"})
-        yield _sse_message({"type": "done", "usage": None})
-    finally:
-        _log_tool_call_summary(session_id, tool_calls_log, mode="langchain-stream")
+        yield {
+            "event": "message",
+            "data": json.dumps({"type": "text", "content": f"\n\n{safe_error_message(e)}"}, ensure_ascii=False),
+        }
+        yield {
+            "event": "message",
+            "data": json.dumps({"type": "done", "usage": None}, ensure_ascii=False),
+        }
 
 
 # ============== Endpoints ==============
@@ -379,11 +319,16 @@ async def chat(req: ChatRequest):
     try:
         profile = await load_profile(session_id)
     except Exception:
-        profile = empty_profile()
+        profile = UserProfile()
 
     # 合并 user_context 到 profile（供灵魂追问使用）
     if session["user_context"]:
-        profile = apply_profile_context(profile, session["user_context"])
+        for key, val in session["user_context"].items():
+            if val is None:
+                continue
+            field = _CONTEXT_KEY_MAP.get(key)
+            if field and field in UserProfile.model_fields and getattr(profile, field, None) is None:
+                setattr(profile, field, val)
 
     profile_updated = _extract_profile_from_message(safe_message, profile)
     if profile_updated:
@@ -417,9 +362,7 @@ async def chat(req: ChatRequest):
     session_store.update_context(session_id, session["user_context"])
 
     if not OPENAI_API_KEY and not USE_LANGCHAIN:
-        error_reply = (
-            "抱歉，AI 服务暂时不可用（API Key 未配置）。请联系管理员配置 OPENAI_API_KEY 环境变量。"
-        )
+        error_reply = "抱歉，AI 服务暂时不可用（API Key 未配置）。请联系管理员配置 OPENAI_API_KEY 环境变量。"
         session_store.add_message(session_id, "user", safe_message)
         session_store.add_message(session_id, "assistant", error_reply)
         return ChatResponse(
@@ -427,6 +370,7 @@ async def chat(req: ChatRequest):
             reply=error_reply,
             model=MODEL,
             tool_calls=[],
+            answer_source_policy_review=None,
             usage=None,
         )
 
@@ -436,12 +380,7 @@ async def chat(req: ChatRequest):
     if USE_LANGCHAIN:
         if req.stream:
             return EventSourceResponse(
-                _stream_response_langchain(
-                    agent_instance,
-                    session_id,
-                    safe_message,
-                    session["user_context"],
-                ),
+                _stream_response_langchain(agent_instance, session_id, safe_message, session["user_context"]),
                 media_type="text/event-stream",
             )
         result = await agent_instance.chat(
@@ -449,13 +388,12 @@ async def chat(req: ChatRequest):
             session_id=session_id,
             user_context=session["user_context"],
         )
-        tool_calls = result.get("tool_calls", [])
-        _log_tool_call_summary(session_id, tool_calls, mode="langchain")
         return ChatResponse(
             session_id=session_id,
             reply=result["reply"],
             model="langchain-agent",
-            tool_calls=tool_calls,
+            tool_calls=result.get("tool_calls", []),
+            answer_source_policy_review=result.get("answer_source_policy_review"),
             usage=None,
         )
 
@@ -465,13 +403,7 @@ async def chat(req: ChatRequest):
 
     if req.stream:
         return EventSourceResponse(
-            _stream_response(
-                agent_instance,
-                messages,
-                session_id,
-                safe_message,
-                session["user_context"],
-            ),
+            _stream_response(agent_instance, messages, session_id, safe_message, session["user_context"]),
             media_type="text/event-stream",
         )
 
@@ -487,18 +419,19 @@ async def chat(req: ChatRequest):
             reply=error_reply,
             model=MODEL,
             tool_calls=[],
+            answer_source_policy_review=None,
             usage=None,
         )
 
     session_store.add_message(session_id, "user", safe_message)
     session_store.add_message(session_id, "assistant", result["reply"])
-    _log_tool_call_summary(session_id, result["tool_calls"], mode="agentcore")
 
     return ChatResponse(
         session_id=session_id,
         reply=result["reply"],
         model=MODEL,
         tool_calls=result["tool_calls"],
+        answer_source_policy_review=result.get("answer_source_policy_review"),
         usage=result["usage"],
     )
 
@@ -507,10 +440,7 @@ async def chat(req: ChatRequest):
 async def recommend(req: RecommendRequest):
     """结构化推荐接口 -- 返回学校/专业推荐结果"""
     if not USE_LANGCHAIN:
-        raise HTTPException(
-            status_code=501,
-            detail="推荐接口需要启用 LangChain (USE_LANGCHAIN=true)",
-        )
+        raise HTTPException(status_code=501, detail="推荐接口需要启用 LangChain (USE_LANGCHAIN=true)")
 
     safe_message = validate_message(req.message)
     session_id = validate_session_id(req.session_id)
@@ -526,26 +456,11 @@ async def recommend(req: RecommendRequest):
             session_id=session_id,
             user_context=safe_context,
         )
-        recommendations = [_model_or_mapping_to_dict(item) for item in result.recommendations]
-        recommendations = [_normalize_recommendation_item(item) for item in recommendations if item]
-        summary = str(result.summary)
-        gradient_summary = _normalize_gradient_summary(
-            recommendations,
-            result.gradient_summary if hasattr(result, "gradient_summary") else {},
-        )
-        session_store.get_or_create(session_id, user_context=safe_context)
-        session_store.save_recommendation_report(
-            session_id=session_id,
-            recommendations=recommendations,
-            summary=summary,
-            gradient_summary=gradient_summary,
-        )
         return {
             "session_id": session_id,
-            "recommendations": recommendations,
-            "summary": summary,
-            "gradient_summary": gradient_summary,
+            "recommendations": result.recommendations,
+            "summary": result.summary,
         }
     except Exception as e:
         logger.error(f"推荐失败: {e}")
-        raise HTTPException(status_code=500, detail=safe_error_message(e)) from e
+        raise HTTPException(status_code=500, detail=safe_error_message(e))
