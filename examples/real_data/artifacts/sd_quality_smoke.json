@@ -1,0 +1,57 @@
+{
+  "action": "quality_smoke_review",
+  "passed": true,
+  "ready_for_quality_gate": true,
+  "scope": {
+    "source_id": "sd_exam_authority",
+    "snapshot_id": "sd_pilot_2025_001",
+    "dataset": "admission_scores",
+    "candidate_count": 1
+  },
+  "source_metadata": {
+    "source_ids": [
+      "sd_exam_authority"
+    ],
+    "snapshot_ids": [
+      "sd_pilot_2025_001"
+    ],
+    "datasets": [
+      "admission_scores"
+    ],
+    "years": [
+      2025
+    ],
+    "confidence_min": 0.95,
+    "confidence_max": 0.95,
+    "missing_source_ids": 0,
+    "missing_snapshot_ids": 0
+  },
+  "coverage": {
+    "total": 1,
+    "by_entity_type": {
+      "admission_score": 1
+    },
+    "by_province": {
+      "山东": 1
+    },
+    "by_year": {
+      "2025": 1
+    },
+    "missing_expected_provinces": [],
+    "missing_expected_years": []
+  },
+  "issue_counts": {
+    "error": 0,
+    "warning": 0,
+    "info": 0
+  },
+  "issues": [],
+  "required_reviews": [],
+  "non_goals": [
+    "Does not execute the pydantic quality gate.",
+    "Does not modify parser output.",
+    "Does not write database rows or seed data.",
+    "Does not approve loader execution.",
+    "Does not refresh RAG or Agent-visible data."
+  ]
+}

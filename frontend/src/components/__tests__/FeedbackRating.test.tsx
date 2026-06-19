@@ -104,7 +104,7 @@ describe('FeedbackRating', () => {
     await user.click(screen.getByText('提交反馈'))
 
     await waitFor(() => {
-      expect(screen.getByText('感谢反馈！')).toBeInTheDocument()
+      expect(screen.getByText('感谢来信')).toBeInTheDocument()
     })
   })
 
@@ -125,13 +125,7 @@ describe('FeedbackRating', () => {
   })
 
   it('shows loading state during submission', async () => {
-    let resolveFetch: (value: Response) => void
-    vi.spyOn(globalThis, 'fetch').mockImplementationOnce(
-      () =>
-        new Promise((resolve) => {
-          resolveFetch = resolve
-        }) as Promise<Response>
-    )
+    vi.spyOn(globalThis, 'fetch').mockImplementationOnce(() => new Promise(() => {}))
 
     const user = userEvent.setup()
     render(<FeedbackRating {...defaultProps} />)

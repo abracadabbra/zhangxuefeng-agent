@@ -25,6 +25,7 @@ env/
 data/
 *.db
 *.sqlite
+backend/chroma_data/
 
 # Docker
 docker-compose.override.yml
@@ -40,5 +41,16 @@ htmlcov/
 
 # mypy
 .mypy_cache/
+
+# TypeScript / frontend
+*.tsbuildinfo
+node_modules/
 frontend/node_modules/
+miniapp/node_modules/
+e2e/node_modules/
 backend/*.db
+
+# Local tool indexes and caches
+.codegraph/
+.omc/
+.serena/

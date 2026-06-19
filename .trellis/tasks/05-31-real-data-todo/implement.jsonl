@@ -1,0 +1,7 @@
+{"file": ".trellis/spec/backend/index.md", "reason": "Backend guideline index for real-data pipeline work."}
+{"file": ".trellis/spec/backend/directory-structure.md", "reason": "Backend module placement guidance; currently mostly template, but relevant for new data_pipeline package."}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "Backend quality/testing guidance; currently mostly template, but relevant for validation expectations."}
+{"file": ".trellis/spec/guides/index.md", "reason": "Shared thinking guides for cross-layer and code reuse checks."}
+{"file": ".trellis/tasks/05-31-real-data-todo/prd.md", "reason": "Task requirements and acceptance criteria for real-data MVP."}
+{"file": ".trellis/tasks/05-31-real-data-todo/design.md", "reason": "Technical design for source registry, snapshots, lineage, quality gate, and Agent source metadata."}
+{"file": ".trellis/tasks/05-31-real-data-todo/implement.md", "reason": "Execution checklist and validation status for phased implementation."}

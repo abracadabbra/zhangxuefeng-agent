@@ -1,0 +1,5 @@
+{"file": ".trellis/tasks/05-31-real-data-todo/prd.md", "reason": "Verify implemented scope still satisfies MVP requirements and out-of-scope constraints."}
+{"file": ".trellis/tasks/05-31-real-data-todo/design.md", "reason": "Verify implementation follows the planned source, snapshot, parser, and quality-gate contracts."}
+{"file": ".trellis/tasks/05-31-real-data-todo/implement.md", "reason": "Verify completed phases, pending validation, and next review gates before continuing."}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "Backend quality expectations for review."}
+{"file": ".trellis/spec/guides/index.md", "reason": "Shared review guide index for cross-layer and reuse checks."}

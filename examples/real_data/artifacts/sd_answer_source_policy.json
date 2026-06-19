@@ -1,0 +1,26 @@
+{
+  "action": "answer_source_policy_review",
+  "passed": true,
+  "source_summary": {
+    "item_count": 1,
+    "items_with_sources": 1,
+    "items_needing_caution": 0,
+    "source_count": 1,
+    "citation_ready": true,
+    "needs_caution": false,
+    "source_metadata_complete": true
+  },
+  "answer_source_policy": {
+    "answer_mode": "citeable",
+    "citation_ready": true,
+    "requires_citation": true,
+    "requires_caution": false,
+    "allowed_default_answer": true,
+    "reasons": []
+  },
+  "non_goals": [
+    "does_not_fetch_remote_data",
+    "does_not_write_database",
+    "does_not_refresh_rag_or_agent"
+  ]
+}

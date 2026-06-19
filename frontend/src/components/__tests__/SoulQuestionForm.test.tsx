@@ -7,7 +7,7 @@ import SoulQuestionForm from '../SoulQuestionForm'
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, opts?: Record<string, unknown>) => {
-      const overrides: Record<string, string> = {
+      const overrides: Record<string, string | string[]> = {
         'form.stepOf': `${opts?.current ?? 1} / ${opts?.total ?? 4}`,
         'form.gaokao.steps.score.label': '高考分数',
         'form.gaokao.steps.score.placeholder': '请输入分数',

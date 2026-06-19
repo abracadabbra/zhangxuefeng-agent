@@ -1,12 +1,14 @@
 """
-5 个工具定义 — 完整实现，对接数据库查询
+7 个工具定义 — 完整实现，对接数据库查询
 
 工具列表：
 - search_admission：搜索高校录取分数线
+- search_enrollment_plan：搜索高校招生计划
 - search_employment：搜索专业就业数据
 - compare_schools：院校对比
 - search_policy：搜索招生政策
 - calculate_match：分数匹配院校推荐
+- semantic_search：语义搜索学校和专业
 """
 import json
 from contextlib import contextmanager
@@ -14,10 +16,17 @@ from contextlib import contextmanager
 from sqlalchemy.orm import Session
 
 from ..crud.admission_score import get_admission_scores
+from ..crud.enrollment_plan import get_enrollment_plans
 from ..crud.major import get_major_by_name
 from ..crud.school import get_school_by_name
+from ..data_pipeline.lineage import (
+    build_answer_source_policy,
+    get_sources_for_entity,
+    summarize_sources,
+)
 from ..database import SessionLocal
 from ..schemas.admission_score import AdmissionScoreQuery
+from ..schemas.enrollment_plan import EnrollmentPlanQuery
 from .registry import register_tool
 
 
@@ -29,6 +38,70 @@ def _get_db() -> Session:
         yield db
     finally:
         db.close()
+
+
+def _attach_sources_to_items(
+    db: Session,
+    items: list[dict],
+    entity_type: str,
+) -> list[dict]:
+    """Attach source metadata without changing existing item fields."""
+    enriched = []
+    for item in items:
+        item_with_sources = dict(item)
+        entity_id = item.get("id")
+        if entity_id is None:
+            sources = []
+        else:
+            sources = get_sources_for_entity(
+                db,
+                entity_type,
+                int(entity_id),
+            )
+        item_with_sources["sources"] = sources
+        item_with_sources["source_summary"] = summarize_sources(sources)
+        enriched.append(item_with_sources)
+    return enriched
+
+
+def _summarize_result_sources(items: list[dict]) -> dict:
+    """Summarize item-level source metadata for one tool response."""
+    summaries = [item.get("source_summary", {}) for item in items]
+    items_with_sources = sum(
+        1 for summary in summaries if summary.get("citation_ready") is True
+    )
+    items_needing_caution = sum(
+        1 for summary in summaries if summary.get("needs_caution") is True
+    )
+    source_count = sum(int(summary.get("source_count") or 0) for summary in summaries)
+    source_metadata_complete = bool(items) and all(
+        summary.get("source_metadata_complete") is True
+        for summary in summaries
+    )
+
+    return {
+        "item_count": len(items),
+        "items_with_sources": items_with_sources,
+        "items_needing_caution": items_needing_caution,
+        "source_count": source_count,
+        "citation_ready": bool(items) and items_with_sources == len(items),
+        "needs_caution": not items or items_needing_caution > 0,
+        "source_metadata_complete": source_metadata_complete,
+    }
+
+
+def _unsupported_source_summary(item_count: int) -> dict:
+    """Build a conservative source summary for legacy untraced tool results."""
+    return {
+        "item_count": item_count,
+        "items_with_sources": 0,
+        "items_needing_caution": item_count,
+        "source_count": 0,
+        "citation_ready": False,
+        "needs_caution": True,
+        "source_metadata_complete": False,
+        "source_status": "legacy_untraced",
+    }
 
 
 @register_tool(
@@ -79,6 +152,8 @@ async def search_admission(school_name: str, province: str = "", year: int = 0, 
         )
 
         results, total = get_admission_scores(db, query)
+        results = _attach_sources_to_items(db, results, "admission_score")
+        result_source_summary = _summarize_result_sources(results)
 
         return json.dumps({
             "status": "success",
@@ -90,7 +165,84 @@ async def search_admission(school_name: str, province: str = "", year: int = 0, 
                 "ranking": school.ranking
             },
             "scores": results,
+            "source_summary": result_source_summary,
+            "answer_source_policy": build_answer_source_policy(
+                result_source_summary,
+            ),
             "total": total
+        }, ensure_ascii=False, default=str)
+
+
+@register_tool(
+    name="search_enrollment_plan",
+    description="搜索高校招生计划。输入学校名称和可选专业/省份/年份，返回招生人数、选科要求、学制和学费等信息。",
+    parameters={
+        "type": "object",
+        "properties": {
+            "school_name": {
+                "type": "string",
+                "description": "学校名称，如 '山东大学'、'郑州大学'",
+            },
+            "major_name": {
+                "type": "string",
+                "description": "专业名称，如 '计算机科学与技术'，可选",
+            },
+            "province": {
+                "type": "string",
+                "description": "招生省份，如 '山东'、'河南'",
+            },
+            "year": {
+                "type": "integer",
+                "description": "查询年份，默认最近一年",
+            },
+        },
+        "required": ["school_name"],
+    },
+)
+async def search_enrollment_plan(
+    school_name: str,
+    major_name: str = "",
+    province: str = "",
+    year: int = 0,
+) -> str:
+    """搜索高校招生计划"""
+    with _get_db() as db:
+        school = get_school_by_name(db, school_name)
+        if not school:
+            return json.dumps({
+                "status": "not_found",
+                "message": f"未找到学校：{school_name}",
+                "hint": "school_name 必须是具体学校名称，如'山东大学'。",
+            }, ensure_ascii=False)
+
+        query = EnrollmentPlanQuery(
+            school_id=school.id,
+            major_name=major_name if major_name else None,
+            province=province if province else None,
+            year=year if year else None,
+            page=1,
+            page_size=20,
+        )
+
+        results, total = get_enrollment_plans(db, query)
+        results = _attach_sources_to_items(db, results, "enrollment_plan")
+        result_source_summary = _summarize_result_sources(results)
+
+        return json.dumps({
+            "status": "success",
+            "school": {
+                "id": school.id,
+                "name": school.name,
+                "province": school.province,
+                "level": school.level,
+                "ranking": school.ranking,
+            },
+            "plans": results,
+            "source_summary": result_source_summary,
+            "answer_source_policy": build_answer_source_policy(
+                result_source_summary,
+            ),
+            "total": total,
         }, ensure_ascii=False, default=str)
 
 
@@ -138,7 +290,9 @@ async def search_employment(major_name: str, degree_level: str = "") -> str:
                 "avg_salary": major.avg_salary,
                 "job_directions": major.job_directions,
                 "is_hot": major.is_hot
-            }
+            },
+            "source_summary": source_summary,
+            "answer_source_policy": build_answer_source_policy(source_summary),
         }, ensure_ascii=False)
 
 
@@ -191,10 +345,13 @@ async def compare_schools(school_names: list[str], dimensions: list[str] | None 
                 "hint": "请确保传入的是具体学校名称列表（如['北京大学','清华大学']），不是省份或批次。"
             }, ensure_ascii=False)
 
+        source_summary = _unsupported_source_summary(len(schools))
         return json.dumps({
             "status": "success",
             "schools": schools,
-            "comparison_count": len(schools)
+            "comparison_count": len(schools),
+            "source_summary": source_summary,
+            "answer_source_policy": build_answer_source_policy(source_summary),
         }, ensure_ascii=False)
 
 
@@ -273,12 +430,15 @@ async def search_policy(keyword: str, school_name: str = "", year: int = 0) -> s
                 break
 
     if matched_policies:
+        source_summary = _unsupported_source_summary(len(matched_policies))
         return json.dumps({
             "status": "success",
             "query": keyword,
             "results": matched_policies,
             "source": "预置政策库（仅供参考，请以各省教育考试院最新公告为准）",
             "disclaimer": "政策信息可能存在时效性，请以官方最新发布为准。",
+            "source_summary": source_summary,
+            "answer_source_policy": build_answer_source_policy(source_summary),
         }, ensure_ascii=False)
 
     return json.dumps({
@@ -344,6 +504,7 @@ async def calculate_match(score: float, province: str, category: str, strategy: 
         )
 
         results, total = get_admission_scores(db, query)
+        results = _attach_sources_to_items(db, results, "admission_score")
 
         school_map = {}
         for r in results:
@@ -352,6 +513,7 @@ async def calculate_match(score: float, province: str, category: str, strategy: 
                 school_map[sid] = r
 
         matched = sorted(school_map.values(), key=lambda x: x["min_score"])[:limit]
+        result_source_summary = _summarize_result_sources(matched)
 
         return json.dumps({
             "status": "success",
@@ -363,6 +525,10 @@ async def calculate_match(score: float, province: str, category: str, strategy: 
                 "score_range": f"{int(min_score)}-{int(max_score)}"
             },
             "matched_schools": matched,
+            "source_summary": result_source_summary,
+            "answer_source_policy": build_answer_source_policy(
+                result_source_summary,
+            ),
             "total_matches": len(matched)
         }, ensure_ascii=False, default=str)
 
@@ -415,12 +581,15 @@ async def semantic_search(
                 province=province if province else None,
                 top_k=top_k,
             )
+            source_summary = _unsupported_source_summary(len(results))
             return json.dumps({
                 "status": "success",
                 "type": "school",
                 "query": query,
                 "results": results,
                 "total": len(results),
+                "source_summary": source_summary,
+                "answer_source_policy": build_answer_source_policy(source_summary),
             }, ensure_ascii=False)
         elif type == "major":
             results = await semantic_search_majors(
@@ -428,12 +597,15 @@ async def semantic_search(
                 category=category if category else None,
                 top_k=top_k,
             )
+            source_summary = _unsupported_source_summary(len(results))
             return json.dumps({
                 "status": "success",
                 "type": "major",
                 "query": query,
                 "results": results,
                 "total": len(results),
+                "source_summary": source_summary,
+                "answer_source_policy": build_answer_source_policy(source_summary),
             }, ensure_ascii=False)
         else:
             return json.dumps({

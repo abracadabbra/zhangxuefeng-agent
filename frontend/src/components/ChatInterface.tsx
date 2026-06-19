@@ -150,21 +150,17 @@ export default function ChatInterface({ sessionId, userProfile, scenario }: Chat
 
   // 进入聊天时：自动发送 profile 信息（优先用 props，其次从 API 获取）
   useEffect(() => {
-    console.log('[DEBUG] auto-send effect:', { profileSent, messagesLength: messages.length, userProfile, sessionId })
     if (profileSent || messages.length > 0) return
 
     const sendInitMessage = (profile: UserProfile | null) => {
-      console.log('[DEBUG] sendInitMessage:', profile)
       const ctx = profile ? {
         分数: profile.score,
         省份: profile.province,
         科类: profile.subject,
         家庭条件: profile.familyCondition,
       } : null
-      console.log('[DEBUG] ctx:', ctx)
 
       if (!ctx || !Object.values(ctx).some(v => v != null)) {
-        console.log('[DEBUG] ctx is empty, skip')
         return
       }
 
@@ -220,7 +216,7 @@ export default function ChatInterface({ sessionId, userProfile, scenario }: Chat
         })
         .catch(() => {})
     }
-  }, [userProfile, profileSent, messages.length, sessionId])
+  }, [userProfile, profileSent, messages.length, sessionId, scenario])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

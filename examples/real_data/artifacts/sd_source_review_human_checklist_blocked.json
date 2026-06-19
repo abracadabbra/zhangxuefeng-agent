@@ -1,0 +1,116 @@
+{
+  "action": "source_review_human_checklist",
+  "passed": false,
+  "ready_for_source_review_approval": false,
+  "source_id": "sd_exam_authority",
+  "scope": {
+    "data_category": "admission_scores",
+    "province": "山东",
+    "years": [
+      2025
+    ]
+  },
+  "input_artifacts": {
+    "candidate_packet": "examples/real_data/sd_source_review_approval_candidate.json",
+    "candidate_review": "sd_source_review_approval_candidate_review.json"
+  },
+  "candidate_evidence_summary": {
+    "has_dataset_page_url": true,
+    "dataset_page_url": "https://www.sdzk.cn/NewsInfo.aspx?NewsID=6996",
+    "has_attachment_url": true,
+    "attachment_url": "https://www.sdzk.cn/Floadup/file/20250719/6388855130412530367357143.xls",
+    "has_license_or_citation_notes": true,
+    "data_category_confirmed": true,
+    "published_year_confirmed": true,
+    "license_reviewed": false,
+    "has_reviewer": false,
+    "has_reviewed_at": false
+  },
+  "checklist": [
+    {
+      "id": "official_page_verified",
+      "label": "Confirm the URL is an official Shandong exam authority page.",
+      "status": "verified"
+    },
+    {
+      "id": "attachment_or_table_verified",
+      "label": "Confirm the official attachment or table that contains the data.",
+      "status": "verified"
+    },
+    {
+      "id": "data_category_confirmed",
+      "label": "Confirm the page is for admission scores.",
+      "status": "confirmed"
+    },
+    {
+      "id": "published_year_confirmed",
+      "label": "Confirm the official published year and admission year meaning.",
+      "status": "confirmed"
+    },
+    {
+      "id": "license_or_citation_reviewed",
+      "label": "Review official usage, citation, and redistribution notes.",
+      "status": "pending"
+    },
+    {
+      "id": "reviewer_recorded",
+      "label": "Record reviewer identity.",
+      "status": "pending"
+    },
+    {
+      "id": "review_time_recorded",
+      "label": "Record review date or timestamp.",
+      "status": "pending"
+    },
+    {
+      "id": "allow_flag_confirmed",
+      "label": "Set allow_source_review_approval only after all evidence passes.",
+      "status": "pending"
+    }
+  ],
+  "issue_counts": {
+    "error": 4,
+    "warning": 0,
+    "info": 0
+  },
+  "issues": [
+    {
+      "severity": "error",
+      "code": "license_or_citation_not_reviewed",
+      "message": "license or citation terms have not been reviewed",
+      "field": "checklist.license_or_citation_reviewed"
+    },
+    {
+      "severity": "error",
+      "code": "reviewer_not_recorded",
+      "message": "reviewer identity has not been recorded",
+      "field": "checklist.reviewer_recorded"
+    },
+    {
+      "severity": "error",
+      "code": "review_time_not_recorded",
+      "message": "review date or timestamp has not been recorded",
+      "field": "checklist.review_time_recorded"
+    },
+    {
+      "severity": "error",
+      "code": "allow_flag_not_confirmed",
+      "message": "allow_source_review_approval is still false",
+      "field": "checklist.allow_flag_confirmed"
+    }
+  ],
+  "required_reviews": [
+    "Complete license or citation review.",
+    "Provide reviewer identity.",
+    "Provide review date or timestamp.",
+    "Set allow_source_review_approval=true only after human review."
+  ],
+  "non_goals": [
+    "Does not approve the source.",
+    "Does not modify sources.json.",
+    "Does not fetch remote source pages or download attachments.",
+    "Does not create raw snapshots.",
+    "Does not parse rows or run quality gates.",
+    "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+  ]
+}

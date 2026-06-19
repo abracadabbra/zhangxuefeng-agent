@@ -1,0 +1,169 @@
+{
+  "action": "source_registry_patch_chain_smoke",
+  "passed": false,
+  "source_id": "sd_exam_authority",
+  "checks": {
+    "patch_approval_ready": false,
+    "patch_preview_ready": false,
+    "registry_not_modified": true
+  },
+  "issue_counts": {
+    "error": 2,
+    "warning": 0,
+    "info": 0
+  },
+  "issues": [
+    {
+      "severity": "error",
+      "code": "patch_approval_review_not_ready",
+      "message": "source registry patch approval review must pass",
+      "field": "patch_approval_review.ready_for_registry_patch_execution"
+    },
+    {
+      "severity": "error",
+      "code": "patch_preview_not_ready",
+      "message": "source registry patch preview must pass",
+      "field": "patch_preview.ready_for_registry_patch_preview"
+    }
+  ],
+  "required_reviews": [
+    "Resolve source registry update plan blockers.",
+    "Set allow_source_registry_patch=true only after human review.",
+    "Confirm the planned registry updates.",
+    "Provide registry patch reviewer.",
+    "Provide registry patch review date or timestamp.",
+    "Pass source registry patch approval review.",
+    "Resolve source registry patch preview blockers."
+  ],
+  "reviews": {
+    "patch_approval_review": {
+      "action": "source_registry_patch_approval_review",
+      "passed": false,
+      "ready_for_registry_patch_execution": false,
+      "source_id": "sd_exam_authority",
+      "planned_updates_summary": {
+        "review_status": {
+          "current": "candidate",
+          "target": "approved",
+          "will_update": true
+        },
+        "data_categories": {
+          "current": [
+            "admission_scores",
+            "enrollment_plans",
+            "policies"
+          ],
+          "add": []
+        },
+        "coverage_provinces": {
+          "current": [
+            "山东"
+          ],
+          "add": []
+        },
+        "coverage_years": {
+          "current": [
+            2025
+          ],
+          "add": []
+        }
+      },
+      "issue_counts": {
+        "error": 5,
+        "warning": 0,
+        "info": 0
+      },
+      "issues": [
+        {
+          "severity": "error",
+          "code": "update_plan_not_ready",
+          "message": "update plan must be ready for registry patch",
+          "field": "update_plan.ready_for_registry_patch"
+        },
+        {
+          "severity": "error",
+          "code": "source_registry_patch_not_allowed",
+          "message": "allow_source_registry_patch must be true",
+          "field": "approval.allow_source_registry_patch"
+        },
+        {
+          "severity": "error",
+          "code": "approval_planned_updates_confirmed_not_confirmed",
+          "message": "approval.planned_updates_confirmed must be true",
+          "field": "approval.planned_updates_confirmed"
+        },
+        {
+          "severity": "error",
+          "code": "missing_approval_reviewed_by",
+          "message": "approval.reviewed_by is required",
+          "field": "approval.reviewed_by"
+        },
+        {
+          "severity": "error",
+          "code": "missing_approval_reviewed_at",
+          "message": "approval.reviewed_at is required",
+          "field": "approval.reviewed_at"
+        }
+      ],
+      "required_reviews": [
+        "Resolve source registry update plan blockers.",
+        "Set allow_source_registry_patch=true only after human review.",
+        "Confirm the planned registry updates.",
+        "Provide registry patch reviewer.",
+        "Provide registry patch review date or timestamp."
+      ],
+      "non_goals": [
+        "Does not modify sources.json.",
+        "Does not approve source review by itself.",
+        "Does not fetch remote source pages.",
+        "Does not create raw snapshots.",
+        "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+      ]
+    },
+    "patch_preview": {
+      "action": "source_registry_patch_preview",
+      "passed": false,
+      "ready_for_registry_patch_preview": false,
+      "source_id": "sd_exam_authority",
+      "changes_applied": [],
+      "patched_source": {},
+      "issue_counts": {
+        "error": 2,
+        "warning": 0,
+        "info": 0
+      },
+      "issues": [
+        {
+          "severity": "error",
+          "code": "update_plan_not_ready",
+          "message": "update plan must be ready for registry patch",
+          "field": "update_plan.ready_for_registry_patch"
+        },
+        {
+          "severity": "error",
+          "code": "patch_approval_review_not_ready",
+          "message": "patch approval review must be ready for registry patch execution",
+          "field": "patch_approval_review.ready_for_registry_patch_execution"
+        }
+      ],
+      "required_reviews": [
+        "Resolve source registry update plan blockers.",
+        "Pass source registry patch approval review."
+      ],
+      "non_goals": [
+        "Does not modify sources.json.",
+        "Does not approve source review by itself.",
+        "Does not fetch remote source pages.",
+        "Does not create raw snapshots.",
+        "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+      ]
+    }
+  },
+  "non_goals": [
+    "Does not modify sources.json.",
+    "Does not approve source review by itself.",
+    "Does not fetch remote source pages.",
+    "Does not create raw snapshots.",
+    "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+  ]
+}

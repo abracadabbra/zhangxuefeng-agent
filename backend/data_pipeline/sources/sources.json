@@ -1,0 +1,157 @@
+{
+  "sources": [
+    {
+      "source_id": "moe_school_list",
+      "name": "Ministry of Education National Higher Education Institution List",
+      "source_type": "ministry",
+      "homepage_url": "https://www.moe.gov.cn/jyb_xxgk/s5743/s5744/A03/202306/t20230619_1064976.html",
+      "data_categories": ["schools"],
+      "coverage": {
+        "provinces": ["全国"],
+        "years": [2023]
+      },
+      "trust_score": 1.0,
+      "update_frequency": "annual",
+      "collection_method": "manual_download",
+      "license_note": "Official public list; citation and update cadence require manual review before production use.",
+      "review_status": "candidate",
+      "notes": "Use as a candidate source for school identity normalization."
+    },
+    {
+      "source_id": "sd_exam_authority",
+      "name": "Shandong Education Admissions Examination Institute",
+      "source_type": "provincial_exam_authority",
+      "homepage_url": "https://www.sdzk.cn/default.aspx",
+      "data_categories": ["admission_scores", "enrollment_plans", "policies"],
+      "coverage": {
+        "provinces": ["山东"],
+        "years": [2025]
+      },
+      "trust_score": 1.0,
+      "update_frequency": "annual",
+      "collection_method": "manual_download",
+      "license_note": "Official source; dataset/citation need snapshot review.",
+      "review_status": "candidate",
+      "notes": "2025 candidates checked 2026-06-07; snapshot license review required."
+    },
+    {
+      "source_id": "ha_exam_authority",
+      "name": "Henan Education Examinations Authority",
+      "source_type": "provincial_exam_authority",
+      "homepage_url": "https://www.haeea.cn/",
+      "data_categories": ["admission_scores", "enrollment_plans", "policies"],
+      "coverage": {
+        "provinces": ["河南"],
+        "years": []
+      },
+      "trust_score": 1.0,
+      "update_frequency": "annual",
+      "collection_method": "manual_download",
+      "license_note": "Official source; dataset/citation need snapshot review.",
+      "review_status": "candidate",
+      "notes": "Alternative high-demand pilot province source."
+    },
+    {
+      "source_id": "gd_exam_authority",
+      "name": "Guangdong Education Examinations Authority",
+      "source_type": "provincial_exam_authority",
+      "homepage_url": "https://eea.gd.gov.cn/",
+      "data_categories": ["admission_scores", "enrollment_plans", "policies"],
+      "coverage": {
+        "provinces": ["广东"],
+        "years": []
+      },
+      "trust_score": 1.0,
+      "update_frequency": "annual",
+      "collection_method": "manual_download",
+      "license_note": "Official source; dataset/citation need snapshot review.",
+      "review_status": "candidate",
+      "notes": "Homepage checked 2026-06-08; dataset pages and years need review."
+    },
+    {
+      "source_id": "js_exam_authority",
+      "name": "Jiangsu Education Examination Authority",
+      "source_type": "provincial_exam_authority",
+      "homepage_url": "https://www.jseea.cn/",
+      "data_categories": ["admission_scores", "enrollment_plans", "policies"],
+      "coverage": {
+        "provinces": ["江苏"],
+        "years": []
+      },
+      "trust_score": 1.0,
+      "update_frequency": "annual",
+      "collection_method": "manual_download",
+      "license_note": "Official source; dataset/citation need snapshot review.",
+      "review_status": "candidate",
+      "notes": "Homepage checked 2026-06-08; dataset pages and years need review."
+    },
+    {
+      "source_id": "zj_exam_authority",
+      "name": "Zhejiang Education Examination Authority",
+      "source_type": "provincial_exam_authority",
+      "homepage_url": "https://www.zjzs.net/",
+      "data_categories": ["admission_scores", "enrollment_plans", "policies"],
+      "coverage": {
+        "provinces": ["浙江"],
+        "years": []
+      },
+      "trust_score": 1.0,
+      "update_frequency": "annual",
+      "collection_method": "manual_download",
+      "license_note": "Official source; dataset/citation need snapshot review.",
+      "review_status": "candidate",
+      "notes": "Homepage checked 2026-06-08; dataset pages and years need review."
+    },
+    {
+      "source_id": "hebei_exam_authority",
+      "name": "Hebei Education Examinations Authority",
+      "source_type": "provincial_exam_authority",
+      "homepage_url": "https://www.hebeea.edu.cn/",
+      "data_categories": ["admission_scores", "enrollment_plans", "policies"],
+      "coverage": {
+        "provinces": ["河北"],
+        "years": []
+      },
+      "trust_score": 1.0,
+      "update_frequency": "annual",
+      "collection_method": "manual_download",
+      "license_note": "Official source; dataset/citation need snapshot review.",
+      "review_status": "candidate",
+      "notes": "Homepage checked 2026-06-08; dataset pages and years need review."
+    },
+    {
+      "source_id": "sc_exam_authority",
+      "name": "Sichuan Education Examinations Authority",
+      "source_type": "provincial_exam_authority",
+      "homepage_url": "https://www.sceea.cn/",
+      "data_categories": ["admission_scores", "enrollment_plans", "policies"],
+      "coverage": {
+        "provinces": ["四川"],
+        "years": []
+      },
+      "trust_score": 1.0,
+      "update_frequency": "annual",
+      "collection_method": "manual_download",
+      "license_note": "Official source; dataset/citation need snapshot review.",
+      "review_status": "candidate",
+      "notes": "Homepage checked 2026-06-08; dataset pages and years need review."
+    },
+    {
+      "source_id": "hubei_exam_authority",
+      "name": "Hubei Education Examinations Authority",
+      "source_type": "provincial_exam_authority",
+      "homepage_url": "https://www.hbea.edu.cn/",
+      "data_categories": ["admission_scores", "enrollment_plans", "policies"],
+      "coverage": {
+        "provinces": ["湖北"],
+        "years": []
+      },
+      "trust_score": 1.0,
+      "update_frequency": "annual",
+      "collection_method": "manual_download",
+      "license_note": "Official source; dataset/citation need snapshot review.",
+      "review_status": "candidate",
+      "notes": "Homepage checked 2026-06-08; dataset pages and years need review."
+    }
+  ]
+}

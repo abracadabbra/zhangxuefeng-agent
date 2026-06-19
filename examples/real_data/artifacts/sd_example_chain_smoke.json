@@ -1,0 +1,307 @@
+{
+  "action": "real_data_example_chain_smoke",
+  "passed": true,
+  "scope": {
+    "source_id": "sd_exam_authority",
+    "snapshot_id": "sd_pilot_2025_001",
+    "dataset": "admission_scores",
+    "candidate_count": 1
+  },
+  "checks": {
+    "intake_ready": true,
+    "intake_snapshot_planning_ready": true,
+    "intake_required_reviews_empty": true,
+    "intake_source_bound_to_expected_source": true,
+    "artifact_manifest_smoke_passed": true,
+    "parser_smoke_ready_when_provided": true,
+    "parser_smoke_scope_matches_when_provided": true,
+    "quality_smoke_ready_when_provided": true,
+    "quality_smoke_scope_matches_when_provided": true,
+    "answer_policy_passed": true,
+    "answer_policy_citeable": true,
+    "activation_blocked_without_approval": true,
+    "loader_run_evidence_ready_when_provided": true,
+    "activation_with_approval_ready_when_provided": true,
+    "expected_activation_review_matches": true
+  },
+  "issue_counts": {
+    "error": 0,
+    "warning": 0,
+    "info": 0
+  },
+  "issues": [],
+  "required_reviews": [
+    "Provide a separate approved loader run command.",
+    "Provide separate Agent visibility approval."
+  ],
+  "reviews": {
+    "intake": {
+      "action": "official_sample_intake_review",
+      "passed": true,
+      "ready_for_snapshot": true,
+      "scope": {
+        "source_id": "sd_exam_authority",
+        "dataset": "admission_scores",
+        "province": "山东",
+        "published_year": 2025
+      },
+      "snapshot_planning_review": {
+        "ready_for_snapshot_planning": true,
+        "source_summary": {
+          "matching_source_ids": [
+            "sd_exam_authority"
+          ],
+          "review_statuses": [
+            "approved"
+          ],
+          "coverage_years": [
+            2025
+          ],
+          "has_matching_source": true,
+          "has_approved_source": true,
+          "has_requested_year": true
+        }
+      },
+      "issue_counts": {
+        "error": 0,
+        "warning": 0,
+        "info": 0
+      },
+      "issues": [],
+      "required_reviews": [],
+      "non_goals": [
+        "Does not download remote files.",
+        "Does not create raw snapshots.",
+        "Does not parse rows.",
+        "Does not write databases or seed data.",
+        "Does not refresh RAG or Agent-visible data."
+      ]
+    },
+    "artifact_manifest": {
+      "action": "pilot_artifact_manifest_smoke_review",
+      "passed": true,
+      "scope": {
+        "source_id": "sd_exam_authority",
+        "snapshot_id": "sd_pilot_2025_001",
+        "dataset": "admission_scores",
+        "candidate_count": 1
+      },
+      "issue_counts": {
+        "error": 0,
+        "warning": 0,
+        "info": 0
+      },
+      "issues": [],
+      "path_summary": {
+        "source_audit": {
+          "path": "examples/real_data/artifacts/sd_source_audit.json",
+          "exists": true
+        },
+        "intake_review": {
+          "path": "examples/real_data/artifacts/sd_intake_review.json",
+          "exists": true
+        },
+        "dry_run_audit": {
+          "path": "examples/real_data/artifacts/sd_snapshot_pilot_audit.json",
+          "exists": true
+        },
+        "rows_bundle": {
+          "path": "examples/real_data/sd_snapshot_pilot_rows.json",
+          "exists": true
+        },
+        "snapshot_dir": {
+          "path": "examples/real_data/snapshots/sd_pilot_2025_001",
+          "exists": true
+        },
+        "loader_approval": {
+          "path": "examples/real_data/artifacts/sd_snapshot_pilot_approval.json",
+          "exists": true
+        }
+      },
+      "non_goals": [
+        "Does not replace the pydantic artifact manifest contract.",
+        "Does not run parser or quality gate.",
+        "Does not write database rows or seed data.",
+        "Does not approve loader execution.",
+        "Does not refresh RAG or Agent-visible data."
+      ]
+    },
+    "parser_rows_bundle_smoke": {
+      "action": "parser_rows_bundle_smoke",
+      "passed": true,
+      "ready_for_parser": true,
+      "scope": {
+        "source_id": "sd_exam_authority",
+        "snapshot_id": "sd_pilot_2025_001",
+        "dataset": "admission_scores",
+        "row_count": 1
+      },
+      "candidate_previews": [
+        {
+          "row_index": 1,
+          "entity_type": "admission_score",
+          "natural_key": {
+            "school_name": "山东大学",
+            "province": "山东",
+            "year": 2025,
+            "batch": "本科批",
+            "subject_type": "综合"
+          },
+          "values": {
+            "min_score": 620,
+            "avg_score": null,
+            "max_score": null,
+            "min_rank": 12000,
+            "plan_count": null
+          },
+          "source": {
+            "source_id": "sd_exam_authority",
+            "snapshot_id": "sd_pilot_2025_001",
+            "dataset": "admission_scores",
+            "year": 2025,
+            "source_record_ref": "manual_row=1",
+            "confidence": 0.95,
+            "has_review_metadata": true
+          }
+        }
+      ],
+      "issue_counts": {
+        "error": 0,
+        "warning": 0,
+        "info": 0
+      },
+      "issues": [],
+      "required_reviews": [],
+      "non_goals": [
+        "Does not fetch remote data.",
+        "Does not create raw snapshots.",
+        "Does not execute the pydantic parser contract.",
+        "Does not run the quality gate.",
+        "Does not write database rows or seed data.",
+        "Does not approve loader execution.",
+        "Does not refresh RAG or Agent-visible data."
+      ]
+    },
+    "quality_smoke": {
+      "action": "quality_smoke_review",
+      "passed": true,
+      "ready_for_quality_gate": true,
+      "scope": {
+        "source_id": "sd_exam_authority",
+        "snapshot_id": "sd_pilot_2025_001",
+        "dataset": "admission_scores",
+        "candidate_count": 1
+      },
+      "source_metadata": {
+        "source_ids": [
+          "sd_exam_authority"
+        ],
+        "snapshot_ids": [
+          "sd_pilot_2025_001"
+        ],
+        "datasets": [
+          "admission_scores"
+        ],
+        "years": [
+          2025
+        ],
+        "confidence_min": 0.95,
+        "confidence_max": 0.95,
+        "missing_source_ids": 0,
+        "missing_snapshot_ids": 0
+      },
+      "coverage": {
+        "total": 1,
+        "by_entity_type": {
+          "admission_score": 1
+        },
+        "by_province": {
+          "山东": 1
+        },
+        "by_year": {
+          "2025": 1
+        },
+        "missing_expected_provinces": [],
+        "missing_expected_years": []
+      },
+      "issue_counts": {
+        "error": 0,
+        "warning": 0,
+        "info": 0
+      },
+      "issues": [],
+      "required_reviews": [],
+      "non_goals": [
+        "Does not execute the pydantic quality gate.",
+        "Does not modify parser output.",
+        "Does not write database rows or seed data.",
+        "Does not approve loader execution.",
+        "Does not refresh RAG or Agent-visible data."
+      ]
+    },
+    "answer_policy": {
+      "action": "answer_source_policy_review",
+      "passed": true,
+      "source_summary": {
+        "item_count": 1,
+        "items_with_sources": 1,
+        "items_needing_caution": 0,
+        "source_count": 1,
+        "citation_ready": true,
+        "needs_caution": false,
+        "source_metadata_complete": true
+      },
+      "answer_source_policy": {
+        "answer_mode": "citeable",
+        "citation_ready": true,
+        "requires_citation": true,
+        "requires_caution": false,
+        "allowed_default_answer": true,
+        "reasons": []
+      }
+    },
+    "loader_run_evidence": null,
+    "activation_without_approval": {
+      "action": "agent_visibility_activation_review",
+      "passed": false,
+      "ready_for_agent_visibility": false,
+      "scope": {
+        "source_id": "sd_exam_authority",
+        "snapshot_id": "sd_pilot_2025_001",
+        "dataset": "admission_scores",
+        "candidate_count": 1
+      },
+      "issue_counts": {
+        "error": 1,
+        "warning": 0,
+        "info": 0
+      },
+      "issues": [
+        {
+          "severity": "error",
+          "code": "missing_agent_visibility_approval",
+          "message": "separate Agent visibility approval is required",
+          "field": "activation_approval"
+        }
+      ],
+      "required_reviews": [
+        "Provide separate Agent visibility approval."
+      ],
+      "non_goals": [
+        "Does not execute crawler.",
+        "Does not write canonical database rows.",
+        "Does not modify seed data.",
+        "Does not refresh RAG or Agent-visible data.",
+        "Does not replace separate deployment or rollback review."
+      ]
+    },
+    "activation_with_approval": null
+  },
+  "non_goals": [
+    "Does not replace formal pydantic dry-run or artifact builders.",
+    "Does not fetch remote data.",
+    "Does not write database rows or seed data.",
+    "Does not approve loader execution.",
+    "Does not refresh RAG or Agent-visible data."
+  ]
+}

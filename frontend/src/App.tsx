@@ -1,7 +1,7 @@
 import { useState, useEffect, Suspense, lazy } from 'react'
 import { useTranslation } from 'react-i18next'
 import Loading from './components/Loading'
-import { useTheme } from './contexts/ThemeContext'
+import { useTheme } from './contexts/useTheme'
 import type { UserProfile } from './types'
 
 /* ── Lazy-loaded components (code-split) ──────────────────── */

@@ -17,11 +17,12 @@
 
 ### 工具系统（Function Calling）
 
-系统注册了 6 个工具，Agent 可根据对话上下文自动调用：
+系统注册了 7 个工具，Agent 可根据对话上下文自动调用：
 
 | 工具 | 功能 |
 |------|------|
 | `search_admission` | 搜索高校录取分数线 |
+| `search_enrollment_plan` | 搜索高校招生计划 |
 | `search_employment` | 搜索专业就业数据（就业率、薪资、方向） |
 | `compare_schools` | 多院校综合对比 |
 | `search_policy` | 搜索招生政策（强基计划、提前批、专项计划等） |
@@ -83,7 +84,7 @@ cd zhangxuefeng-agent
 python -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
 
-# 3. 安装依赖
+# 3. 安装依赖（后端依赖以 pyproject.toml 为准）
 pip install -e ".[dev]"
 
 # 4. 配置环境变量
@@ -134,6 +135,31 @@ Docker Compose 会自动启动：
 - SQLite 数据通过 Docker Volume 持久化
 
 ## API 文档
+
+### 真实数据 MVP 文档
+
+当前真实数据 MVP 走受控 no-write 闭环：
+
+```text
+source registry -> intake review -> raw snapshot -> parser/rows
+  -> quality gate -> dry-run -> loader approval -> artifact manifest
+  -> answer source policy -> Agent visibility activation review
+```
+
+默认边界：不启动爬虫、不写真实应用数据库、不修改 seed 数据、不刷新
+RAG/Agent 可见数据。即使 artifact manifest ready，也必须另行审批
+canonical loader；即使 answer policy 可引用，也必须另行通过 Agent
+visibility activation 才能默认进入 Agent/RAG 可见范围。
+
+- [真实数据 MVP 状态](docs/real-data-mvp-status.md)
+- [真实数据 MVP Runbook](docs/real-data-mvp-runbook.md)
+- [首个山东真实小样本 Pilot](docs/real-data-first-shandong-pilot.md)
+- [Pilot Dry Run](docs/real-data-pilot-dry-run.md)
+- [Pilot 人工复核清单](docs/real-data-pilot-review-checklist.md)
+- [数据存储架构](docs/data-storage-architecture.md)
+
+静态示例证据链见 `examples/real_data/artifacts/`。这些 JSON 只展示格式，
+不代表已导入真实官方数据，也不授权 loader 或 Agent/RAG 激活。
 
 ### 通用说明
 

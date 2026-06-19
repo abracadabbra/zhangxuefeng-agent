@@ -17,6 +17,7 @@ from openai import AsyncOpenAI
 from openai.types.chat import ChatCompletion, ChatCompletionChunk
 
 from .prompt import SYSTEM_PROMPT
+from .source_policy import build_tool_answer_source_policy_review
 from ..tools.registry import tool_registry
 from ..tools.definitions import TOOLS
 
@@ -174,6 +175,9 @@ class AgentCore:
                 return {
                     "reply": message.content or "",
                     "tool_calls": all_tool_calls,
+                    "answer_source_policy_review": (
+                        build_tool_answer_source_policy_review(all_tool_calls)
+                    ),
                     "usage": {
                         "prompt_tokens": response.usage.prompt_tokens,
                         "completion_tokens": response.usage.completion_tokens,
@@ -212,6 +216,9 @@ class AgentCore:
         return {
             "reply": message.content or "抱歉，处理过程中遇到了问题，请重试。",
             "tool_calls": all_tool_calls,
+            "answer_source_policy_review": build_tool_answer_source_policy_review(
+                all_tool_calls
+            ),
             "usage": None,
         }
 

@@ -1,0 +1,107 @@
+{
+  "action": "source_year_review_coverage_report",
+  "passed": false,
+  "ready_for_priority_source_year_registration": false,
+  "next_gate": "collect_priority_source_year_reviews",
+  "scope": {
+    "required_provinces": [
+      "河南",
+      "广东",
+      "江苏",
+      "浙江",
+      "河北",
+      "四川",
+      "湖北"
+    ],
+    "data_categories": [
+      "admission_scores",
+      "enrollment_plans"
+    ]
+  },
+  "current_state": {
+    "coverage_report_passed": true,
+    "required_province_count": 7,
+    "review_artifact_count": 1,
+    "ready_review_count": 0,
+    "blocked_review_count": 1,
+    "missing_review_count": 6
+  },
+  "reviewed_provinces": [
+    "河南"
+  ],
+  "ready_reviews": [],
+  "blocked_reviews": [
+    "河南"
+  ],
+  "missing_reviews": [
+    "广东",
+    "江苏",
+    "浙江",
+    "河北",
+    "四川",
+    "湖北"
+  ],
+  "issue_counts": {
+    "error": 0,
+    "warning": 7,
+    "info": 0
+  },
+  "issues": [
+    {
+      "severity": "warning",
+      "code": "missing_source_year_review",
+      "message": "priority province has no source year review: 广东",
+      "field": "year_reviews.广东"
+    },
+    {
+      "severity": "warning",
+      "code": "missing_source_year_review",
+      "message": "priority province has no source year review: 江苏",
+      "field": "year_reviews.江苏"
+    },
+    {
+      "severity": "warning",
+      "code": "missing_source_year_review",
+      "message": "priority province has no source year review: 浙江",
+      "field": "year_reviews.浙江"
+    },
+    {
+      "severity": "warning",
+      "code": "missing_source_year_review",
+      "message": "priority province has no source year review: 河北",
+      "field": "year_reviews.河北"
+    },
+    {
+      "severity": "warning",
+      "code": "missing_source_year_review",
+      "message": "priority province has no source year review: 四川",
+      "field": "year_reviews.四川"
+    },
+    {
+      "severity": "warning",
+      "code": "missing_source_year_review",
+      "message": "priority province has no source year review: 湖北",
+      "field": "year_reviews.湖北"
+    },
+    {
+      "severity": "warning",
+      "code": "source_year_review_not_ready",
+      "message": "priority source year review is not ready: 河南",
+      "field": "year_reviews.河南"
+    }
+  ],
+  "required_reviews": [
+    "Create source year review packets for priority provinces.",
+    "Complete blocked priority source year reviews."
+  ],
+  "non_goals": [
+    "Does not modify sources.json.",
+    "Does not register source years.",
+    "Does not approve sources, usage, or registry patches.",
+    "Does not fetch remote source pages or download attachments.",
+    "Does not create raw snapshots.",
+    "Does not parse rows or run quality gates.",
+    "Does not execute loader or write databases.",
+    "Does not refresh RAG or Agent-visible data."
+  ]
+}

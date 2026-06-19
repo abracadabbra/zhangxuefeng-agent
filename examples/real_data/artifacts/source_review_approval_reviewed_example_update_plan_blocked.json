@@ -1,0 +1,27 @@
+{
+  "action": "source_registry_update_plan",
+  "passed": false,
+  "ready_for_registry_patch": false,
+  "source_id": "synthetic_reviewed_source_example",
+  "planned_updates": {},
+  "issue_counts": {
+    "error": 1,
+    "warning": 0,
+    "info": 0
+  },
+  "issues": [
+    {
+      "severity": "error",
+      "code": "source_not_found",
+      "message": "source not found in registry: synthetic_reviewed_source_example",
+      "field": "registry.sources.source_id"
+    }
+  ],
+  "non_goals": [
+    "Does not modify sources.json.",
+    "Does not approve source review by itself.",
+    "Does not fetch remote source pages.",
+    "Does not create raw snapshots.",
+    "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "purpose": "Template for reviewing official dataset years before source registry year updates.",
+  "action": "source_year_review",
+  "source_id": "",
+  "scope": {
+    "province": "",
+    "data_categories": []
+  },
+  "homepage_url": "",
+  "source_url": "",
+  "candidate_years": [],
+  "year_evidence": [],
+  "decision": {
+    "allow_source_year_registration": false,
+    "register_years": []
+  },
+  "reviewed_by": "",
+  "reviewed_at": "",
+  "review_notes": "Not an approval. Keep blocked until official dataset years are reviewed.",
+  "non_goals": [
+    "Does not modify the source registry.",
+    "Does not approve the source.",
+    "Does not download remote files.",
+    "Does not create raw snapshots.",
+    "Does not parse rows or run quality gates.",
+    "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+  ]
+}

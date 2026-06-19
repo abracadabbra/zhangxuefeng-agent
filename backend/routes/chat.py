@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 from sse_starlette.sse import EventSourceResponse
 
 from backend.agent.core import AgentCore
+from backend.agent.source_policy import build_tool_answer_source_policy_review
 from backend.dependencies import (
     MODEL,
     OPENAI_API_KEY,
@@ -48,6 +49,10 @@ class ChatResponse(BaseModel):
     reply: str
     model: str
     tool_calls: list[dict] = Field(default_factory=list, description="工具调用记录")
+    answer_source_policy_review: dict | None = Field(
+        default=None,
+        description="工具结果来源策略汇总",
+    )
     usage: dict | None = None
 
 
@@ -121,6 +126,32 @@ def _extract_profile_from_message(message: str, profile: UserProfile) -> bool:
 # ============== SSE Stream Generators ==============
 
 
+def _record_stream_tool_result(tool_calls_log: list[dict], event: dict) -> None:
+    """Attach a stream tool result to the first matching pending tool call."""
+    for tool_call in tool_calls_log:
+        if tool_call.get("name") == event.get("name") and "result" not in tool_call:
+            tool_call["result"] = event.get("result")
+            return
+    tool_calls_log.append(
+        {
+            "name": event.get("name"),
+            "arguments": {},
+            "result": event.get("result"),
+        }
+    )
+
+
+def _stream_policy_review_event(tool_calls_log: list[dict]) -> dict:
+    review = build_tool_answer_source_policy_review(tool_calls_log)
+    return {
+        "event": "message",
+        "data": json.dumps(
+            {"type": "answer_source_policy_review", "review": review},
+            ensure_ascii=False,
+        ),
+    }
+
+
 async def _stream_response(
     agent_instance: AgentCore,
     messages: list[dict],
@@ -150,6 +181,7 @@ async def _stream_response(
                     ),
                 }
             elif event["type"] == "tool_result":
+                _record_stream_tool_result(tool_calls_log, event)
                 yield {
                     "event": "message",
                     "data": json.dumps(
@@ -157,6 +189,7 @@ async def _stream_response(
                         ensure_ascii=False,
                     ),
                 }
+                yield _stream_policy_review_event(tool_calls_log)
             elif event["type"] == "done":
                 yield {
                     "event": "message",
@@ -184,6 +217,8 @@ async def _stream_response_langchain(
     user_context: dict,
 ):
     """LangChain Agent 的 SSE 流式响应生成器"""
+    tool_calls_log = []
+
     try:
         async for event in agent_instance.chat_stream(
             message=user_message,
@@ -196,6 +231,9 @@ async def _stream_response_langchain(
                     "data": json.dumps({"type": "text", "content": event["content"]}, ensure_ascii=False),
                 }
             elif event["type"] == "tool_call":
+                tool_calls_log.append(
+                    {"name": event["name"], "arguments": event["arguments"]}
+                )
                 yield {
                     "event": "message",
                     "data": json.dumps(
@@ -204,6 +242,7 @@ async def _stream_response_langchain(
                     ),
                 }
             elif event["type"] == "tool_result":
+                _record_stream_tool_result(tool_calls_log, event)
                 yield {
                     "event": "message",
                     "data": json.dumps(
@@ -211,6 +250,7 @@ async def _stream_response_langchain(
                         ensure_ascii=False,
                     ),
                 }
+                yield _stream_policy_review_event(tool_calls_log)
             elif event["type"] == "done":
                 yield {
                     "event": "message",
@@ -297,6 +337,7 @@ async def chat(req: ChatRequest):
             reply=error_reply,
             model=MODEL,
             tool_calls=[],
+            answer_source_policy_review=None,
             usage=None,
         )
 
@@ -319,6 +360,7 @@ async def chat(req: ChatRequest):
             reply=result["reply"],
             model="langchain-agent",
             tool_calls=result.get("tool_calls", []),
+            answer_source_policy_review=result.get("answer_source_policy_review"),
             usage=None,
         )
 
@@ -344,6 +386,7 @@ async def chat(req: ChatRequest):
             reply=error_reply,
             model=MODEL,
             tool_calls=[],
+            answer_source_policy_review=None,
             usage=None,
         )
 
@@ -355,6 +398,7 @@ async def chat(req: ChatRequest):
         reply=result["reply"],
         model=MODEL,
         tool_calls=result["tool_calls"],
+        answer_source_policy_review=result.get("answer_source_policy_review"),
         usage=result["usage"],
     )
 

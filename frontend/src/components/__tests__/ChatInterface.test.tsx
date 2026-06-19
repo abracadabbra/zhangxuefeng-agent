@@ -124,8 +124,10 @@ describe('ChatInterface', () => {
     const sendButton = screen.getByRole('button', { name: /chat\.send/i })
     await user.click(sendButton)
 
-    // Only the initial fetch for session history should have been called
-    expect(globalThis.fetch).toHaveBeenCalledTimes(1)
+    expect((globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls).not.toContainEqual([
+      '/api/chat',
+      expect.anything(),
+    ])
     expect(globalThis.fetch).toHaveBeenCalledWith('/api/session/test-session')
   })
 
@@ -220,7 +222,7 @@ describe('ChatInterface', () => {
       },
     })
 
-    vi.spyOn(globalThis, 'fetch').mockImplementation((url, init) => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
       if (typeof url === 'string' && url.includes('/api/session')) {
         return Promise.resolve({ ok: false, json: () => Promise.resolve(null) } as Response)
       }

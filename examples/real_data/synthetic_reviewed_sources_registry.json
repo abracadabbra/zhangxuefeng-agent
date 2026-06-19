@@ -1,0 +1,36 @@
+{
+  "purpose": "Synthetic registry input for no-write source review chain smoke.",
+  "sources": [
+    {
+      "source_id": "synthetic_reviewed_source_example",
+      "name": "Synthetic Reviewed Source Example",
+      "source_type": "provincial_exam_authority",
+      "homepage_url": "https://example.invalid/synthetic-admission-scores.html",
+      "data_categories": [
+        "admission_scores"
+      ],
+      "coverage": {
+        "provinces": [
+          "示例省"
+        ],
+        "years": [
+          2025
+        ]
+      },
+      "trust_score": 1.0,
+      "update_frequency": "annual",
+      "collection_method": "manual_download",
+      "license_note": "Synthetic example only; not an official source.",
+      "review_status": "reviewed",
+      "notes": "Temporary no-write registry input for demonstrating a passing source review chain. Do not copy into sources.json."
+    }
+  ],
+  "non_goals": [
+    "Does not approve any real source.",
+    "Does not modify backend/data_pipeline/sources/sources.json.",
+    "Does not download remote files.",
+    "Does not create raw snapshots.",
+    "Does not parse rows or run quality gates.",
+    "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+  ]
+}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import type { UserProfile } from '../types'
 
 interface UserProfilePanelProps {
@@ -10,11 +10,7 @@ export default function UserProfilePanel({ sessionId }: UserProfilePanelProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [isSaved, setIsSaved] = useState(false)
 
-  useEffect(() => {
-    fetchProfile()
-  }, [sessionId])
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       const response = await fetch(`/api/profile/${sessionId}`)
       if (response.ok) {
@@ -24,7 +20,11 @@ export default function UserProfilePanel({ sessionId }: UserProfilePanelProps) {
     } catch (error) {
       console.error('Failed to fetch profile:', error)
     }
-  }
+  }, [sessionId])
+
+  useEffect(() => {
+    fetchProfile()
+  }, [fetchProfile])
 
   const handleSave = async () => {
     setIsLoading(true)

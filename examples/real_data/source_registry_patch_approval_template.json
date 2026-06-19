@@ -1,0 +1,18 @@
+{
+  "purpose": "Template for separately approving a source registry metadata patch.",
+  "action": "source_registry_patch_approval",
+  "allow_source_registry_patch": false,
+  "source_id": "sd_exam_authority",
+  "planned_updates_confirmed": false,
+  "reviewed_by": "",
+  "reviewed_at": "",
+  "review_notes": "",
+  "non_goals": [
+    "Does not modify sources.json.",
+    "Does not approve source review by itself.",
+    "Does not download remote files.",
+    "Does not create raw snapshots.",
+    "Does not parse rows or run quality gates.",
+    "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+  ]
+}

@@ -1,0 +1,143 @@
+{
+  "action": "source_review_chain_smoke",
+  "passed": true,
+  "scope": {
+    "source_id": "synthetic_reviewed_source_example",
+    "data_category": "admission_scores",
+    "province": "示例省",
+    "years": [
+      2025
+    ]
+  },
+  "checks": {
+    "source_scope_audit_passed": true,
+    "approval_review_passed": true,
+    "update_plan_ready": true,
+    "registry_not_modified": true
+  },
+  "issue_counts": {
+    "error": 0,
+    "warning": 0,
+    "info": 0
+  },
+  "issues": [],
+  "required_reviews": [],
+  "reviews": {
+    "source_scope_audit": {
+      "scope": {
+        "data_category": "admission_scores",
+        "expected_provinces": [
+          "示例省"
+        ],
+        "expected_years": [
+          2025
+        ],
+        "require_reviewed": true
+      },
+      "passed": true,
+      "issues": []
+    },
+    "approval_review": {
+      "action": "source_review_approval_review",
+      "passed": true,
+      "ready_for_registry_update": true,
+      "scope": {
+        "source_id": "synthetic_reviewed_source_example",
+        "target_review_status": "approved",
+        "data_category": "admission_scores",
+        "province": "示例省",
+        "years": [
+          2025
+        ]
+      },
+      "evidence_summary": {
+        "has_dataset_page_url": true,
+        "has_attachment_url": false,
+        "has_source_url": true,
+        "has_license_or_citation_notes": true,
+        "data_category_confirmed": true,
+        "published_year_confirmed": true,
+        "license_reviewed": true,
+        "has_usage_review": true,
+        "usage_review_ready": true,
+        "has_reviewer": true,
+        "has_reviewed_at": true
+      },
+      "issue_counts": {
+        "error": 0,
+        "warning": 0,
+        "info": 0
+      },
+      "issues": [],
+      "required_reviews": [],
+      "registry_update_hint": {
+        "can_update_registry": true,
+        "source_id": "synthetic_reviewed_source_example",
+        "target_review_status": "approved",
+        "add_data_category_if_missing": "admission_scores",
+        "add_province_if_missing": "示例省",
+        "add_years_if_missing": [
+          2025
+        ]
+      },
+      "non_goals": [
+        "Does not modify the source registry.",
+        "Does not fetch remote source pages.",
+        "Does not create raw snapshots.",
+        "Does not parse rows or run quality gates.",
+        "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+      ]
+    },
+    "update_plan": {
+      "action": "source_registry_update_plan",
+      "passed": true,
+      "ready_for_registry_patch": true,
+      "source_id": "synthetic_reviewed_source_example",
+      "planned_updates": {
+        "review_status": {
+          "current": "reviewed",
+          "target": "approved",
+          "will_update": true
+        },
+        "data_categories": {
+          "current": [
+            "admission_scores"
+          ],
+          "add": []
+        },
+        "coverage_provinces": {
+          "current": [
+            "示例省"
+          ],
+          "add": []
+        },
+        "coverage_years": {
+          "current": [
+            2025
+          ],
+          "add": []
+        }
+      },
+      "issue_counts": {
+        "error": 0,
+        "warning": 0,
+        "info": 0
+      },
+      "issues": [],
+      "non_goals": [
+        "Does not modify sources.json.",
+        "Does not approve source review by itself.",
+        "Does not fetch remote source pages.",
+        "Does not create raw snapshots.",
+        "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+      ]
+    }
+  },
+  "non_goals": [
+    "Does not modify sources.json.",
+    "Does not approve source review by itself.",
+    "Does not fetch remote source pages.",
+    "Does not create raw snapshots.",
+    "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+  ]
+}

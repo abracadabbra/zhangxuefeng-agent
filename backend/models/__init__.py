@@ -10,5 +10,18 @@ from backend.models.enrollment_plan import EnrollmentPlan
 from backend.models.subject_ranking import SubjectRanking
 from backend.models.chat import ChatSession, ChatMessage
 from backend.models.feedback import Feedback
+from backend.models.data_lineage import DataLineageRecord, DataSnapshot, DataSourceRecord
 
-__all__ = ["School", "Major", "AdmissionScore", "EnrollmentPlan", "SubjectRanking", "ChatSession", "ChatMessage", "Feedback"]
+__all__ = [
+    "AdmissionScore",
+    "ChatMessage",
+    "ChatSession",
+    "DataLineageRecord",
+    "DataSnapshot",
+    "DataSourceRecord",
+    "EnrollmentPlan",
+    "Feedback",
+    "Major",
+    "School",
+    "SubjectRanking",
+]

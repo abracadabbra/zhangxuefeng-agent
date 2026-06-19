@@ -1,0 +1,89 @@
+{
+  "action": "source_year_review",
+  "passed": false,
+  "ready_for_source_year_registration": false,
+  "scope": {
+    "source_id": "ha_exam_authority",
+    "province": "河南",
+    "data_categories": [
+      "admission_scores",
+      "enrollment_plans"
+    ],
+    "candidate_years": []
+  },
+  "evidence_summary": {
+    "has_source_url": false,
+    "has_homepage_url": true,
+    "candidate_year_count": 0,
+    "year_evidence_count": 0,
+    "all_candidate_years_have_evidence": false,
+    "allow_source_year_registration": false,
+    "register_years": [],
+    "has_reviewer": false,
+    "has_reviewed_at": false
+  },
+  "issue_counts": {
+    "error": 6,
+    "warning": 0,
+    "info": 0
+  },
+  "issues": [
+    {
+      "severity": "error",
+      "code": "missing_candidate_years",
+      "message": "candidate_years must be a non-empty list",
+      "field": "candidate_years"
+    },
+    {
+      "severity": "error",
+      "code": "missing_year_evidence",
+      "message": "year_evidence is required for candidate years",
+      "field": "year_evidence"
+    },
+    {
+      "severity": "error",
+      "code": "source_year_registration_not_allowed",
+      "message": "decision.allow_source_year_registration must be true",
+      "field": "decision.allow_source_year_registration"
+    },
+    {
+      "severity": "error",
+      "code": "missing_register_years",
+      "message": "decision.register_years must be a non-empty list",
+      "field": "decision.register_years"
+    },
+    {
+      "severity": "error",
+      "code": "missing_reviewed_by",
+      "message": "reviewed_by is required",
+      "field": "reviewed_by"
+    },
+    {
+      "severity": "error",
+      "code": "missing_reviewed_at",
+      "message": "reviewed_at is required",
+      "field": "reviewed_at"
+    }
+  ],
+  "required_reviews": [
+    "Review official dataset candidate years.",
+    "Attach official evidence for each candidate dataset year.",
+    "Allow source year registration only after human review passes.",
+    "Choose reviewed years to register.",
+    "Provide year reviewer identity.",
+    "Provide year review date or timestamp."
+  ],
+  "registry_update_hint": {
+    "can_update_registry_years": false,
+    "source_id": "ha_exam_authority",
+    "add_years_if_missing": []
+  },
+  "non_goals": [
+    "Does not modify the source registry.",
+    "Does not approve source usage or source approval.",
+    "Does not fetch remote source pages or download attachments.",
+    "Does not create raw snapshots.",
+    "Does not parse rows or run quality gates.",
+    "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+  ]
+}

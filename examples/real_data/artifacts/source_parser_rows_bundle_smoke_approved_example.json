@@ -1,0 +1,56 @@
+{
+  "action": "parser_rows_bundle_smoke",
+  "passed": true,
+  "ready_for_parser": true,
+  "scope": {
+    "source_id": "synthetic_reviewed_source_example",
+    "snapshot_id": "synthetic_snapshot_2025_001",
+    "dataset": "admission_scores",
+    "row_count": 1
+  },
+  "candidate_previews": [
+    {
+      "row_index": 1,
+      "entity_type": "admission_score",
+      "natural_key": {
+        "school_name": "示例大学",
+        "province": "示例省",
+        "year": 2025,
+        "batch": "本科批",
+        "subject_type": "综合"
+      },
+      "values": {
+        "min_score": 620,
+        "avg_score": null,
+        "max_score": null,
+        "min_rank": 12000,
+        "plan_count": null
+      },
+      "source": {
+        "source_id": "synthetic_reviewed_source_example",
+        "snapshot_id": "synthetic_snapshot_2025_001",
+        "dataset": "admission_scores",
+        "year": 2025,
+        "source_record_ref": "synthetic_row=1",
+        "confidence": 0.95,
+        "has_review_metadata": true
+      }
+    }
+  ],
+  "issue_counts": {
+    "error": 0,
+    "warning": 0,
+    "info": 0
+  },
+  "issues": [],
+  "required_reviews": [],
+  "non_goals": [
+    "Does not fetch remote data.",
+    "Does not create raw snapshots.",
+    "Does not execute the pydantic parser contract.",
+    "Does not run the quality gate.",
+    "Does not write database rows or seed data.",
+    "Does not approve loader execution.",
+    "Does not refresh RAG or Agent-visible data."
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "purpose": "Template for reviewing source usage, citation, and redistribution terms before source approval.",
+  "action": "source_usage_review",
+  "source_id": "",
+  "scope": {
+    "data_category": "",
+    "province": "",
+    "years": []
+  },
+  "source_url": "",
+  "attachment_url": "",
+  "usage_terms": {
+    "copyright_notice": "",
+    "redistribution_restriction_detected": false,
+    "citation_or_usage_notes": ""
+  },
+  "decision": {
+    "usage_status": "blocked_pending_authorization",
+    "license_reviewed": false,
+    "allow_real_data_ingestion": false
+  },
+  "reviewed_by": "",
+  "reviewed_at": "",
+  "review_notes": "Not an approval. Keep blocked until usage/citation review allows ingestion.",
+  "non_goals": [
+    "Does not approve the source.",
+    "Does not modify the source registry.",
+    "Does not download remote files.",
+    "Does not create raw snapshots.",
+    "Does not parse rows or run quality gates.",
+    "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+  ]
+}

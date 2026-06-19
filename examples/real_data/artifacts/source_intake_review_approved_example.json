@@ -1,0 +1,42 @@
+{
+  "action": "official_sample_intake_review",
+  "passed": true,
+  "ready_for_snapshot": true,
+  "scope": {
+    "source_id": "synthetic_reviewed_source_example",
+    "dataset": "admission_scores",
+    "province": "示例省",
+    "published_year": 2025
+  },
+  "snapshot_planning_review": {
+    "ready_for_snapshot_planning": true,
+    "source_summary": {
+      "matching_source_ids": [
+        "synthetic_reviewed_source_example"
+      ],
+      "review_statuses": [
+        "approved"
+      ],
+      "coverage_years": [
+        2025
+      ],
+      "has_matching_source": true,
+      "has_approved_source": true,
+      "has_requested_year": true
+    }
+  },
+  "issue_counts": {
+    "error": 0,
+    "warning": 0,
+    "info": 0
+  },
+  "issues": [],
+  "required_reviews": [],
+  "non_goals": [
+    "Does not download remote files.",
+    "Does not create raw snapshots.",
+    "Does not parse rows.",
+    "Does not write databases or seed data.",
+    "Does not refresh RAG or Agent-visible data."
+  ]
+}

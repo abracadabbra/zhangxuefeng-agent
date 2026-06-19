@@ -14,7 +14,19 @@ if config.config_file_name is not None:
 
 # 导入所有模型，使 Alembic 能检测到表结构
 from backend.database import Base
-from backend.models import School, Major, AdmissionScore, EnrollmentPlan  # noqa: F401
+from backend.models import (  # noqa: F401
+    AdmissionScore,
+    ChatMessage,
+    ChatSession,
+    DataLineageRecord,
+    DataSnapshot,
+    DataSourceRecord,
+    EnrollmentPlan,
+    Feedback,
+    Major,
+    School,
+    SubjectRanking,
+)
 
 target_metadata = Base.metadata
 
