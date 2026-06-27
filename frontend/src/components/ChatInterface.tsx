@@ -16,6 +16,8 @@ interface ChatInterfaceProps {
   sessionId: string
   userProfile?: UserProfile | null
   scenario?: 'gaokao' | 'kaoyan' | 'career'
+  autoStartRequestId?: string | null
+  onAutoStartHandled?: () => void
 }
 
 type RecommendationItem = SchoolRecommendation | MajorRecommendation
@@ -315,12 +317,17 @@ function RecommendationOverview({
   )
 }
 
-export default function ChatInterface({ sessionId, userProfile, scenario }: ChatInterfaceProps) {
+export default function ChatInterface({
+  sessionId,
+  userProfile,
+  scenario,
+  autoStartRequestId,
+  onAutoStartHandled,
+}: ChatInterfaceProps) {
   const { t } = useTranslation()
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [profileSent, setProfileSent] = useState(false)
   const [resolvedProfile, setResolvedProfile] = useState<UserProfile | null>(userProfile || null)
   const [lastSources, setLastSources] = useState<ToolCall[]>([])
   const [showSources, setShowSources] = useState(false)
@@ -330,9 +337,12 @@ export default function ChatInterface({ sessionId, userProfile, scenario }: Chat
   const [gradientSummary, setGradientSummary] = useState<Partial<Record<Strategy, string[]>>>({})
   const [favoriteKeys, setFavoriteKeys] = useState<string[]>([])
   const [favoritesLoaded, setFavoritesLoaded] = useState(false)
+  const [historyLoaded, setHistoryLoaded] = useState(false)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const [listApi, setListApi] = useListCallbackRef()
   const dynamicRowHeight = useDynamicRowHeight({ defaultRowHeight: 120, key: 'chat-messages' })
+  const profileSentRef = useRef(false)
+  const handledAutoStartRef = useRef<string | null>(null)
 
   // Total rows = messages + optional loading indicator
   const rowCount = messages.length + (isLoading ? 1 : 0)
@@ -356,6 +366,11 @@ export default function ChatInterface({ sessionId, userProfile, scenario }: Chat
   useEffect(() => {
     setResolvedProfile(userProfile || null)
   }, [userProfile])
+
+  useEffect(() => {
+    profileSentRef.current = false
+    setHistoryLoaded(false)
+  }, [sessionId])
 
   useEffect(() => {
     let cancelled = false
@@ -411,6 +426,9 @@ export default function ChatInterface({ sessionId, userProfile, scenario }: Chat
         }
       })
       .catch(() => {})
+      .finally(() => {
+        setHistoryLoaded(true)
+      })
   }, [sessionId])
 
   // 加载用户画像（恢复会话时也需要）
@@ -420,100 +438,28 @@ export default function ChatInterface({ sessionId, userProfile, scenario }: Chat
       .then(profile => {
         if (profile) {
           setResolvedProfile(profile)
-          const ctx = userProfileToChatContext(profile)
-          if (ctx) {
-            setMessages(prev => {
-              if (prev.length > 0) return prev
-              return [...prev, {
-                id: crypto.randomUUID(),
-                role: 'assistant',
-                content: `我记住你的信息了：${profileSummary(profile)}。有什么需要咨询的？`,
-                timestamp: new Date(),
-              }]
-            })
-          }
         }
       })
       .catch(() => {})
   }, [sessionId, userProfile])
 
-  // 进入聊天时：自动发送 profile 信息（优先用 props，其次从 API 获取）
-  useEffect(() => {
-    if (profileSent || messages.length > 0) return
-
-    const sendInitMessage = (profile: UserProfile | null) => {
-      const ctx = userProfileToChatContext(profile)
-
-      if (!ctx) {
-        return
-      }
-
-      const scenarioLabel = scenario === 'kaoyan' ? '考研' : scenario === 'career' ? '职业规划' : '高考志愿填报'
-      const initMessage = `我(${profileSummary(profile!)})来咨询${scenarioLabel}。请直接根据这些信息回答我的问题。`
-
-      const userMessage: Message = {
-        id: crypto.randomUUID(),
-        role: 'user',
-        content: initMessage,
-        timestamp: new Date(),
-      }
-      setMessages([userMessage])
-      setIsLoading(true)
-      setProfileSent(true)
-
-      fetch(`${API_BASE}/api/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          session_id: sessionId,
-          message: initMessage,
-          user_context: ctx,
-          stream: false,
-        }),
-      })
-        .then(r => r.json())
-        .then(data => {
-          setIsLoading(false)
-          if (data.reply) {
-            setMessages(prev => [...prev, {
-              id: crypto.randomUUID(),
-              role: 'assistant',
-              content: data.reply,
-              timestamp: new Date(),
-            }])
-          }
-        })
-        .catch(() => {
-          setIsLoading(false)
-        })
-    }
-
-    if (userProfile) {
-      sendInitMessage(userProfile)
-    } else {
-      fetchUserProfile(sessionId).then(profile => {
-        if (profile) {
-          setResolvedProfile(profile)
-        }
-        sendInitMessage(profile)
-      })
-        .catch(() => {})
-    }
-  }, [userProfile, profileSent, messages.length, sessionId, scenario])
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!input.trim() || isLoading) return
-
+  const sendMessage = useCallback(async ({
+    content,
+    profile,
+    replaceMessages = false,
+  }: {
+    content: string
+    profile?: UserProfile | null
+    replaceMessages?: boolean
+  }) => {
     const userMessage: Message = {
       id: crypto.randomUUID(),
       role: 'user',
-      content: input.trim(),
+      content,
       timestamp: new Date(),
     }
 
-    setMessages(prev => [...prev, userMessage])
-    setInput('')
+    setMessages(prev => replaceMessages ? [userMessage] : [...prev, userMessage])
     setIsLoading(true)
 
     try {
@@ -522,9 +468,11 @@ export default function ChatInterface({ sessionId, userProfile, scenario }: Chat
         message: userMessage.content,
         stream: true,
       }
-      if (userProfile && !profileSent) {
-        body.user_context = userProfileToChatContext(userProfile)
-        setProfileSent(true)
+
+      const context = userProfileToChatContext(profile)
+      if (context && !profileSentRef.current) {
+        body.user_context = context
+        profileSentRef.current = true
       }
 
       const response = await fetch(`${API_BASE}/api/chat`, {
@@ -560,65 +508,65 @@ export default function ChatInterface({ sessionId, userProfile, scenario }: Chat
           const lines = chunk.split('\n')
 
           for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              try {
-                const data = JSON.parse(line.slice(6))
+            if (!line.startsWith('data: ')) continue
 
-                if (data.type === 'text') {
-                  assistantMessage.content += data.content
-                  setMessages(prev => {
-                    const updated = [...prev]
-                    const lastMsg = updated[updated.length - 1]
-                    if (lastMsg.role === 'assistant') {
-                      lastMsg.content = assistantMessage.content
-                    }
-                    return updated
-                  })
-                } else if (data.type === 'tool_call') {
-                  const toolCall: ToolCall = {
-                    id: crypto.randomUUID(),
-                    name: data.name,
-                    arguments: data.arguments,
+            try {
+              const data = JSON.parse(line.slice(6))
+
+              if (data.type === 'text') {
+                assistantMessage.content += data.content
+                setMessages(prev => {
+                  const updated = [...prev]
+                  const lastMsg = updated[updated.length - 1]
+                  if (lastMsg.role === 'assistant') {
+                    lastMsg.content = assistantMessage.content
                   }
-                  assistantMessage.toolCalls?.push(toolCall)
-                  setLastSources(prev => [...prev, toolCall])
-                  setMessages(prev => {
-                    const updated = [...prev]
-                    const lastMsg = updated[updated.length - 1]
-                    if (lastMsg.role === 'assistant' && lastMsg.toolCalls) {
-                      lastMsg.toolCalls = [...assistantMessage.toolCalls!]
-                    }
-                    return updated
-                  })
-                } else if (data.type === 'tool_result') {
-                  if (assistantMessage.toolCalls) {
-                    const idx = assistantMessage.toolCalls.findIndex(
-                      tc => tc.name === data.name && !tc.result
-                    )
-                    if (idx !== -1) {
-                      assistantMessage.toolCalls[idx] = {
-                        ...assistantMessage.toolCalls[idx],
-                        result: data.result,
-                      }
-                    }
-                  }
-                  setLastSources(prev => prev.map(tc =>
-                    tc.name === data.name && !tc.result
-                      ? { ...tc, result: data.result }
-                      : tc
-                  ))
-                  setMessages(prev => {
-                    const updated = [...prev]
-                    const lastMsg = updated[updated.length - 1]
-                    if (lastMsg.role === 'assistant' && lastMsg.toolCalls) {
-                      lastMsg.toolCalls = [...assistantMessage.toolCalls!]
-                    }
-                    return updated
-                  })
+                  return updated
+                })
+              } else if (data.type === 'tool_call') {
+                const toolCall: ToolCall = {
+                  id: crypto.randomUUID(),
+                  name: data.name,
+                  arguments: data.arguments,
                 }
-              } catch {
-                // 忽略解析错误
+                assistantMessage.toolCalls?.push(toolCall)
+                setLastSources(prev => [...prev, toolCall])
+                setMessages(prev => {
+                  const updated = [...prev]
+                  const lastMsg = updated[updated.length - 1]
+                  if (lastMsg.role === 'assistant' && lastMsg.toolCalls) {
+                    lastMsg.toolCalls = [...assistantMessage.toolCalls!]
+                  }
+                  return updated
+                })
+              } else if (data.type === 'tool_result') {
+                if (assistantMessage.toolCalls) {
+                  const idx = assistantMessage.toolCalls.findIndex(
+                    tc => tc.name === data.name && !tc.result
+                  )
+                  if (idx !== -1) {
+                    assistantMessage.toolCalls[idx] = {
+                      ...assistantMessage.toolCalls[idx],
+                      result: data.result,
+                    }
+                  }
+                }
+                setLastSources(prev => prev.map(tc =>
+                  tc.name === data.name && !tc.result
+                    ? { ...tc, result: data.result }
+                    : tc
+                ))
+                setMessages(prev => {
+                  const updated = [...prev]
+                  const lastMsg = updated[updated.length - 1]
+                  if (lastMsg.role === 'assistant' && lastMsg.toolCalls) {
+                    lastMsg.toolCalls = [...assistantMessage.toolCalls!]
+                  }
+                  return updated
+                })
               }
+            } catch {
+              // Ignore malformed SSE chunks.
             }
           }
         }
@@ -659,6 +607,62 @@ export default function ChatInterface({ sessionId, userProfile, scenario }: Chat
     } finally {
       setIsLoading(false)
     }
+  }, [sessionId, t])
+
+  // 表单完成后：显式触发一次自动首问；恢复历史会话时不触发。
+  useEffect(() => {
+    if (!autoStartRequestId) return
+    if (handledAutoStartRef.current === autoStartRequestId) return
+    if (!historyLoaded) return
+    if (messages.length > 0 || isLoading) return
+
+    const doSend = async () => {
+      let profile: UserProfile | null = userProfile
+
+      if (!profile) {
+        if (resolvedProfile) {
+          profile = resolvedProfile
+        } else {
+          try {
+            profile = await fetchUserProfile(sessionId)
+          } catch {
+            profile = null
+          }
+        }
+      }
+
+      if (!profile) return
+      const ctx = userProfileToChatContext(profile)
+      if (!ctx) return
+
+      const scenarioLabel = scenario === 'kaoyan' ? '考研' : scenario === 'career' ? '职业规划' : '高考志愿填报'
+      const initMessage = `我(${profileSummary(profile)})来咨询${scenarioLabel}。请直接根据这些信息回答我的问题。`
+
+      handledAutoStartRef.current = autoStartRequestId
+      await sendMessage({ content: initMessage, profile, replaceMessages: true })
+      onAutoStartHandled?.()
+    }
+
+    void doSend()
+  }, [
+    autoStartRequestId,
+    historyLoaded,
+    isLoading,
+    messages.length,
+    onAutoStartHandled,
+    resolvedProfile,
+    scenario,
+    sendMessage,
+    sessionId,
+    userProfile,
+  ])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!input.trim() || isLoading) return
+    const content = input.trim()
+    setInput('')
+    await sendMessage({ content, profile: userProfile })
   }
 
   const handleRecommend = async () => {

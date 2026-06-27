@@ -29,11 +29,47 @@ interface SessionSummary {
   message_count: number
 }
 
+interface PersistedAppState {
+  view: View
+  scenario: Scenario
+  sessionId: string
+  userProfile: UserProfile | null
+}
+
+const APP_STATE_STORAGE_KEY = 'zhangxuefeng-agent:app-state'
+
+function readPersistedAppState(): PersistedAppState | null {
+  try {
+    const raw = window.localStorage.getItem(APP_STATE_STORAGE_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as Partial<PersistedAppState>
+    if (!parsed || typeof parsed !== 'object') return null
+    if (
+      (parsed.view !== 'portal' && parsed.view !== 'form' && parsed.view !== 'chat') ||
+      (parsed.scenario !== 'gaokao' && parsed.scenario !== 'kaoyan' && parsed.scenario !== 'career') ||
+      typeof parsed.sessionId !== 'string'
+    ) {
+      return null
+    }
+    return {
+      view: parsed.view,
+      scenario: parsed.scenario,
+      sessionId: parsed.sessionId,
+      userProfile: parsed.userProfile ?? null,
+    }
+  } catch {
+    return null
+  }
+}
+
 function App() {
+  const persistedState = readPersistedAppState()
   const { t, i18n } = useTranslation()
-  const [view, setView] = useState<View>('portal')
-  const [scenario, setScenario] = useState<Scenario>('gaokao')
-  const [sessionId, setSessionId] = useState(() => crypto.randomUUID())
+  const [view, setView] = useState<View>(persistedState?.view ?? 'portal')
+  const [scenario, setScenario] = useState<Scenario>(persistedState?.scenario ?? 'gaokao')
+  const [sessionId, setSessionId] = useState(() => persistedState?.sessionId ?? crypto.randomUUID())
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(persistedState?.userProfile ?? null)
+  const [autoStartRequestId, setAutoStartRequestId] = useState<string | null>(null)
   const { theme, toggleTheme } = useTheme()
 
   const toggleLanguage = () => {
@@ -71,25 +107,39 @@ function App() {
   const handleScenarioSelect = (s: Scenario) => {
     setSessionId(crypto.randomUUID())
     setScenario(s)
+    setUserProfile(null)
+    setAutoStartRequestId(null)
     setView('form')
   }
 
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
-
   const handleFormComplete = (profile: UserProfile) => {
     setUserProfile(profile)
+    setAutoStartRequestId(crypto.randomUUID())
     updateUserProfile(sessionId, profile).catch(() => {})
     setView('chat')
   }
 
   const handleResumeSession = (sid: string) => {
     setSessionId(sid as ReturnType<typeof crypto.randomUUID>)
+    setUserProfile(null)
+    setAutoStartRequestId(null)
     setView('chat')
   }
 
   const handleBackToPortal = () => {
+    setAutoStartRequestId(null)
     setView('portal')
   }
+
+  useEffect(() => {
+    const nextState: PersistedAppState = {
+      view,
+      scenario,
+      sessionId,
+      userProfile,
+    }
+    window.localStorage.setItem(APP_STATE_STORAGE_KEY, JSON.stringify(nextState))
+  }, [sessionId, scenario, userProfile, view])
 
   return (
     <div className="min-h-screen flex flex-col bg-paper paper-texture">
@@ -186,7 +236,13 @@ function App() {
         {view === 'chat' && (
           <Suspense fallback={<Loading fullScreen />}>
             <div className="max-w-7xl mx-auto p-2 sm:p-4 h-[calc(100vh-80px)] sm:h-[calc(100vh-80px)]">
-              <ChatInterface sessionId={sessionId} userProfile={userProfile} scenario={scenario} />
+              <ChatInterface
+                sessionId={sessionId}
+                userProfile={userProfile}
+                scenario={scenario}
+                autoStartRequestId={autoStartRequestId}
+                onAutoStartHandled={() => setAutoStartRequestId(null)}
+              />
             </div>
           </Suspense>
         )}
