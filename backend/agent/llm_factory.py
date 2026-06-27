@@ -36,7 +36,7 @@ def create_llm(
     - ANTHROPIC_API_KEY: Anthropic API Key
     """
     provider = provider or os.getenv("LLM_PROVIDER", DEFAULT_PROVIDER)
-    model = model or os.getenv("LLM_MODEL", DEFAULT_MODELS.get(provider))
+    model = model or os.getenv("LLM_MODEL") or os.getenv("OPENAI_MODEL") or DEFAULT_MODELS.get(provider)
 
     if provider == "openai":
         from langchain_openai import ChatOpenAI

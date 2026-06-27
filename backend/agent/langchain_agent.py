@@ -90,6 +90,7 @@ class LangChainAgent:
         self.agent: Any = create_agent(
             model=self.llm,
             tools=self.tools,
+            system_prompt=self.system_prompt,
         )
 
     def _load_skill_prompt(self, skill_path: str | None = None) -> str:
@@ -197,12 +198,12 @@ class LangChainAgent:
             # 执行 Agent (langgraph)
             result = await self.agent.ainvoke({"messages": messages})
 
-            # 提取回复
+            # 提取回复（跳过含 tool_calls 的中间 AI 消息，取最终内容）
             reply = ""
             tool_calls = []
             for msg in result.get("messages", []):
                 if hasattr(msg, "type"):
-                    if msg.type == "ai":
+                    if msg.type == "ai" and not getattr(msg, "tool_calls", None):
                         reply = _message_text(msg.content) or reply
                     elif msg.type == "tool":
                         tool_calls.append(
@@ -308,19 +309,27 @@ class LangChainAgent:
 
         messages = chat_history + [HumanMessage(content=input_text)]
         full_reply = ""
+        input_count = len(messages)
 
         try:
             # 流式执行 Agent (langgraph)
-            async for event in self.agent.astream({"messages": messages}):
-                # langgraph 返回的是 messages 列表
+            # 用 stream_mode="values" 确保 event 包含完整的 state（含 messages）
+            # values 模式下每次 event 携带全部 state，需跳过输入消息，只处理新增的 AI 消息
+            async for event in self.agent.astream(
+                {"messages": messages}, stream_mode="values"
+            ):
                 if "messages" in event:
-                    for msg in event["messages"]:
+                    msgs = event["messages"]
+                    for msg in msgs[input_count:]:
                         if hasattr(msg, "type"):
-                            if msg.type == "ai" and msg.content:
+                            if msg.type == "ai" and msg.content and not getattr(msg, "tool_calls", None):
                                 content = _message_text(msg.content)
-                                if content:
-                                    full_reply += content
-                                    yield {"type": "text", "content": content}
+                                if not content or not content.strip():
+                                    continue
+                                content = content.lstrip("\n")
+                                full_reply += content
+                                yield {"type": "text", "content": content}
+                    input_count = len(msgs)
 
             # 保存到会话历史
             if self.session_store:
