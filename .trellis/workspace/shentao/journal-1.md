@@ -38,3 +38,36 @@
 ### Next Steps
 
 - None - task complete
+
+
+## Session 2: LangChain streaming & system prompt fixes
+
+**Date**: 2026-06-27
+**Task**: LangChain streaming & system prompt fixes
+**Branch**: `main`
+
+### Summary
+
+Fixed 4 LangChain issues: (1) model not found by adding OPENAI_MODEL fallback, (2) calculate_match missing args by switching to StructuredTool.from_function, (3) streaming no output by using stream_mode=values, (4) repeated content and missing system prompt by tracking message boundaries and passing system_prompt to create_agent
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `4609520fdba5e9fc58d0abd4d06296a131406574` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
