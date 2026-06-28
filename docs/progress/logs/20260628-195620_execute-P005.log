@@ -1,0 +1,121 @@
+现在我已经完整读取了所有路由文件，以下是 P005 的 API 端点清单梳理结果。
+
+---
+
+## P005: API 端点清单
+
+根据 `backend/routes/` 和 `backend/routers/` 的实际代码，梳理如下：
+
+### 1. 系统路由（`backend/routes/system.py`，无前缀）
+
+| 方法 | 路径 | 功能说明 |
+|------|------|----------|
+| GET | `/` | 根端点，返回 Agent 状态、模型、功能特性列表 |
+| GET | `/health` | 健康检查，返回时间戳 |
+| GET | `/db/status` | 数据库状态，统计各表记录数（schools/majors/admission_scores/enrollment_plans） |
+| POST | `/cache/flush` | 清除所有应用缓存 |
+| GET | `/tools` | 列出所有已注册工具定义 |
+| POST | `/api/v1/feedback` | 提交用户反馈（session_id、message_index、rating 1-5、comment） |
+| GET | `/api/v1/feedback/stats` | 反馈统计（总数、平均分、分布直方图） |
+
+### 2. 核心对话路由（`backend/routes/chat.py`，前缀 `/api`）
+
+| 方法 | 路径 | 功能说明 |
+|------|------|----------|
+| POST | `/api/chat` | 核心对话接口，支持非流式和 SSE 流式输出（`stream: bool`），返回 reply/tool_calls/usage；未完成画像时触发灵魂追问 |
+| POST | `/api/recommend` | 结构化推荐接口（需启用 LangChain），返回学校/专业推荐结果及摘要 |
+
+### 3. 用户画像路由（`backend/routes/profile.py`，前缀 `/api`）
+
+| 方法 | 路径 | 功能说明 |
+|------|------|----------|
+| GET | `/api/profile/{session_id}` | 获取用户画像，含完整字段/is_complete/missing_fields |
+| PUT | `/api/profile/{session_id}` | 更新用户画像单个字段（field/value） |
+| GET | `/api/profile/{session_id}/next-question` | 获取下一个灵魂追问问题，含轮次计数 |
+
+### 4. 会话管理路由（`backend/routes/session.py`，前缀 `/api`）
+
+| 方法 | 路径 | 功能说明 |
+|------|------|----------|
+| GET | `/api/sessions` | 列出最近会话（limit，默认 20） |
+| GET | `/api/session/{session_id}` | 获取会话详情，含消息历史、上下文、创建时间 |
+| GET | `/api/session/{session_id}/favorites` | 读取当前会话收藏的推荐项列表 |
+| PUT | `/api/session/{session_id}/favorites` | 覆盖保存会话收藏的推荐项 |
+| DELETE | `/api/session/{session_id}` | 删除指定会话 |
+| GET | `/api/session/{session_id}/export` | 导出志愿建议报告为 Markdown（附件下载） |
+| GET | `/api/session/{session_id}/export/pdf` | 导出对话记录为 PDF（报纸风格排版） |
+
+### 5. 院校数据路由（`backend/routers/schools.py`，前缀 `/api/schools`）
+
+| 方法 | 路径 | 功能说明 |
+|------|------|----------|
+| GET | `/api/schools/{school_id}` | 根据 ID 查询院校详情（含缓存） |
+| GET | `/api/schools/by-name/{name}` | 根据名称模糊查询院校（含缓存） |
+| POST | `/api/schools/search` | 多条件组合查询院校列表（分页，含缓存） |
+
+### 6. 专业数据路由（`backend/routers/majors.py`，前缀 `/api/majors`）
+
+| 方法 | 路径 | 功能说明 |
+|------|------|----------|
+| GET | `/api/majors/{major_id}` | 根据 ID 查询专业详情（含缓存） |
+| GET | `/api/majors/by-name/{name}` | 根据名称查询专业（含缓存） |
+| GET | `/api/majors/hot/list` | 获取热门专业列表（limit，默认 20，含缓存） |
+| POST | `/api/majors/search` | 多条件组合查询专业列表（分页，含缓存） |
+
+### 7. 分数线数据路由（`backend/routers/scores.py`，前缀 `/api/scores`）
+
+| 方法 | 路径 | 功能说明 |
+|------|------|----------|
+| POST | `/api/scores/search` | 多条件组合查询分数线（分页，含缓存） |
+| GET | `/api/scores/school/{school_id}` | 查询某院校历年分数线（可选省份/年份，含缓存） |
+| GET | `/api/scores/major/{major_id}` | 查询某专业跨院校分数线（可选省份/年份，含缓存） |
+| GET | `/api/scores/stats` | 获取分数统计信息（均值/最高/最低/计划数） |
+
+### 8. 招生计划路由（`backend/routers/plans.py`，前缀 `/api/plans`）
+
+| 方法 | 路径 | 功能说明 |
+|------|------|----------|
+| POST | `/api/plans/search` | 多条件组合查询招生计划（分页） |
+| GET | `/api/plans/school/{school_id}` | 查询某院校招生计划（可选省份/年份） |
+| GET | `/api/plans/major/{major_id}` | 查询某专业跨院校招生计划（可选省份/年份） |
+
+### 9. 学科排名路由（`backend/routers/subject_rankings.py`，前缀 `/api/subject-rankings`）
+
+| 方法 | 路径 | 功能说明 |
+|------|------|----------|
+| POST | `/api/subject-rankings/search` | 多条件组合查询学科排名（分页） |
+
+---
+
+### 端点统计
+
+| 分类 | 端点数量 |
+|------|----------|
+| 系统路由 | 7 |
+| 对话路由 | 2 |
+| 画像路由 | 3 |
+| 会话路由 | 7 |
+| 院校数据 | 3 |
+| 专业数据 | 4 |
+| 分数线 | 4 |
+| 招生计划 | 3 |
+| 学科排名 | 1 |
+| **合计** | **34** |
+
+### 设计特点总结
+
+- **前缀规范**：`/api` 为业务 API 前缀，`/api/v1` 为稳定版本反馈接口
+- **缓存策略**：数据查询路由（schools/majors/scores）广泛使用 Redis 缓存，`plans` 和 `subject-rankings` 暂未缓存
+- **分页格式**：所有 search 接口统一返回 `{total, page, page_size, items}`
+- **SSE 流式**：仅 `/api/chat` 支持 EventSourceResponse，其余均为同步 REST 响应
+- **LangChain 条件**：`/recommend` 等接口依赖 `USE_LANGCHAIN=true` 环境变量
+
+P005 完成。
+SessionEnd hook [/usr/bin/env node /Users/shentao/.tokentracker/bin/notify.cjs --source=claude] failed: env: node: No such file or directory
+
+SessionEnd hook [node "${CLAUDE_PLUGIN_ROOT}/scripts/session-end.mjs"] failed: /bin/sh: node: command not found
+
+SessionEnd hook [node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/session-end.mjs] failed: /bin/sh: node: command not found
+
+SessionEnd hook [node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/wiki-session-end.mjs] failed: /bin/sh: node: command not found
+

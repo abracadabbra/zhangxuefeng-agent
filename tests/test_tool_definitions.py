@@ -58,15 +58,13 @@ async def test_database_tools_return_source_metadata(monkeypatch: pytest.MonkeyP
         json.loads(await definitions.calculate_match(650, "北京", "综合")),
     ]
 
-    assert [payload["source"] for payload in payloads] == [
-        "admission_scores",
-        "majors",
-        "schools",
-        "admission_scores",
-    ]
     for payload in payloads:
-        assert payload["confidence"] == "high"
-        assert payload["source_type"] == "database"
+        assert "source_summary" in payload
+        assert "answer_source_policy" in payload
+        summary = payload["source_summary"]
+        assert isinstance(summary.get("item_count"), int)
+        assert "citation_ready" in summary
+        assert "needs_caution" in summary
 
 
 @pytest.mark.asyncio
@@ -88,7 +86,7 @@ async def test_semantic_search_tool_returns_top_level_source_metadata(
     payload = json.loads(await definitions.semantic_search("通信强校", "school", top_k=1))
 
     assert payload["status"] == "success"
-    assert payload["confidence"] == "medium"
-    assert payload["source_type"] == "vector_index"
-    assert payload["source"] == "chroma:school"
+    assert "source_summary" in payload
+    assert "answer_source_policy" in payload
+    assert payload["source_summary"]["needs_caution"] is True
     assert payload["results"][0]["source"] == "chroma:school:school_1"

@@ -70,6 +70,12 @@ Agent tool paths.
 Its summary must expose quality review fields from `QualityReport`, including
 coverage, freshness, confidence counts, blocked reasons, warning issues, and
 categorized blocking issues.
+For `pass`, `warning`, and `blocked` outcomes alike, the summary must always
+include `quality_report_id` plus structured `source` and `snapshot` metadata so
+operators can audit which official page and reviewed snapshot were gated.
+When dry-run quality is `blocked`, the CLI must still surface the audit evidence
+above even though no downstream staging artifact, manifest, or sample citation
+is allowed to exist.
 Medium-confidence candidates must produce row-level warning issues so reviewers
 can trace which raw rows need attention; low-confidence candidates remain
 blocking.
@@ -132,6 +138,8 @@ structured warning issues.
 - Snapshot captured before source publish date -> quality report must block.
 - Reference manifest conflict in dry-run -> no new staging or manifest may be written.
 - Schema-blocked or tampered reviewed raw rows artifact -> bundle must not write staging or manifest artifacts.
+- Blocked dry-run summary missing `quality_report_id`, `source`, or `snapshot`
+  evidence -> CLI contract failure even when downstream writes are correctly skipped.
 - Tampered reviewed raw rows artifact in the dry-run CLI -> non-zero exit and no downstream writes.
 - Approved manual approval with any unchecked checklist item -> write/read must fail.
 - Approved manual approval for a warning manifest without reviewer notes -> write/read must fail.
@@ -170,6 +178,9 @@ structured warning issues.
   metadata, and blocked/tampered cases do not write downstream artifacts.
 - CLI tests proving quality review summaries include coverage, freshness, confidence,
   blocked reasons, warning issues, and categorized issue details.
+- CLI tests proving `pass`, `warning`, and `blocked` dry-run summaries always expose
+  `quality_report_id`, `source`, and `snapshot` metadata even when downstream writes
+  are skipped.
 - Fixture tests proving documented reviewed-row samples still run through the dry-run CLI
   and return stable source, snapshot, year, and confidence metadata.
 - Approval tests proving approved decisions require every checklist item, approvals revalidate

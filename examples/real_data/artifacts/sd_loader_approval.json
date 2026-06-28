@@ -1,0 +1,13 @@
+{
+  "action": "canonical_loader_approval",
+  "load_allowed": true,
+  "parser_name": "sdzk-xls-parser",
+  "parser_version": "0.1.0",
+  "candidate_count": 20,
+  "entity_counts": {
+    "admission_score": 20
+  },
+  "source_id": "sd_exam_authority",
+  "snapshot_id": "sd_pilot_2025_001",
+  "dataset": "admission_scores"
+}

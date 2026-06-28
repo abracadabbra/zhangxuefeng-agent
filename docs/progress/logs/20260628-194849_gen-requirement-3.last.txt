@@ -1,0 +1,19 @@
+开发计划已生成完毕。
+
+**输出文件**: `/Users/shentao/IdeaProjects/zhangxuefeng-agent/docs/plan/plan_requirement_3_20260628-194849.md`
+
+**计划摘要**:
+
+| 编号 | 任务 | Scope |
+|------|------|-------|
+| P001 | 梳理项目整体架构 | `backend/main.py, backend/agent/core.py, backend/config.py` |
+| P002 | 梳理后端模块结构 | `backend/` |
+| P003 | 梳理前端组件结构 | `frontend/src/` |
+| P004 | 梳理数据模型关系 | `backend/models/, backend/schemas/` |
+| P005 | 梳理 API 端点清单 | `backend/routers/` |
+| P006 | 梳理工具系统设计 | `backend/tools/definitions.py, backend/tools/registry.py` |
+| P007 | 梳理数据 Pipeline 流程 | `backend/data_pipeline/` |
+| P008 | 整理技术栈清单 | `CLAUDE.md, README.md, backend/requirements.txt` |
+| P009 | 完整验收 | `validation` |
+
+**验收文档输出路径**: `docs/architecture/project-framework.md`

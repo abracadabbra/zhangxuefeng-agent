@@ -1,0 +1,33 @@
+{
+  "purpose": "Template for reviewing source usage, citation, and redistribution terms before source approval.",
+  "action": "source_usage_review",
+  "source_id": "sd_exam_authority",
+  "scope": {
+    "data_category": "admission_scores",
+    "province": "山东",
+    "years": [2025]
+  },
+  "source_url": "https://www.sdzk.cn/NewsInfo.aspx?NewsID=6996",
+  "attachment_url": "https://www.sdzk.cn/NewsInfo.aspx?NewsID=6996",
+  "usage_terms": {
+    "copyright_notice": "山东省教育招生考试院官方数据",
+    "redistribution_restriction_detected": false,
+    "citation_or_usage_notes": "山东省2025年普通类常规批第1次志愿投档情况表，来自山东省教育招生考试院官方网站（sdzk.cn）。数据仅用于辅助高考志愿咨询，不进行商业转载。"
+  },
+  "decision": {
+    "usage_status": "approved_for_real_data_ingestion",
+    "license_reviewed": true,
+    "allow_real_data_ingestion": true
+  },
+  "reviewed_by": "shentao",
+  "reviewed_at": "2026-06-20T00:00:00Z",
+  "review_notes": "官方数据来源，许可用于本项目数据接入。",
+  "non_goals": [
+    "Does not approve the source.",
+    "Does not modify the source registry.",
+    "Does not download remote files.",
+    "Does not create raw snapshots.",
+    "Does not parse rows or run quality gates.",
+    "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+  ]
+}

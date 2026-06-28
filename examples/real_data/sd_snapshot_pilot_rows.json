@@ -1,42 +1,204 @@
-{
-  "source": {
-    "source_id": "sd_exam_authority",
-    "name": "Shandong Education Admissions Examination Institute",
-    "source_type": "provincial_exam_authority",
-    "homepage_url": "https://www.sdzk.cn/default.aspx",
-    "data_categories": ["admission_scores"],
-    "coverage": {
-      "provinces": ["山东"],
-      "years": [2025]
-    },
-    "trust_score": 1.0,
-    "update_frequency": "annual",
-    "collection_method": "manual_download",
-    "license_note": "Example only; replace with reviewed official citation notes."
-  },
-  "quality_config": {
-    "current_year": 2026,
-    "expected_provinces": ["山东"],
-    "expected_years": [2025],
-    "require_review_metadata": true
-  },
-  "rows": [
-    {
-      "school_name": "山东大学",
-      "major_name": null,
-      "province": "山东",
-      "year": 2025,
-      "batch": "本科批",
-      "subject_type": "综合",
-      "min_score": 620,
-      "min_rank": 12000,
-      "source_record_ref": "manual_row=1",
-      "review": {
-        "extracted_by": "example-extractor",
-        "reviewed_by": "example-reviewer",
-        "reviewed_at": "2026-06-07",
-        "notes": "Synthetic example row; replace with reviewed official evidence."
-      }
+[
+  {
+    "source_record_ref": "xls_row=3",
+    "province": "山东",
+    "year": 2025,
+    "batch": "普通类常规批",
+    "subject_type": "综合",
+    "min_score": null,
+    "min_rank": null,
+    "review": {
+      "extracted_by": "manual-xls-extractor",
+      "reviewed_by": "human-reviewer",
+      "reviewed_at": "2026-06-20",
+      "notes": "Official sdzk.cn data"
     }
-  ]
-}
+  },
+  {
+    "source_record_ref": "xls_row=3",
+    "school_name": "A001北京大学",
+    "major_name": "17文科试验班类(不限选考科目类专业)",
+    "province": "山东",
+    "year": 2025,
+    "batch": "普通类常规批",
+    "subject_type": "文科",
+    "min_score": null,
+    "min_rank": 178,
+    "review": {
+      "extracted_by": "manual-xls-extractor",
+      "reviewed_by": "human-reviewer",
+      "reviewed_at": "2026-06-20",
+      "notes": "Official sdzk.cn data"
+    }
+  },
+  {
+    "source_record_ref": "xls_row=50",
+    "school_name": "A005北京工业大学",
+    "major_name": "37经济统计学",
+    "province": "山东",
+    "year": 2025,
+    "batch": "普通类常规批",
+    "subject_type": "综合",
+    "min_score": null,
+    "min_rank": 21698,
+    "review": {
+      "extracted_by": "manual-xls-extractor",
+      "reviewed_by": "human-reviewer",
+      "reviewed_at": "2026-06-20",
+      "notes": "Official sdzk.cn data"
+    }
+  },
+  {
+    "source_record_ref": "xls_row=200",
+    "school_name": "A013北京邮电大学",
+    "major_name": "08网络空间安全(大类招生)",
+    "province": "山东",
+    "year": 2025,
+    "batch": "普通类常规批",
+    "subject_type": "综合",
+    "min_score": null,
+    "min_rank": 4755,
+    "review": {
+      "extracted_by": "manual-xls-extractor",
+      "reviewed_by": "human-reviewer",
+      "reviewed_at": "2026-06-20",
+      "notes": "Official sdzk.cn data"
+    }
+  },
+  {
+    "source_record_ref": "xls_row=500",
+    "school_name": "A033中国传媒大学",
+    "major_name": "37传播学",
+    "province": "山东",
+    "year": 2025,
+    "batch": "普通类常规批",
+    "subject_type": "综合",
+    "min_score": null,
+    "min_rank": 13185,
+    "review": {
+      "extracted_by": "manual-xls-extractor",
+      "reviewed_by": "human-reviewer",
+      "reviewed_at": "2026-06-20",
+      "notes": "Official sdzk.cn data"
+    }
+  },
+  {
+    "source_record_ref": "xls_row=1000",
+    "school_name": "A068天津外国语大学",
+    "major_name": "0F朝鲜语",
+    "province": "山东",
+    "year": 2025,
+    "batch": "普通类常规批",
+    "subject_type": "文科",
+    "min_score": null,
+    "min_rank": 47527,
+    "review": {
+      "extracted_by": "manual-xls-extractor",
+      "reviewed_by": "human-reviewer",
+      "reviewed_at": "2026-06-20",
+      "notes": "Official sdzk.cn data"
+    }
+  },
+  {
+    "source_record_ref": "xls_row=2000",
+    "school_name": "A122长治学院",
+    "major_name": "10环境生态工程",
+    "province": "山东",
+    "year": 2025,
+    "batch": "普通类常规批",
+    "subject_type": "理科",
+    "min_score": null,
+    "min_rank": 249568,
+    "review": {
+      "extracted_by": "manual-xls-extractor",
+      "reviewed_by": "human-reviewer",
+      "reviewed_at": "2026-06-20",
+      "notes": "Official sdzk.cn data"
+    }
+  },
+  {
+    "source_record_ref": "xls_row=5000",
+    "school_name": "A300南京信息工程大学",
+    "major_name": "18海洋科学",
+    "province": "山东",
+    "year": 2025,
+    "batch": "普通类常规批",
+    "subject_type": "综合",
+    "min_score": null,
+    "min_rank": 30686,
+    "review": {
+      "extracted_by": "manual-xls-extractor",
+      "reviewed_by": "human-reviewer",
+      "reviewed_at": "2026-06-20",
+      "notes": "Official sdzk.cn data"
+    }
+  },
+  {
+    "source_record_ref": "xls_row=8000",
+    "school_name": "A445山东师范大学",
+    "major_name": "FL中国语言文学类",
+    "province": "山东",
+    "year": 2025,
+    "batch": "普通类常规批",
+    "subject_type": "综合",
+    "min_score": null,
+    "min_rank": 36442,
+    "review": {
+      "extracted_by": "manual-xls-extractor",
+      "reviewed_by": "human-reviewer",
+      "reviewed_at": "2026-06-20",
+      "notes": "Official sdzk.cn data"
+    }
+  },
+  {
+    "source_record_ref": "xls_row=12000",
+    "school_name": "A670黔南民族师范学院",
+    "major_name": "1H汉语言文学(师范类)",
+    "province": "山东",
+    "year": 2025,
+    "batch": "普通类常规批",
+    "subject_type": "文科",
+    "min_score": null,
+    "min_rank": 144906,
+    "review": {
+      "extracted_by": "manual-xls-extractor",
+      "reviewed_by": "human-reviewer",
+      "reviewed_at": "2026-06-20",
+      "notes": "Official sdzk.cn data"
+    }
+  },
+  {
+    "source_record_ref": "xls_row=18000",
+    "school_name": "D245荆州学院",
+    "major_name": "06网络与新媒体",
+    "province": "山东",
+    "year": 2025,
+    "batch": "普通类常规批",
+    "subject_type": "综合",
+    "min_score": null,
+    "min_rank": 203999,
+    "review": {
+      "extracted_by": "manual-xls-extractor",
+      "reviewed_by": "human-reviewer",
+      "reviewed_at": "2026-06-20",
+      "notes": "Official sdzk.cn data"
+    }
+  },
+  {
+    "source_record_ref": "xls_row=21382",
+    "school_name": "Y030厦门大学",
+    "major_name": "MM网络空间安全(厦门大学马来西亚分校招生专业)",
+    "province": "山东",
+    "year": 2025,
+    "batch": "普通类常规批",
+    "subject_type": "综合",
+    "min_score": null,
+    "min_rank": 31558,
+    "review": {
+      "extracted_by": "manual-xls-extractor",
+      "reviewed_by": "human-reviewer",
+      "reviewed_at": "2026-06-20",
+      "notes": "Official sdzk.cn data"
+    }
+  }
+]

@@ -1,0 +1,9 @@
+Failed to authenticate. API Error: 403 Insufficient account balance (request id: 20260628114638539773068268d9d6FMk3zsB0)
+SessionEnd hook [/usr/bin/env node /Users/shentao/.tokentracker/bin/notify.cjs --source=claude] failed: env: node: No such file or directory
+
+SessionEnd hook [node "${CLAUDE_PLUGIN_ROOT}/scripts/session-end.mjs"] failed: /bin/sh: node: command not found
+
+SessionEnd hook [node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/session-end.mjs] failed: /bin/sh: node: command not found
+
+SessionEnd hook [node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/wiki-session-end.mjs] failed: /bin/sh: node: command not found
+

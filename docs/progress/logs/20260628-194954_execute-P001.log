@@ -1,0 +1,170 @@
+已完成对 `backend/main.py`、`backend/agent/core.py`、`backend/config.py` 及其相关依赖模块的梳理。
+
+**任务 P001 交付：用户请求 → 安全校验 → Agent 处理 → 工具调用 → SSE 响应完整链路分析**
+
+---
+
+### 1. 请求入口链路
+
+```
+HTTP POST /api/chat
+  │
+  ▼
+routes/chat.py:chat()
+  ├─ validate_message()       ← XSS 清理 + 长度校验 (≤1000)
+  ├─ validate_session_id()    ← UUID 格式校验
+  ├─ validate_user_context()  ← 白名单字段过滤 + 值长度限制 (≤200)
+  │
+  ▼
+session_store.get_or_create()  ← 获取或创建会话
+  │
+  ▼
+load_profile()                 ← 从 Redis 加载 UserProfile
+  │
+  ▼
+_extract_profile_from_message()← 消息内关键词提取分数/省份/科类/家庭条件
+```
+
+### 2. 安全校验层（多层 Middleware）
+
+| Middleware | 职责 |
+|---|---|
+| `SecurityMiddleware` | 请求日志（脱敏）、安全响应头（X-Content-Type-Options 等） |
+| `RateLimitMiddleware` | 限流 |
+| `CORSMiddleware` | 跨域配置 |
+| `logging_middleware` | request_id 注入、耗时统计、X-Request-ID 响应头 |
+
+`security.py` 还提供：
+- `sanitize_input()` → HTML 转义防 XSS
+- `mask_sensitive()` → 日志脱敏（API Key、手机号、邮箱等）
+- `safe_error_message()` → 错误消息映射（不泄露内部信息）
+
+### 3. 灵魂追问引擎（soul_query.py）
+
+```
+soul_engine.is_query_complete(profile)?
+  │
+  ├─ 否 → 返回追问话术（张雪峰风格）
+  │     ├─ 必问字段：分数、省份、科类、家庭条件（最多 5 轮）
+  │     └─ 选问字段：目标城市、风险偏好、职业方向
+  │
+  └─ 是 → 进入 Agent 处理
+```
+
+### 4. Agent 处理（agent/core.py）
+
+```
+AgentCore.chat() / chat_stream()
+  │
+  ├─ _build_system_prompt()
+  │     ├─ load_skill_prompt() ← 加载 SKILL.md（带 YAML frontmatter 剥离）
+  │     └─ 注入用户上下文（分数/省份/科类/家庭条件/预算）
+  │
+  ├─ _trim_messages() ← 保留 system + 最近 20 轮（40 条消息）
+  │
+  ▼
+OpenAI API 调用循环（最多 5 轮）
+  │
+  ├─ 第 1 轮：chat.completions.create()
+  │
+  ├─ 有 tool_calls？
+  │     ├─ 解析 function.name / function.arguments
+  │     ├─ tool_registry.dispatch() 执行工具
+  │     └─ 将 tool result 作为消息追加，继续下一轮
+  │
+  └─ 无 tool_calls？→ 返回 reply
+```
+
+**重试机制**：指数退避（2^attempt 秒），仅对 429/500/502/503 重试（最多 2 次）。
+
+### 5. 工具调用（tools/）
+
+```
+tool_registry.dispatch(func_name, func_args)
+  │
+  ├─ search_admission         ← 录取分数线查询
+  ├─ search_enrollment_plan   ← 招生计划查询
+  ├─ search_employment        ← 就业数据查询
+  ├─ compare_schools          ← 院校对比
+  ├─ search_policy            ← 招生政策查询（预置库）
+  ├─ calculate_match          ← 分数匹配推荐
+  └─ semantic_search          ← 语义搜索（向量相似度）
+```
+
+每个工具通过 `@register_tool` 装饰器注册，参数 schema 供 OpenAI Function Calling 使用。
+
+### 6. SSE 流式响应
+
+```
+EventSourceResponse(_stream_response())
+  │
+  ├─ yield {"type": "text", "content": "..."}     ← 文本片段
+  ├─ yield {"type": "tool_call", ...}             ← 工具调用声明
+  ├─ yield {"type": "tool_result", ...}          ← 工具执行结果
+  ├─ yield {"type": "answer_source_policy_review"}← 来源策略汇总
+  └─ yield {"type": "done", "usage": {...}}      ← 完成标记
+```
+
+`chat_stream()` 产出 4 类事件，前端逐事件渲染。
+
+### 7. 配置管理（config.py）
+
+```
+Settings (pydantic-settings)
+  │
+  ├─ OpenAI: api_key, base_url, model
+  ├─ 数据库: database_url (SQLite)
+  ├─ Redis: redis_url
+  ├─ 应用: debug, skill_path, use_langchain, port
+  ├─ CORS: cors_origins (逗号分隔 → 列表)
+  ├─ Sentry: sentry_dsn
+  ├─ 成本预警: cost_alert_threshold_usd
+  └─ 日志: log_level, log_format
+```
+
+通过 `@lru_cache` 单例化，`get_settings()` 全局可用。
+
+---
+
+### 架构总览（Mermaid）
+
+```
+┌─────────────┐     ┌──────────────────────┐     ┌─────────────────┐
+│   Client    │────▶│  FastAPI (main.py)   │────▶│   Middleware    │
+│  (Frontend) │     │                      │     │ Security/CORS/  │
+└─────────────┘     │  POST /api/chat      │     │ RateLimit/Log   │
+                     └──────────┬───────────┘     └─────────────────┘
+                                │
+                     ┌──────────▼───────────┐
+                     │  routes/chat.py      │
+                     │  - validate_message  │
+                     │  - validate_context  │
+                     └──────────┬───────────┘
+                                │
+              ┌─────────────────┼─────────────────┐
+              ▼                 ▼                   ▼
+    ┌─────────────────┐ ┌──────────────┐ ┌────────────────┐
+    │  soul_query.py  │ │   AgentCore  │ │ tool_registry  │
+    │  (灵魂追问引擎)  │ │ (agent/core) │ │  (tools/)      │
+    └────────┬────────┘ └──────┬───────┘ └───────┬────────┘
+             │                 │                 │
+             ▼                 ▼                 ▼
+    ┌─────────────────┐ ┌──────────────┐ ┌────────────────┐
+    │  UserProfile    │ │ OpenAI API  │ │   SQLite DB    │
+    │   (Redis)       │ │ (Function    │ │ (CRUD 查询)    │
+    │                 │ │  Calling)    │ │                │
+    └─────────────────┘ └──────────────┘ └────────────────┘
+                                │
+                     ┌──────────▼───────────┐
+                     │  EventSourceResponse │
+                     │      (SSE Stream)    │
+                     └──────────────────────┘
+```
+SessionEnd hook [/usr/bin/env node /Users/shentao/.tokentracker/bin/notify.cjs --source=claude] failed: env: node: No such file or directory
+
+SessionEnd hook [node "${CLAUDE_PLUGIN_ROOT}/scripts/session-end.mjs"] failed: /bin/sh: node: command not found
+
+SessionEnd hook [node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/session-end.mjs] failed: /bin/sh: node: command not found
+
+SessionEnd hook [node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/wiki-session-end.mjs] failed: /bin/sh: node: command not found
+

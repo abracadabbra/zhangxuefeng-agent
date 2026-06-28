@@ -1,0 +1,16 @@
+P007 完成。已在 `docs/architecture/project-framework.md` 新增 **第 8 节：数据 Pipeline 流程**，内容包括：
+
+- **8.2 目录结构**：完整列出 `data_pipeline/` 下各子目录及文件职责
+- **8.3 流程图**（Mermaid）：展示 Source Registry → Intake → Collector → Parser → Quality Gate → Artifact Manifest → Loader Evidence → Agent Visibility Activation 完整链路
+- **8.4 流程阶段详解**：8 个阶段逐一说明审查要求与组件关系
+- **8.5 核心数据模型**：CanonicalCandidate、RawSnapshotManifest、PilotArtifactManifest 的代码级定义
+- **8.6 Pilot Dry-Run 流程图**：rows → Collector → Parser → Quality Gate → Dry-Run Audit → Artifact Manifest
+- **8.7 关键设计原则**：无写入审查、多阶段门控、零信任、证据可追溯等
+SessionEnd hook [/usr/bin/env node /Users/shentao/.tokentracker/bin/notify.cjs --source=claude] failed: env: node: No such file or directory
+
+SessionEnd hook [node "${CLAUDE_PLUGIN_ROOT}/scripts/session-end.mjs"] failed: /bin/sh: node: command not found
+
+SessionEnd hook [node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/session-end.mjs] failed: /bin/sh: node: command not found
+
+SessionEnd hook [node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/wiki-session-end.mjs] failed: /bin/sh: node: command not found
+

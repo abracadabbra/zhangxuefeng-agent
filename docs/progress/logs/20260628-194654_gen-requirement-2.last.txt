@@ -1,0 +1,24 @@
+已完成项目进度报告，输出到 `docs/plan/plan_requirement_2_20260628-194654.md`。
+
+**报告概要**：
+
+| 模块 | 状态 |
+|------|------|
+| 核心架构（FastAPI + React） | ✅ 完成 |
+| LangChain Agent（含 streaming 修复） | ✅ 完成 |
+| 7 个 Function Calling 工具 | ✅ 完成 |
+| Agent Source Metadata（来源溯源） | ✅ 完成 |
+| 真实数据 MVP no-write 闭环 | ✅ 跑通（Phase 1-8 全部完成） |
+| Source Registry（8 省候选） | ✅ 登记中（待 approved） |
+| 38+ 个 evidence artifacts | ✅ 已生成 |
+| 真实数据入库 | ⏳ 等待前置条件 |
+
+**核心链路已跑通**：
+```
+source registry → snapshot manifest → parser → quality gate → dry-run → loader approval → artifact manifest → Agent visibility
+```
+
+**推荐下一步**：
+1. 配通 pytest 环境
+2. 完成山东 source review approval
+3. 准备 5-20 行小样本验证 no-write 闭环

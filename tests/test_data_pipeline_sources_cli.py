@@ -16,7 +16,7 @@ def write_registry(tmp_path, sources):
 
 def make_source(*, province: str = "山东", years=None, review_status="reviewed"):
     return {
-        "source_id": f"{province}_exam_authority",
+        "source_id": _safe_source_id(province),
         "name": f"{province} Education Admissions Examination Institute",
         "source_type": "provincial_exam_authority",
         "homepage_url": "https://example.gov.cn",
@@ -31,6 +31,11 @@ def make_source(*, province: str = "山东", years=None, review_status="reviewed
         "license_note": "Official public source; review citation requirements.",
         "review_status": review_status,
     }
+
+
+def _safe_source_id(province: str) -> str:
+    """Convert Chinese province name to ASCII-safe source_id."""
+    return f"{province}_exam_authority".encode("ascii", "ignore").decode().strip("_") or "exam_authority"
 
 
 def test_sources_cli_prints_passing_audit(tmp_path, capsys):

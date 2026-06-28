@@ -164,6 +164,7 @@ def test_artifacts_cli_returns_nonzero_when_not_ready(tmp_path, capsys):
     assert exit_code == 1
     assert output["ready_for_loader_execution"] is False
     assert output["required_reviews"] == [
+        "Resolve artifact scope issues.",
         "Resolve dry-run blockers before loader approval.",
         "Complete dry-run review before loader approval.",
         "Generate and review loader approval packet.",

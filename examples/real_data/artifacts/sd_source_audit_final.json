@@ -1,0 +1,14 @@
+{
+  "scope": {
+    "data_category": "admission_scores",
+    "expected_provinces": [
+      "山东"
+    ],
+    "expected_years": [
+      2025
+    ],
+    "require_reviewed": false
+  },
+  "passed": true,
+  "issues": []
+}

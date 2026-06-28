@@ -60,6 +60,16 @@ def make_update_plan() -> dict:
             "published_year_confirmed": True,
             "license_reviewed": True,
         },
+        "usage_review": {
+            "action": "source_usage_review",
+            "ready_for_source_approval_license_review": True,
+            "scope": {
+                "source_id": "sd_exam_authority",
+                "data_category": "admission_scores",
+                "province": "山东",
+                "years": [2025],
+            },
+        },
         "reviewed_by": "source-reviewer",
         "reviewed_at": "2026-06-08",
     })

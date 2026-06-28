@@ -58,6 +58,16 @@ def make_approval_review(source_id: str = "sd_exam_authority") -> dict:
             "published_year_confirmed": True,
             "license_reviewed": True,
         },
+        "usage_review": {
+            "action": "source_usage_review",
+            "ready_for_source_approval_license_review": True,
+            "scope": {
+                "source_id": source_id,
+                "data_category": "admission_scores",
+                "province": "山东",
+                "years": [2025],
+            },
+        },
         "reviewed_by": "reviewer-a",
         "reviewed_at": "2026-06-08",
     }

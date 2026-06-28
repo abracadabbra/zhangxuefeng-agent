@@ -1,0 +1,100 @@
+{
+  "purpose": "Template for reviewed Shandong official sample intake.",
+  "not_a_dry_run_bundle": true,
+  "pilot_scope": {
+    "source_id": "sd_exam_authority",
+    "dataset": "admission_scores",
+    "province": "山东",
+    "published_year": 2025,
+    "target_row_count": "5-20"
+  },
+  "source_review": {
+    "homepage_url": "https://www.sdzk.cn/default.aspx",
+    "dataset_page_url": "https://www.sdzk.cn/NewsInfo.aspx?NewsID=6996",
+    "attachment_url": "https://www.sdzk.cn/NewsInfo.aspx?NewsID=6996",
+    "source_type": "provincial_exam_authority",
+    "data_category_confirmed": true,
+    "license_or_citation_notes": "山东省教育招生考试院官方数据，用于高考志愿咨询服务",
+    "review_status": "reviewed",
+    "reviewed_by": "shentao",
+    "reviewed_at": "2026-06-20T00:00:00Z",
+    "review_notes": "数据来源合法，审查通过。"
+  },
+  "snapshot_planning_review": {
+    "action": "source_snapshot_planning_review",
+    "passed": true,
+    "ready_for_snapshot_planning": true,
+    "scope": {
+      "data_category": "admission_scores",
+      "province": "山东",
+      "year": 2025
+    },
+    "blockers": [],
+    "required_reviews": [],
+    "source_summary": {
+      "matching_source_ids": [
+        "sd_exam_authority"
+      ],
+      "review_statuses": [
+        "approved"
+      ],
+      "coverage_years": [
+        2025
+      ],
+      "has_matching_source": true,
+      "has_approved_source": true,
+      "has_requested_year": true
+    }
+  },
+  "snapshot_review": {
+    "snapshot_id": "sd_pilot_2025_001",
+    "source_url": "https://www.sdzk.cn/NewsInfo.aspx?NewsID=6996",
+    "local_snapshot_dir": "examples/real_data/snapshots/sd_pilot_2025_001",
+    "original_file_name": "山东省2025年普通类常规批第1次志愿投档情况表.xls",
+    "original_file_sha256": "9fdc37c96d3ddceec0f62da7021f8ae01f3cbc6eac7d3698c2efcd202f0c87f1",
+    "collector": "manual",
+    "collector_version": "0.1.0",
+    "collected_at": "2026-06-20T00:00:00Z",
+    "published_year_confirmed": true,
+    "original_file_preserved": true
+  },
+  "row_review_columns": [
+    "source_record_ref",
+    "school_name",
+    "major_name",
+    "province",
+    "year",
+    "batch",
+    "subject_type",
+    "min_score",
+    "min_rank",
+    "confidence",
+    "review.extracted_by",
+    "review.reviewed_by",
+    "review.reviewed_at",
+    "review.notes"
+  ],
+  "quality_config": {
+    "current_year": 2026,
+    "expected_provinces": ["山东"],
+    "expected_years": [2025],
+    "require_review_metadata": true
+  },
+  "stop_gates": [
+    "dataset_page_url or attachment_url is missing",
+    "source is not official or authorized",
+    "original file checksum is missing",
+    "source_record_ref cannot locate the original row",
+    "row review metadata is incomplete",
+    "dry-run audit has blockers or warnings",
+    "artifact manifest has path, scope, or loader approval issues"
+  ],
+  "non_goals": [
+    "Does not collect or download remote files.",
+    "Does not create production data.",
+    "Does not approve canonical loader execution.",
+    "Does not write database rows.",
+    "Does not modify seed data.",
+    "Does not refresh RAG or Agent-visible data."
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "purpose": "Template for separately approving a source registry review before snapshot planning.",
+  "action": "source_review_approval",
+  "allow_source_review_approval": true,
+  "source_id": "sd_exam_authority",
+  "target_review_status": "approved",
+  "scope": {
+    "data_category": "admission_scores",
+    "province": "山东",
+    "years": [2025]
+  },
+  "evidence": {
+    "dataset_page_url": "https://www.sdzk.cn/NewsInfo.aspx?NewsID=6996",
+    "attachment_url": "https://www.sdzk.cn/NewsInfo.aspx?NewsID=6996",
+    "license_or_citation_notes": "山东省教育招生考试院官方数据，用于高考志愿咨询服务",
+    "data_category_confirmed": true,
+    "published_year_confirmed": true,
+    "license_reviewed": true
+  },
+  "usage_review": {
+    "action": "source_usage_review",
+    "ready_for_source_approval_license_review": true,
+    "scope": {
+      "source_id": "sd_exam_authority",
+      "data_category": "admission_scores",
+      "province": "山东",
+      "years": [2025]
+    }
+  },
+  "reviewed_by": "shentao",
+  "reviewed_at": "2026-06-20T00:00:00Z",
+  "review_notes": "官方数据审查通过。",
+  "non_goals": [
+    "Does not modify the source registry.",
+    "Does not download remote files.",
+    "Does not create raw snapshots.",
+    "Does not parse rows or run quality gates.",
+    "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+  ]
+}

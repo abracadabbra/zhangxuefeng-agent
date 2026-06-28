@@ -1,7 +1,6 @@
 """
 录取分数线相关 Pydantic 模式
 """
-
 from pydantic import BaseModel, Field
 
 
@@ -11,10 +10,11 @@ class AdmissionScoreOut(BaseModel):
     id: int
     school_id: int
     major_id: int | None = None
+    major_label: str | None = None
     province: str
     year: int
     batch: str
-    subject_type: str
+    subject_type: str | None = None
     min_score: int | None = None
     avg_score: float | None = None
     max_score: int | None = None
@@ -32,8 +32,8 @@ class AdmissionScoreQuery(BaseModel):
 
     school_name: str | None = Field(None, description="院校名称（模糊匹配）")
     school_id: int | None = Field(None, description="院校ID")
-    major_name: str | None = Field(None, description="专业名称（模糊匹配）")
-    major_id: int | None = Field(None, description="专业ID")
+    major_name: str | None = Field(None, description="投档单位名称（模糊匹配 major_label）")
+    major_id: int | None = Field(None, description="标准专业ID")
     province: str | None = Field(None, description="招生省份")
     year: int | None = Field(None, description="年份")
     year_from: int | None = Field(None, description="起始年份")

@@ -1,0 +1,28 @@
+**P002 任务完成**
+
+已生成后端模块结构文档至 `docs/architecture/project-framework.md`，包含：
+
+- **后端完整目录树**（所有子模块和关键文件）
+- **核心模块职责说明**：
+  - `agent/` — AI Agent 引擎（core、prompt、llm_factory、tools_adapter 等）
+  - `tools/` — 工具系统（definitions、registry）
+  - `routers/` — REST API 路由（5 个路由）
+  - `models/` — SQLAlchemy ORM 模型（9 个模型）
+  - `schemas/` — Pydantic 数据模式
+  - `crud/` — 数据库查询封装
+  - `seeds/` — 种子数据（JSON + 导入脚本）
+  - `data_pipeline/` — 数据摄入管道
+  - `real_data/` — 真实数据处理
+  - `middleware/` — 限流中间件
+- **模块关系图**（Mermaid 格式）
+- **核心数据流**（用户请求 → 灵魂追问 → Agent → 工具调用 → SSE 响应）
+- **工具清单**（5 个核心工具）
+- **配置关键项**
+SessionEnd hook [/usr/bin/env node /Users/shentao/.tokentracker/bin/notify.cjs --source=claude] failed: env: node: No such file or directory
+
+SessionEnd hook [node "${CLAUDE_PLUGIN_ROOT}/scripts/session-end.mjs"] failed: /bin/sh: node: command not found
+
+SessionEnd hook [node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/session-end.mjs] failed: /bin/sh: node: command not found
+
+SessionEnd hook [node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/wiki-session-end.mjs] failed: /bin/sh: node: command not found
+

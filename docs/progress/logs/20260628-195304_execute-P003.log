@@ -1,0 +1,78 @@
+P003 任务已完成。前端组件结构梳理完毕。
+
+---
+
+## 前端组件结构总结
+
+### 目录树
+
+```
+frontend/src/
+├── main.tsx                    # 应用入口
+├── App.tsx                     # 主组件（含 PortalHome、MobileBottomNav 子组件）
+├── config.ts                   # API 配置
+├── index.css                   # 全局样式
+├── vite-env.d.ts               # Vite 类型声明
+│
+├── components/                 # UI 组件
+│   ├── ChatInterface.tsx       # 核心聊天界面（SSE 流式、消息列表、推荐）
+│   ├── SoulQuestionForm.tsx    # 用户画像收集（灵魂追问表单）
+│   ├── MessageBubble.tsx       # 消息气泡
+│   ├── SourcePanel.tsx         # 数据来源面板（工具调用结果展示）
+│   ├── RecommendationCard.tsx   # 推荐卡片（学校/专业）
+│   ├── UserProfilePanel.tsx    # 用户画像编辑
+│   ├── FeedbackRating.tsx      # 评分反馈
+│   ├── FeedbackDashboard.tsx   # 反馈数据看板
+│   ├── DataVisualization.tsx   # 数据可视化（recharts 图表）
+│   ├── AdmissionSimulator.tsx  # 志愿填报模拟器
+│   ├── Loading.tsx             # 加载状态
+│   ├── Skeleton.tsx            # 骨架屏
+│   └── __tests__/              # 测试文件
+│
+├── contexts/                   # React Context
+│   ├── ThemeContext.tsx / .ts  # 主题 Provider
+│   └── useTheme.tsx / .ts      # 主题 Hook
+│
+├── api/                        # API 层
+│   └── profile.ts              # 用户画像 API 封装
+│
+├── types/                      # 类型定义
+│   └── index.ts               # Message, ToolCall, UserProfile, SearchResult
+│
+├── i18n/                       # 国际化
+│   ├── index.ts               # i18next 配置
+│   └── locales/
+│       ├── zh.json
+│       └── en.json
+│
+└── test/
+    └── setup.ts                # 测试配置
+```
+
+### 三大视图流转
+
+| 视图 | 组件 | 路由状态 |
+|------|------|----------|
+| Portal（首页） | `PortalHome` 内联在 `App.tsx` | `view = 'portal'` |
+| 表单（灵魂追问） | `SoulQuestionForm`（懒加载） | `view = 'form'` |
+| 聊天 | `ChatInterface`（懒加载） | `view = 'chat'` |
+
+### 场景模式
+
+- `gaokao` — 高考志愿
+- `kaoyan` — 考研
+- `career` — 职业规划
+
+### 状态管理
+
+- **应用状态**：在 `App.tsx` 中通过 `useState` 管理（view、scenario、sessionId、userProfile），持久化至 localStorage
+- **主题状态**：`ThemeContext` 提供 light/dark 切换
+- **聊天状态**：`ChatInterface` 内部管理消息、SSE 读取、推荐结果、收藏等
+SessionEnd hook [/usr/bin/env node /Users/shentao/.tokentracker/bin/notify.cjs --source=claude] failed: env: node: No such file or directory
+
+SessionEnd hook [node "${CLAUDE_PLUGIN_ROOT}/scripts/session-end.mjs"] failed: /bin/sh: node: command not found
+
+SessionEnd hook [node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/session-end.mjs] failed: /bin/sh: node: command not found
+
+SessionEnd hook [node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/wiki-session-end.mjs] failed: /bin/sh: node: command not found
+

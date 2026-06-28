@@ -1,0 +1,10 @@
+P008 任务完成。已在 `docs/architecture/project-framework.md` 新增 **第 9 节：技术栈清单**，内容涵盖：
+
+- **后端技术栈**：Python 3.11+、FastAPI、SQLAlchemy、Redis、OpenAI SDK、ChromaDB 等
+- **可选依赖**：LangChain 相关包（langchain / langchain-openai / langchain-anthropic / langchain-chroma）
+- **开发依赖**：pytest、ruff、mypy、xlrd
+- **前端技术栈**：React 18、TypeScript、Vite、Tailwind CSS、react-window、recharts 等
+- **基础设施与部署**：Docker、GitHub Actions、Redis 7、SQLite
+- **测试技术栈**：pytest 103 个、Vitest 88 个、Playwright 25 个
+- **技术选型说明**：各技术选型的决策理由
+- **部署架构图**：Mermaid 格式展示前后端、数据层、外部 API 的关系

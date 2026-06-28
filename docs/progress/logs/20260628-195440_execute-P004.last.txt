@@ -1,0 +1,11 @@
+P004 任务完成。
+
+已向 `docs/architecture/project-framework.md` 添加第 7 章「数据模型关系」，内容包括：
+
+1. **Mermaid ER 图**：覆盖全部 10 张表（School、Major、AdmissionScore、EnrollmentPlan、SubjectRanking、ChatSession、ChatMessage、Feedback、DataSourceRecord、DataSnapshot、DataLineageRecord），包含所有列、主键、外键和表间关联关系
+
+2. **模型关系表**：以表格形式说明每个实体的主键、关联方向与约束含义
+
+3. **核心业务四元组约束**：说明 `AdmissionScore` 的唯一约束设计，以及 `major_id` 与 `major_label` 的并存逻辑
+
+4. **Schema 与 ORM 对照表**：列出 `schemas/` 下各 Schema 与对应 ORM 模型的映射关系

@@ -3,6 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import App from '../../App'
 import { ThemeProvider } from '../../contexts/ThemeContext'
+import { API_BASE } from '../../config'
 
 // Mock react-i18next to return Chinese text for known keys
 vi.mock('react-i18next', () => ({
@@ -60,6 +61,25 @@ vi.mock('react-i18next', () => ({
         'form.gaokao.steps.score.placeholder': '请输入分数',
         'form.gaokao.steps.score.hint': '请输入预估或实际分数',
         'form.gaokao.steps.score.note': '建议使用最近一次模考成绩',
+        'form.gaokao.steps.province.label': '省份',
+        'form.gaokao.steps.province.selectPlaceholder': '请选择省份',
+        'form.gaokao.steps.province.hint': '不同省份分数线差异很大',
+        'form.gaokao.steps.province.note': '请按高考报名所在省份填写',
+        'form.gaokao.steps.subject.label': '选科方向',
+        'form.gaokao.steps.subject.hint': '不同选科对应专业范围不同',
+        'form.gaokao.steps.subject.note': '按你的实际科类或选科组合选择',
+        'form.gaokao.steps.familyBudget.label': '家庭条件',
+        'form.gaokao.steps.familyBudget.hint': '预算会影响城市和院校策略',
+        'form.gaokao.steps.familyBudget.note': '这里只做粗粒度判断即可',
+        'form.subjects.science': '理科',
+        'form.subjects.arts': '文科',
+        'form.subjects.physics': '物理',
+        'form.subjects.history': '历史',
+        'form.subjects.comprehensive': '综合',
+        'form.budget.low': '工薪阶层',
+        'form.budget.medium': '中等家庭',
+        'form.budget.high': '较好家庭',
+        'form.budget.unlimited': '优越家庭',
         'form.versionLabels': ['壹', '贰', '叁', '肆'],
         'form.editorNote': '编者按：',
         'form.back': '返回',
@@ -100,9 +120,14 @@ function renderApp() {
   )
 }
 
+function apiUrl(path: string) {
+  return `${API_BASE}${path}`
+}
+
 describe('App', () => {
   beforeEach(() => {
     vi.restoreAllMocks()
+    window.localStorage.clear()
     vi.spyOn(globalThis, 'fetch').mockResolvedValue({
       ok: true,
       json: () => Promise.resolve([]),
@@ -201,7 +226,7 @@ describe('App', () => {
     renderApp()
 
     await waitFor(() => {
-      expect(globalThis.fetch).toHaveBeenCalledWith('/api/sessions?limit=10')
+      expect(globalThis.fetch).toHaveBeenCalledWith(apiUrl('/api/sessions?limit=10'))
     })
   })
 
@@ -219,5 +244,139 @@ describe('App', () => {
 
     expect(screen.getByRole('banner')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '返回首页' })).toBeInTheDocument()
+  })
+
+  it('restores the persisted chat session after refresh', async () => {
+    const storedState = {
+      view: 'chat',
+      scenario: 'gaokao',
+      sessionId: 'persisted-session',
+      userProfile: {
+        score: 620,
+        province: '北京',
+        subject: '理科',
+        familyCondition: '工薪阶层',
+      },
+    }
+    window.localStorage.setItem('zhangxuefeng-agent:app-state', JSON.stringify(storedState))
+
+    vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
+      if (typeof url === 'string' && url === apiUrl('/api/chat')) {
+        return Promise.resolve({
+          ok: true,
+          headers: new Headers({ 'content-type': 'text/event-stream' }),
+          body: new ReadableStream({
+            start(controller) {
+              controller.enqueue(new TextEncoder().encode('data: {"type":"text","content":"已恢复会话"}\n\n'))
+              controller.close()
+            },
+          }),
+        } as Response)
+      }
+      return Promise.resolve({
+        ok: false,
+        json: () => Promise.resolve(null),
+      } as Response)
+    })
+
+    renderApp()
+
+    await waitFor(() => {
+      expect(screen.getByRole('region', { name: '聊天区域' })).toBeInTheDocument()
+    })
+    expect(globalThis.fetch).not.toHaveBeenCalledWith(
+      apiUrl('/api/chat'),
+      expect.anything(),
+    )
+  })
+
+  it('auto-sends the initial message after refreshing to portal and completing the form again', async () => {
+    const user = userEvent.setup()
+    const profile = {
+      score: 620,
+      province: '北京',
+      subject: '理科',
+      familyCondition: '工薪阶层',
+    }
+    let chatRequestBody: Record<string, unknown> | null = null
+
+    window.localStorage.setItem('zhangxuefeng-agent:app-state', JSON.stringify({
+      view: 'portal',
+      scenario: 'gaokao',
+      sessionId: 'stale-session',
+      userProfile: {
+        score: 500,
+        province: '河南',
+        subject: '文科',
+      },
+    }))
+
+    vi.spyOn(globalThis, 'fetch').mockImplementation((url, init) => {
+      if (typeof url !== 'string') {
+        return Promise.resolve({ ok: false, json: () => Promise.resolve(null) } as Response)
+      }
+
+      if (url === apiUrl('/api/sessions?limit=10')) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve([]) } as Response)
+      }
+      if (url.startsWith(apiUrl('/api/profile/')) && init?.method === 'PUT') {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({}) } as Response)
+      }
+      if (url.includes('/api/session/') && url.endsWith('/favorites')) {
+        return Promise.resolve({ ok: false, json: () => Promise.resolve(null) } as Response)
+      }
+      if (url.includes('/api/session/')) {
+        return Promise.resolve({ ok: false, json: () => Promise.resolve(null) } as Response)
+      }
+      if (url === apiUrl('/api/chat')) {
+        chatRequestBody = init?.body ? JSON.parse(String(init.body)) : null
+        return Promise.resolve({
+          ok: true,
+          headers: new Headers({ 'content-type': 'text/event-stream' }),
+          body: new ReadableStream({
+            start(controller) {
+              controller.enqueue(new TextEncoder().encode('data: {"type":"text","content":"好的，开始分析"}\n\n'))
+              controller.close()
+            },
+          }),
+        } as Response)
+      }
+
+      return Promise.resolve({ ok: false, json: () => Promise.resolve(null) } as Response)
+    })
+
+    renderApp()
+
+    await user.click(screen.getAllByRole('listitem')[0])
+    await waitFor(() => {
+      expect(screen.getByRole('form')).toBeInTheDocument()
+    })
+
+    await user.type(screen.getByLabelText('高考分数'), String(profile.score))
+    await user.click(screen.getByRole('button', { name: '下一步' }))
+    await user.selectOptions(screen.getByRole('combobox', { name: '省份' }), profile.province)
+    await user.click(screen.getByRole('button', { name: '下一步' }))
+    await user.click(screen.getByRole('radio', { name: profile.subject }))
+    await user.click(screen.getByRole('button', { name: '下一步' }))
+    await user.click(screen.getByRole('radio', { name: profile.familyCondition }))
+    await user.click(screen.getByRole('button', { name: '开始咨询' }))
+
+    await waitFor(() => {
+      expect(screen.getByRole('region', { name: '聊天区域' })).toBeInTheDocument()
+    })
+
+    await waitFor(() => {
+      expect(chatRequestBody).not.toBeNull()
+    })
+
+    expect(chatRequestBody).toMatchObject({
+      stream: true,
+      user_context: {
+        分数: 620,
+        省份: '北京',
+        科类: '理科',
+        家庭条件: '工薪阶层',
+      },
+    })
   })
 })

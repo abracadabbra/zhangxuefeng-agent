@@ -21,9 +21,27 @@ router = APIRouter(prefix="/scores", tags=["分数线"])
 DbSession = Annotated[Session, Depends(get_db)]
 
 
+def _serialize_score(r) -> dict:
+    return {
+        "id": r.id,
+        "school_id": r.school_id,
+        "major_id": r.major_id,
+        "major_label": r.major_label,
+        "province": r.province,
+        "year": r.year,
+        "batch": r.batch,
+        "subject_type": r.subject_type,
+        "min_score": r.min_score,
+        "avg_score": r.avg_score,
+        "max_score": r.max_score,
+        "min_rank": r.min_rank,
+        "plan_count": r.plan_count,
+    }
+
+
 @router.post("/search", summary="多条件查询分数线")
 async def search_scores(query: AdmissionScoreQuery, db: DbSession):
-    """支持按学校名/专业名/省份/年份/分数范围等组合查询"""
+    """支持按学校名/投档单位/省份/年份/分数范围等组合查询"""
     params = query.model_dump()
     cached = await cache_get("score_search", **params)
     if cached:
@@ -53,23 +71,7 @@ async def scores_by_school(
     result = {
         "school_id": school_id,
         "count": len(items),
-        "items": [
-            {
-                "id": r.id,
-                "school_id": r.school_id,
-                "major_id": r.major_id,
-                "province": r.province,
-                "year": r.year,
-                "batch": r.batch,
-                "subject_type": r.subject_type,
-                "min_score": r.min_score,
-                "avg_score": r.avg_score,
-                "max_score": r.max_score,
-                "min_rank": r.min_rank,
-                "plan_count": r.plan_count,
-            }
-            for r in items
-        ],
+        "items": [_serialize_score(r) for r in items],
     }
     await cache_set("score_school", result, school_id=school_id, province=province, year=year)
     return result
@@ -89,23 +91,7 @@ async def scores_by_major(
     result = {
         "major_id": major_id,
         "count": len(items),
-        "items": [
-            {
-                "id": r.id,
-                "school_id": r.school_id,
-                "major_id": r.major_id,
-                "province": r.province,
-                "year": r.year,
-                "batch": r.batch,
-                "subject_type": r.subject_type,
-                "min_score": r.min_score,
-                "avg_score": r.avg_score,
-                "max_score": r.max_score,
-                "min_rank": r.min_rank,
-                "plan_count": r.plan_count,
-            }
-            for r in items
-        ],
+        "items": [_serialize_score(r) for r in items],
     }
     await cache_set("score_major", result, major_id=major_id, province=province, year=year)
     return result

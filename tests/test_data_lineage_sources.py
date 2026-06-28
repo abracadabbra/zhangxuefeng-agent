@@ -158,6 +158,9 @@ def test_summarize_sources_marks_citation_ready_and_caution():
     summary = summarize_sources(
         [
             {
+                "source_id": "src-1",
+                "snapshot_id": 10,
+                "published_year": 2024,
                 "confidence": 0.95,
                 "trust_score": 1.0,
                 "freshness": "current",
@@ -170,6 +173,7 @@ def test_summarize_sources_marks_citation_ready_and_caution():
         "source_count": 1,
         "citation_ready": True,
         "needs_caution": False,
+        "source_metadata_complete": True,
         "best_confidence": 0.95,
         "best_trust_score": 1.0,
         "freshness": "current",
@@ -182,6 +186,7 @@ def test_summarize_sources_marks_missing_sources_as_not_citation_ready():
         "source_count": 0,
         "citation_ready": False,
         "needs_caution": True,
+        "source_metadata_complete": False,
         "best_confidence": None,
         "best_trust_score": None,
         "freshness": "unknown",
@@ -193,13 +198,16 @@ def test_summarize_sources_marks_incomplete_metadata_as_caution():
     summary = summarize_sources(
         [
             {
+                "source_id": "src-1",
+                "snapshot_id": 10,
+                "published_year": 2024,
                 "freshness": "current",
                 "review_status": "reviewed",
             }
         ]
     )
 
-    assert summary["citation_ready"] is True
+    assert summary["citation_ready"] is False
     assert summary["needs_caution"] is True
     assert summary["best_confidence"] is None
     assert summary["best_trust_score"] is None

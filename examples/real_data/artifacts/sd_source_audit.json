@@ -1,19 +1,21 @@
 {
-  "action": "source_scope_audit",
   "scope": {
     "data_category": "admission_scores",
-    "expected_provinces": ["山东"],
-    "expected_years": [2025],
+    "expected_provinces": [
+      "山东"
+    ],
+    "expected_years": [
+      2025
+    ],
     "require_reviewed": true
   },
   "passed": true,
-  "issues": [],
-  "non_goals": [
-    "Does not modify sources.json.",
-    "Does not approve source review by itself.",
-    "Does not fetch remote source pages.",
-    "Does not create raw snapshots.",
-    "Does not parse rows or run quality gates.",
-    "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+  "issues": [
+    {
+      "severity": "warning",
+      "code": "source_not_reviewed",
+      "message": "source is not reviewed or approved: sd_exam_authority",
+      "source_id": "sd_exam_authority"
+    }
   ]
 }

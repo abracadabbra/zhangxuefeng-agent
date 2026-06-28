@@ -1,0 +1,47 @@
+{
+  "action": "source_registry_patch_approval_review",
+  "passed": true,
+  "ready_for_registry_patch_execution": true,
+  "source_id": "sd_exam_authority",
+  "planned_updates_summary": {
+    "review_status": {
+      "current": "candidate",
+      "target": "approved",
+      "will_update": true
+    },
+    "data_categories": {
+      "current": [
+        "admission_scores",
+        "enrollment_plans",
+        "policies"
+      ],
+      "add": []
+    },
+    "coverage_provinces": {
+      "current": [
+        "山东"
+      ],
+      "add": []
+    },
+    "coverage_years": {
+      "current": [
+        2025
+      ],
+      "add": []
+    }
+  },
+  "issue_counts": {
+    "error": 0,
+    "warning": 0,
+    "info": 0
+  },
+  "issues": [],
+  "required_reviews": [],
+  "non_goals": [
+    "Does not modify sources.json.",
+    "Does not approve source review by itself.",
+    "Does not fetch remote source pages.",
+    "Does not create raw snapshots.",
+    "Does not write databases, seeds, RAG indexes, or Agent-visible data."
+  ]
+}

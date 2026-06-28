@@ -1,0 +1,35 @@
+{
+  "snapshot_id": "sd_pilot_2025_001",
+  "source_id": "sd_exam_authority",
+  "dataset": "admission_scores",
+  "candidate_count": 20,
+  "passed": true,
+  "load_ready": true,
+  "blockers": [],
+  "source_validation_issues": [],
+  "snapshot_file_issues": [],
+  "coverage": {
+    "total": 20,
+    "by_entity_type": {
+      "admission_score": 20
+    },
+    "by_province": {
+      "山东": 20
+    },
+    "by_year": {
+      "2025": 20
+    },
+    "missing_expected_provinces": [],
+    "missing_expected_years": []
+  },
+  "issue_counts": {
+    "error": 0,
+    "warning": 0,
+    "info": 0
+  },
+  "review_status": "ready_for_loader_review",
+  "review_notes": [
+    "dry-run passed with no blockers or warnings"
+  ],
+  "issues": []
+}

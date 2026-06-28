@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import ChatInterface from '../ChatInterface'
+import { API_BASE } from '../../config'
 
 // Mock react-i18next
 vi.mock('react-i18next', () => ({
@@ -25,6 +26,10 @@ vi.mock('../SourcePanel', () => ({
     <div data-testid="source-panel">Sources: {sources.length}</div>
   ),
 }))
+
+function apiUrl(path: string) {
+  return `${API_BASE}${path}`
+}
 
 describe('ChatInterface', () => {
   beforeEach(() => {
@@ -115,7 +120,7 @@ describe('ChatInterface', () => {
     render(<ChatInterface sessionId="test-session" />)
 
     await waitFor(() => {
-      expect(globalThis.fetch).toHaveBeenCalledWith('/api/session/test-session')
+      expect(globalThis.fetch).toHaveBeenCalledWith(apiUrl('/api/session/test-session'))
     })
 
     await waitFor(() => {
@@ -147,8 +152,8 @@ describe('ChatInterface', () => {
     await user.click(screen.getByRole('button', { name: 'chat.exportMarkdown' }))
     await user.click(screen.getByRole('button', { name: 'chat.exportPdf' }))
 
-    expect(openSpy).toHaveBeenCalledWith('/api/session/test-session/export', '_blank')
-    expect(openSpy).toHaveBeenCalledWith('/api/session/test-session/export/pdf', '_blank')
+    expect(openSpy).toHaveBeenCalledWith(apiUrl('/api/session/test-session/export'), '_blank')
+    expect(openSpy).toHaveBeenCalledWith(apiUrl('/api/session/test-session/export/pdf'), '_blank')
   })
 
   it('sends a message and displays it', async () => {
@@ -163,11 +168,19 @@ describe('ChatInterface', () => {
       },
     })
 
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-      ok: true,
-      headers: new Headers({ 'content-type': 'text/event-stream' }),
-      body: stream,
-    } as Response)
+    vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
+      if (typeof url === 'string' && url === apiUrl('/api/chat')) {
+        return Promise.resolve({
+          ok: true,
+          headers: new Headers({ 'content-type': 'text/event-stream' }),
+          body: stream,
+        } as Response)
+      }
+      return Promise.resolve({
+        ok: false,
+        json: () => Promise.resolve(null),
+      } as Response)
+    })
 
     render(<ChatInterface sessionId="test-session" />)
 
@@ -185,7 +198,7 @@ describe('ChatInterface', () => {
     // API should be called
     await waitFor(() => {
       expect(globalThis.fetch).toHaveBeenCalledWith(
-        '/api/chat',
+        apiUrl('/api/chat'),
         expect.objectContaining({ method: 'POST' }),
       )
     })
@@ -199,10 +212,10 @@ describe('ChatInterface', () => {
     await user.click(sendButton)
 
     expect((globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls).not.toContainEqual([
-      '/api/chat',
+      apiUrl('/api/chat'),
       expect.anything(),
     ])
-    expect(globalThis.fetch).toHaveBeenCalledWith('/api/session/test-session')
+    expect(globalThis.fetch).toHaveBeenCalledWith(apiUrl('/api/session/test-session'))
   })
 
   it('shows error message on fetch failure', async () => {
@@ -289,9 +302,67 @@ describe('ChatInterface', () => {
     const userProfile = { score: 600, province: '北京', subject: '理科' }
 
     const encoder = new TextEncoder()
+    vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
+      if (typeof url === 'string' && url === apiUrl('/api/session/test-session/favorites')) {
+        return Promise.resolve({ ok: false, json: () => Promise.resolve(null) } as Response)
+      }
+      if (typeof url === 'string' && url === apiUrl('/api/session/test-session')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            messages: [{ role: 'assistant', content: '历史消息' }],
+          }),
+        } as Response)
+      }
+      return Promise.resolve({
+        ok: true,
+        headers: new Headers({ 'content-type': 'text/event-stream' }),
+        body: new ReadableStream({
+          start(controller) {
+            controller.enqueue(encoder.encode('data: {"type":"text","content":"ok"}\n\n'))
+            controller.close()
+          },
+        }),
+      } as Response)
+    })
+
+    render(<ChatInterface sessionId="test-session" userProfile={userProfile} />)
+
+    const input = screen.getByLabelText('chat.inputPlaceholder')
+    await user.type(input, '你好')
+
+    const sendButton = screen.getByRole('button', { name: /chat\.send/i })
+    await user.click(sendButton)
+
+    await waitFor(() => {
+      const chatCall = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls.find(
+        (call: unknown[]) => typeof call[0] === 'string' && call[0] === apiUrl('/api/chat'),
+      )
+      expect(chatCall).toBeDefined()
+      const body = JSON.parse(chatCall![1].body)
+      expect(body.user_context).toEqual({
+        分数: 600,
+        省份: '北京',
+        科类: '理科',
+        家庭条件: undefined,
+      })
+    })
+  })
+
+  it('streams the automatic initial profile message', async () => {
+    const userProfile = {
+      score: 600,
+      province: '北京',
+      subject: '理科',
+      familyCondition: '工薪阶层',
+    }
+    const onAutoStartHandled = vi.fn()
+
+    const encoder = new TextEncoder()
     const stream = new ReadableStream({
       start(controller) {
-        controller.enqueue(encoder.encode('data: {"type":"text","content":"ok"}\n\n'))
+        controller.enqueue(encoder.encode('data: {"type":"text","content":"第一段"}\n\n'))
+        controller.enqueue(encoder.encode('data: {"type":"text","content":"第二段"}\n\n'))
         controller.close()
       },
     })
@@ -307,27 +378,42 @@ describe('ChatInterface', () => {
       } as Response)
     })
 
-    render(<ChatInterface sessionId="test-session" userProfile={userProfile} />)
-
-    const input = screen.getByLabelText('chat.inputPlaceholder')
-    await user.type(input, '你好')
-
-    const sendButton = screen.getByRole('button', { name: /chat\.send/i })
-    await user.click(sendButton)
+    render(
+      <ChatInterface
+        sessionId="auto-init-session"
+        userProfile={userProfile}
+        autoStartRequestId="req-1"
+        onAutoStartHandled={onAutoStartHandled}
+      />,
+    )
 
     await waitFor(() => {
-      const chatCall = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls.find(
-        (call: unknown[]) => typeof call[0] === 'string' && call[0] === '/api/chat',
-      )
-      expect(chatCall).toBeDefined()
-      const body = JSON.parse(chatCall![1].body)
-      expect(body.user_context).toEqual({
-        分数: 600,
-        省份: '北京',
-        科类: '理科',
-        家庭条件: undefined,
-      })
+      expect(screen.getByText(/第一段第二段/)).toBeInTheDocument()
     })
+
+    const chatCall = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls.find(
+      (call: unknown[]) => typeof call[0] === 'string' && call[0] === apiUrl('/api/chat'),
+    )
+    expect(chatCall).toBeDefined()
+    const body = JSON.parse(chatCall![1].body)
+    expect(body.stream).toBe(true)
+    expect(body.user_context).toEqual({
+      分数: 600,
+      省份: '北京',
+      科类: '理科',
+      家庭条件: '工薪阶层',
+      目标城市: undefined,
+      风险偏好: undefined,
+      职业方向: undefined,
+      省份批次: undefined,
+      选科限制: undefined,
+      位次: undefined,
+      家庭预算: undefined,
+      地域偏好: undefined,
+      城市层级: undefined,
+      职业偏好权重: undefined,
+    })
+    expect(onAutoStartHandled).toHaveBeenCalledTimes(1)
   })
 
   it('persists favorite recommendations by session', async () => {
@@ -379,7 +465,7 @@ describe('ChatInterface', () => {
         JSON.stringify(['school:清华大学']),
       )
       expect(globalThis.fetch).toHaveBeenCalledWith(
-        '/api/session/favorite-session/favorites',
+        apiUrl('/api/session/favorite-session/favorites'),
         expect.objectContaining({
           method: 'PUT',
           body: JSON.stringify({ favorite_keys: ['school:清华大学'] }),

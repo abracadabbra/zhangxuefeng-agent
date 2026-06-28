@@ -1,7 +1,7 @@
 """
 录取分数线 CRUD 操作
 
-核心查询维度: (school, major, province, year)
+核心查询维度: (school, major_label, province, year, batch)
 """
 
 from typing import Any, cast
@@ -18,7 +18,7 @@ def get_admission_scores(db: Session, query: AdmissionScoreQuery) -> tuple[list[
     """
     多条件查询录取分数线
 
-    支持按学校名/专业名/省份/年份/分数范围等组合查询
+    支持按学校名/投档单位/省份/年份/分数范围等组合查询
 
     Returns:
         (分数线列表(含关联字段), 总数)
@@ -32,9 +32,9 @@ def get_admission_scores(db: Session, query: AdmissionScoreQuery) -> tuple[list[
     if query.school_id:
         q = q.filter(AdmissionScore.school_id == query.school_id)
 
-    # 专业筛选
+    # 投档单位筛选（按 major_label 模糊匹配）
     if query.major_name:
-        q = q.filter(Major.name.contains(query.major_name))
+        q = q.filter(AdmissionScore.major_label.contains(query.major_name))
     if query.major_id:
         q = q.filter(AdmissionScore.major_id == query.major_id)
 
@@ -78,6 +78,7 @@ def get_admission_scores(db: Session, query: AdmissionScoreQuery) -> tuple[list[
             "id": row.id,
             "school_id": row.school_id,
             "major_id": row.major_id,
+            "major_label": row.major_label,
             "province": row.province,
             "year": row.year,
             "batch": row.batch,

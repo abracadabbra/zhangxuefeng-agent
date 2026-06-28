@@ -1,0 +1,20 @@
+**P006 任务完成** ✅
+
+已根据 `backend/tools/definitions.py` 和 `backend/tools/registry.py` 源码，更新 `docs/architecture/project-framework.md` 中的工具系统设计章节：
+
+**更新内容：**
+
+1. **工具数量**：5 个 → 7 个（新增 `search_enrollment_plan` 和 `semantic_search`）
+
+2. **工具清单表格**：新增详细参数说明（必填/可选）
+
+3. **注册机制说明**：
+   - 装饰器模式 `@register_tool`
+   - JSON Schema 参数定义
+   - TTL 5 分钟缓存
+   - 异步函数支持
+   - 异常处理
+
+4. **调用流程图**：Agent → tools_adapter → registry → dispatch → CRUD → 前端
+
+5. **数据血缘追踪**：sources / source_summary / answer_source_policy
